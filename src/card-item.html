@@ -1,0 +1,126 @@
+<!-- <link rel="import" href="../../bower_components/polymer/polymer.html"> -->
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="./icon-set.html">
+
+
+<!--
+`card-item`
+Tarjeta de Menu
+
+@demo demo/index.html
+-->
+
+<dom-module id="card-item">
+  <template>
+    <style>
+    :host {
+        display: block;
+      }
+    .mobile-app {
+      max-width: 320px;
+    }
+    .toolbar {
+      height: 48px;
+      padding: 8px;
+      background: var(--default-primary-color);
+      color: var(--text-primary-color);
+      @apply(--paper-font-display1);
+    }
+    .item, .disabled-item {
+      position: relative;
+      padding: 8px;
+      border: 1px solid;
+      border-color: var(--divider-color);
+      border-top: 0;
+    }
+    .item .primary {
+      color: var(--primary-text-color);
+      @apply(--paper-font-body2);
+    }
+    .item .secondary {
+      color: var(--secondary-text-color);
+      @apply(--paper-font-body1);
+    }
+    .disabled-item {
+      color: var(--disabled-text-color);
+      @apply(--paper-font-body2);
+    }
+    .fab {
+      position: absolute;
+      box-sizing: border-box;
+      padding: 8px;
+      width: 56px;
+      height: 56px;
+      right: 16px;
+      top: -28px;
+      border-radius: 50%;
+      text-align: center;
+      background: var(--accent-color);
+      color: var(--text-primary-color);
+      @apply(--paper-font-display1);
+    }
+    .paper-card {
+      position: relative;
+      display: block;
+      margin: 10px !important;
+      @apply(--shadow-elevation-4dp);
+    }
+
+    iron-icon {
+    /*--iron-icon-height: 32px;
+    --iron-icon-width: 32px;*/
+    }
+    span{
+      width: 80%;
+      font-size: 50%;/*calc(1vw + 1vh + 1vmin);*/
+    }
+    </style>
+    <section class="paper-card">
+        <div class="toolbar">
+        <!-- <div> -->
+        <iron-icon icon=[[icon]]></iron-icon>
+        <span>[[label]]</span>
+        </div>
+
+        <paper-ripple recenters></paper-ripple>
+
+          <div class="item">
+            <!-- <paper-fab mini class="label fab" label="+" title="heart"></paper-fab> -->
+            <!-- <div class="fab">+</div> -->
+
+            <div class="primary"><content></content></div>
+            <!-- <div class="secondary">Secondary text</div> -->
+          </div>
+        <!-- <div class="disabled-item">
+            Disabled
+        </div> -->
+    </section>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'card-item',
+
+      properties: {
+        label: {
+          type: String
+        },
+        href:{
+          type: String,
+          value: '#'
+        }
+      }
+      ,
+      listeners: {
+        'click': 'handleClick',
+      },
+      handleClick: function(e) {
+        // console.info(e.target.id + ' was clicked.');
+        location.href= this.href;
+      }
+
+    });
+  </script>
+</dom-module>

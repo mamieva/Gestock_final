@@ -1,0 +1,72 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/google-chart/google-chart.html">
+
+<dom-module id="main-page">
+  <template>
+    <style>
+    :host {
+        display: block;
+      }
+    .container {
+      @apply(--layout-vertical);
+      @apply(--layout-center-justified);
+    }
+    paper-card {
+      margin:0.5em 1em;
+    }
+    paper-item {
+      font-size: 2em;
+    }
+    google-chart {
+      height: 200px;
+      width: 100%;
+    }
+    </style>
+    <div class="container">
+      <!-- <paper-card heading="Dashboard" class="flexchild"> -->
+        <paper-card heading="Ultima Venta">
+          <paper-item class="container">
+            $999,999.00
+          </paper-item>
+        </paper-card>
+        <paper-card heading="Caja Diaria">
+          <paper-item class="container">
+            $999,999.00
+          </paper-item>
+        </paper-card>
+        <paper-card heading="Evolucion Ingresos/Egresos" class="flexchild">
+          <paper-item class="container">
+            <google-chart
+            type="combo"
+            options='{"seriesType": "bars", "series": {"2": {"type": "line"}}}'
+            data='[["Dia", "Ingresos", "Gastos", "Ganancia"],
+            ["24/10", 200, 150, 50],
+            ["25/10", 250, 230, 20],
+            ["26/10", 320, 50, 270],
+            ["27/10", 280, 150, 130],
+            ["28/10", 170, 180, -10]]'>
+          </google-chart>
+          </paper-item>
+        </paper-card>
+      <!-- </paper-card> -->
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'main-page',
+
+      properties: {
+        active: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        }
+      }
+
+    });
+  </script>
+</dom-module>

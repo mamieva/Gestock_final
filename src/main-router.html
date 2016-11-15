@@ -1,0 +1,44 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="./config-page.html">
+<link rel="import" href="./main-page.html">
+<link rel="import" href="./list-page.html">
+
+<dom-module id="main-router">
+
+  <template>
+
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <app-route route="{{route}}"
+              pattern="/home"
+              active="{{homeActive}}"></app-route>
+    <app-route route="{{route}}"
+              pattern="/config"
+              active="{{configurationActive}}"></app-route>
+    <app-route route="{{route}}"
+              pattern="/list"
+              active="{{listActive}}"></app-route>
+
+    <main-page page={{page}} active="{{homeActive}}"></main-page>
+    <config-page route="{{route}}" page={{page}} active={{configurationActive}}></config-page>
+    <list-page type="{{type}}" active={{listActive}}></list-page>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'main-router',
+      ready: function(){
+        console.log(this.route);
+        // console.log(this.route);
+        console.log(this.page);
+      }
+    });
+  </script>
+
+</dom-module>

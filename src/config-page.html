@@ -1,0 +1,102 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-styles/default-theme.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+
+<!-- Componentes propios -->
+<link rel="import" href="./card-item.html">
+<link rel="import" href="./list-page.html">
+<link rel="import" href="./config-router.html">
+<!-- <link rel="import" href="./pages-router.html"> -->
+
+<dom-module id="config-page">
+  <template>
+    <style>
+    :host {
+        display: block;
+      }
+      .container-horizontal {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        width: 100%;
+      }
+      @media (max-width: 680px) {
+        .container-horizontal{
+          @apply(--layout-center-justified);
+        }
+        card-item{
+          width: 100%;
+        }
+      }
+      @media (min-width: 680px) {
+        card-item{
+          width: 33.33%;
+        }
+      }
+      @media (min-width: 990px) {
+        card-item{
+          width: 25%;
+        }
+      }
+      iron-selector {
+        width: 100%;
+        display: block;
+        text-decoration: none;
+        color: black;
+      }
+      paper-item {
+        font-size: 2em;
+      }
+      /*Estilos de la tabla*/
+      span {
+        font-size:0.7em;
+      }
+    </style>
+      <!-- <app-location route="{{route}}" use-hash-as-path></app-location> -->
+      <app-route route="{{route}}"
+                  pattern="/:type/list"
+                  data="{{typeData}}"
+                  tail="{{typeTail}}">
+
+      </app-route>
+      <iron-selector class="container-horizontal"
+                     attr-for-selected="name"
+                     selected="{{typeData.type}}">
+        <card-item label="Usuarios" icon="icon-set:usuario" name="user" href="#/user/list" on-click="handleClick">
+          Esta opcion permite configurar los usuarios
+        </card-item>
+        <card-item label="Roles" icon="icon-set:roles" name="role" href="#/config/role/list">
+          Esta opcion permite configurar los usuarios
+        </card-item>
+      </iron-selector>
+      <!-- <config-router route={{route}} type="{{typeData.type}}"></config-router> -->
+  </template>
+  <script>
+    Polymer({
+
+      is: 'config-page',
+      properties: {
+        active: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        }
+      },
+      _computeURL: function(post) {
+        return `data/posts/${post}.json`;
+      },
+      attributeChanged: function(){
+        console.log(this.route);
+      },
+      handleClick: function(e,detail){
+        this.active = false;
+      }
+    });
+  </script>
+</dom-module>

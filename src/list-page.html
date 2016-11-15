@@ -1,0 +1,46 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="list-page">
+  <template>
+  <style>
+  :host{
+    display: block;
+  }
+  #sort {
+    height: 300px;
+  }
+  </style>
+  <iron-ajax auto
+    url="https://jsonplaceholder.typicode.com/{{data}}"
+    handle-as="json"
+    last-response="{{response}}">
+    </iron-ajax>
+  <paper-input id="filter" label="Filter by first name"></paper-input>
+  <vaadin-grid id="sort" selection-mode="multi" items={{response}}>
+    <table>
+      <colgroup>
+        <col name="username" sortable/>
+        <col name="name" sortable/>
+        <col name="email" sortable/>
+      </colgroup>
+    </table>
+  </vaadin-grid>
+  </template>
+  <script>
+    Polymer({
+      is: 'list-page',
+      properties: {
+        active: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        }
+      },
+      attributeChanged: function(){
+        console.log(this.route);
+      }
+    });
+  </script>
+</dom-module>
