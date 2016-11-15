@@ -1,0 +1,338 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<script>
+    var AWSLBehaviors = AWSLBehaviors || {};
+
+    (function () {
+        AWSLBehaviors.ListVaadinBehavior = {
+            properties: {
+                oname: {
+                    type: String,
+                },
+                filterName: {
+                    type: String,
+                    value: ""
+                },
+                ajaxlist: {
+                    type: Object
+                },
+                items: {
+                    type: Array,
+                },
+                titleSearch: {
+                    type: String
+                },
+                lastTitle: {
+                    type: String
+                },
+                toserver: {
+                    type: Object,
+                    value: function () {
+                        var obj = {
+                            oname: "",
+                            filterName: "",
+                            sortIndex: 0,
+                            sortDir: "asc",
+                            dofastsearch: false,
+                            fastsearch: "",
+                            data: {},
+                            topRecords: 100,
+                            first: true
+                        };
+
+                        return obj;
+                    }
+                },
+                fastsearch: {
+                    type: String
+                },
+                itemsCount: {
+                    type: Number,
+                    value: 0
+                },
+                serverSideSorting: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            spinner: null,
+            wasAttached: false,
+            firstResponse: false,
+            refreshPending: false,
+            listeners: {
+                'awsl-refresh': 'refresh',
+                'awsl-filterready': '_filterReady',
+                'awsl-openfilter': '_openFilter',
+                'awsl-closefilter': '_closeFilter',
+            },
+            _filterReady: function () {
+                if (this.refreshPending) {
+                    this.refresh();
+                }
+            },
+            refresh: function () {
+                if (this.lastTitle !== undefined && this.lastTitle != "")
+                {
+                    this.fire('awsl-set-title', { title: this.lastTitle });
+                }
+                if (this.wasAttached) {
+                    var filterPending = false;
+
+                    if (this.getFilter() != null)
+                    {
+                        filterPending = (this.getFilter().thefilter == null);
+                    }
+
+                    if (filterPending) {
+                        this.refreshPending = true;
+                    }
+                    else {
+                        this.refreshPending = false;
+                        this._doRequest();
+                        if (this.items !== undefined) {
+                            this.async(function () {
+                                this.set("items", []);
+                            });
+                        }
+                    }
+                }
+                else {
+                    this.refreshPending = true;
+                }
+            },
+            _handleResponse: function (event) {
+                this.spinner.active = false;
+                this.spinner.hidden = true;
+                this.toserver.first = false;
+
+                this.set("items", event.detail.response.result);
+                this.itemsCount = this.items.length;
+                this.lastTitle = event.detail.response.plural;
+                this.fire('awsl-set-title', { title: event.detail.response.plural });
+
+                if (this.getFilter() != null)
+                {
+                    this.getFilter().titleDialog = this.titleSearch + " " + event.detail.response.plural;
+                    this.getFilter().thefilter.getFilter(event.detail.response);
+                    this.getFilter().topRecords = event.detail.response.topRecords;
+                }
+
+                if (this.fastsearch != event.detail.response.fastsearch)
+                {
+                    this.fastsearch = event.detail.response.fastsearch;
+                }
+
+                var sorOrder = this.getItemsList().sortOrder[0];
+
+                if (sorOrder.column != event.detail.response.sortIndex) {
+                    sorOrder.column = event.detail.response.sortIndex;
+                }
+                if (sorOrder.direction != event.detail.response.sortDir) {
+                    sorOrder.direction != event.detail.response.sortDir;
+                }
+
+                this.firstResponse = true;
+
+                this.fire('awsl-list-ready')
+            },
+            _handleError: function (event) {
+                this.spinner.active = false;
+                this.spinner.hidden = true;
+                debugger;
+            },
+            insertSpinner: function() 
+            {
+                if (this.getItemsList().parentNode === this) {
+                    if (Polymer.dom(this).childNodes.length == 0) {
+                        this.async(this.insertSpinner, 100);
+                    }
+                    else {
+                        Polymer.dom(this).insertBefore(this.spinner, Polymer.dom(this).childNodes[0]);
+                    }
+                }
+                else {
+                    Polymer.dom(this.getItemsList().parentNode).insertBefore(this.spinner, this.getItemsList());
+                }
+            },
+            attached: function () {
+                if (this.wasAttached) {
+                    return;
+                }
+                this.wasAttached = true;
+
+                this.spinner = document.createElement('paper-spinner');
+
+                this.spinner.style.position= 'absolute';
+                this.spinner.style.zIndex= 100000;
+                this.spinner.style.left = '50%';
+                this.spinner.style.top = '150px';
+                this.spinner.hidden = true;
+
+                this.insertSpinner();
+
+                this.ajaxlist = document.createElement('iron-ajax');
+
+                this.ajaxlist.method = 'POST';
+                this.ajaxlist.contentType = 'application/json';
+
+                this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
+                this.ajaxlist.addEventListener('error', this._handleError.bind(this));
+
+                this.ajaxlist.url = "https://jsonplaceholder.typicode.com/users";
+                this.toserver.oname = this.oname;
+
+                this.getItemsList().reallythis = this;
+                this.getItemsList().addEventListener('selected-items-changed', this._selectedItemChanged);
+                this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
+
+                if (this.getItemsList().awslcustomized === undefined) {
+                    this.getItemsList().awslcustomized = true;
+                    this.customizeItemsList();
+                }
+
+                if (this.refreshPending && this.getFilter() != null) {
+                    if (this.getFilter().thefilter == null) {
+                        this.refreshPending = true;
+                    }
+                    else {
+                        this.refresh();
+                    }
+                }
+            },
+            _selectedItemChanged: function (event) {
+                // this here is vaadin-grid !!!
+                var select = this.selection.selected();
+
+                var reallythis = this.reallythis;
+
+                if (select.length > 0) {
+                    var index = select[0];
+
+                    if (reallythis.items[index] !== undefined) {
+                        reallythis._selectedItemChangedNotify(reallythis.items[index][0], select);
+
+                        reallythis.fire('awsl-select-item', {
+                            key: reallythis.items[index][0],
+                            item: reallythis.items[index],
+                            select: select,
+                            items: reallythis.items
+                        });
+                    }
+                }
+                else
+                {
+                    reallythis.fire('awsl-deselect-all', {
+                        items: reallythis.items
+                    })
+                }
+
+                event.stopPropagation();
+            },
+            _selectedItemChangedNotify: function(key, select) {
+            },
+            getItemsList: function () {
+                return null;
+            },
+            getFilter: function () {
+                return null;
+            },
+            customizeItemsList: function () {
+            },
+            _openFilter: function () {
+                this.getFilter()._openFilter();
+            },
+            _closeFilter: function (event) {
+
+                if (event.detail.ok)
+                {
+                    this.refresh();
+                }
+                else
+                {
+                    this.getFilter().thefilter.getFilter(this.ajaxlist.lastResponse);
+                }
+            },
+            _sortOrderChanged: function (evt) {
+                // this here is vaadin-grid !!!
+                if (!this.serverSideSorting) {
+                    if (this.items !== undefined && this.items.length > 0) {
+                        var sortOrder = evt.detail.value;
+                        var grid = this;
+
+                        function _compare(a, b) {
+                            return (a < b ? -1 : a > b ? 1 : 0);
+                        }
+                        
+                        var result = this.items.sort(function (a, b) {
+                            return sortOrder.map(function (sort) {
+                                var col = grid.columns[sort.column];
+                                var prop = sort.column; // col.name ||  in original vaadin_grid, not here.
+                                return (sort.direction === 'asc' ? 1 : -1) * _compare(a[prop], b[prop]);
+                            }.bind(this)).reduce(function firstNonZeroValue(p, n) {
+                                return p ? p : n;
+                            }, 0);
+                        });
+
+                        this.reallythis.set("items", []);
+                        this.reallythis.async(function ()
+                        {
+                            this.set("items", result);
+                        })
+                    }
+                }
+                else {
+                    var reallythis = this.reallythis;
+
+                    if (reallythis.firstResponse) {
+                        reallythis.toserver.sortIndex = this.sortOrder[0].column;
+                        reallythis.toserver.sortDir = this.sortOrder[0].direction != 'desc' ? "asc" : "desc";
+
+                        reallythis._doRequest();
+                    }
+                }
+
+                evt.stopPropagation();
+                evt.defaultPrevented = true;
+            },
+            _fastsearchChanged: function (fastsearch) {
+                if (this.firstResponse) {
+                    this.toserver.dofastsearch = true;
+                    this.toserver.fastsearch = fastsearch;
+                    this.debounce('click', function () {
+                        this._doRequest();
+                    }, 100);
+                }
+            },
+            _doRequest: function () {
+                this.spinner.hidden = false;
+                this.spinner.active = true;
+                this.toserver.data = {};
+                this.toserver.filterName = this.filterName;
+
+                if (this.getFilter() != null) {
+                    var thefilter = this.getFilter().thefilter;
+
+                    if (thefilter == null || thefilter == undefined) {
+                        this.async(this._doRequest, 10);
+                        return;
+                    }
+                }
+                this._setToServerFilter();
+
+                this.ajaxlist.body = this.toserver;
+                this.ajaxlist.generateRequest();
+            },
+            _setToServerFilter: function () {
+                if (this.getFilter() != null) {
+                    var thefilter = this.getFilter().thefilter;
+                    this.getFilter().thefilter.setFilter(this.toserver);
+                    this.addToServerFilterFields();
+                    this.toserver.topRecords = this.getFilter().topRecords;
+                }
+            },
+            addToServerFilterFields: function () {
+            }
+        };
+    })();
+</script>

@@ -1,0 +1,35 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<script>
+    var AWSLBehaviors = AWSLBehaviors || {};
+
+    (function () {
+        AWSLBehaviors.ListToolBarBehavior = {
+            properties: {
+                listTitle: {
+                    type: String,
+                },
+                fastsearch: {
+                    type: String,
+                    notify: true
+                },
+                itemsCount: {
+                    type: Number,
+                    value: 0
+                }
+            },
+            _onRefresh: function()
+            {
+                this.fire('awsl-refresh');
+            },
+            _onNew: function()
+            {
+                this.fire('awsl-new');
+            },
+            _onOpenFilter: function ()
+            {
+                this.fire('awsl-openfilter');
+            },
+        };
+    })();
+</script>

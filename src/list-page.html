@@ -18,7 +18,7 @@
     last-response="{{response}}">
     </iron-ajax>
   <paper-input id="filter" label="Filter by first name"></paper-input>
-  <vaadin-grid id="sort" selection-mode="multi" items={{response}}>
+  <vaadin-grid id="sort" items={{response}} on-selected-items-changed='onSelect'>
     <table>
       <colgroup>
         <col name="username" sortable/>
@@ -40,7 +40,16 @@
       },
       attributeChanged: function(){
         console.log(this.route);
-      }
+      },
+      attached: function(){
+        var grid = this.$.sort;
+        var detailsOpenIndex = -1;
+
+        on-selected-items-changed=
+
+
+      },
+
     });
   </script>
 </dom-module>

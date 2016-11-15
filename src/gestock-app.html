@@ -49,8 +49,8 @@
           <paper-item name="users">
             <a href="#/users/list">Usuarios</a>
           </paper-item>
-          <paper-item name="role">
-            <a href="#/role/list">Roles</a>
+          <paper-item name="roles">
+            <a href="#/roles/list">Roles</a>
           </paper-item>
           <paper-item name="sales">
             <a href="#/sales">Ventas</a>
@@ -72,6 +72,7 @@
           <main-page name="home" route="{{subRoute}}"></main-page>
           <config-page name="config" route="{{subRoute}}"></config-page>
           <list-page name="users" route="{{subRoute}}" data={{pageData.page}}></list-page>
+          <vaadin-list name="users" route="{{subRoute}}"  oname="users"></vaadin-list>
 
         </iron-pages>
         <!-- <main-router route="{{route}}"

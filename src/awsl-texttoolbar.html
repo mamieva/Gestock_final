@@ -1,0 +1,40 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="./awsl-toolbar-behavior">
+
+<dom-module id="awsl-toolbar">
+    <template>
+        <style include="shared-styles"></style>
+        <style>
+            .sp {
+                @apply(--layout-flex);
+            }
+            paper-icon-button {
+                --paper-icon-button-ink-color: white;
+            }
+            paper-icon-button + [main-title] {
+                margin-left: 24px;
+            }
+        </style>
+
+        <app-toolbar id="tool">
+            <paper-icon-button icon="arrow-back" on-tap="_onClose"></paper-icon-button>
+            <paper-icon-button id="prev" icon="arrow-upward" on-tap="_onPrev"></paper-icon-button>
+            <paper-icon-button id="next" icon="arrow-downward" on-tap="_onNext"></paper-icon-button>
+            <paper-icon-button id="refresh" icon="refresh" on-tap="_onRefresh"></paper-icon-button>
+            <paper-icon-button id="new" icon="add" on-tap="_onNew">+</paper-icon-button>
+            <paper-icon-button id="delete" icon="delete" on-tap="_onDelete">+</paper-icon-button>
+            <span main-title class="sp"></span>
+            <paper-icon-button id="ok" icon="done" on-tap="_onOK"></paper-icon-button>
+            <paper-icon-button id="clear" icon="close" on-tap="_onClear"></paper-icon-button>
+        </app-toolbar>
+    </template>
+    <script>
+    Polymer({
+        is: 'awsl-toolbar',
+        behaviors: [AWSLBehaviors.ToolBarBehavior],
+    });
+    </script>
+</dom-module>
