@@ -1,9 +1,10 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="./list-page-behavior.html">
 
 <dom-module id="list-page">
-  <template>
+    <template>
   <style>
   :host{
     display: block;
@@ -18,38 +19,91 @@
     last-response="{{response}}">
     </iron-ajax>
   <paper-input id="filter" label="Filter by first name"></paper-input>
-  <vaadin-grid id="sort" items={{response}} on-selected-items-changed='onSelect'>
+  <vaadin-grid id="itemsList" items={{response}} >
     <table>
       <colgroup>
-        <col name="username" sortable/>
+        <col name="username" sortable hidden/>
         <col name="name" sortable/>
         <col name="email" sortable/>
       </colgroup>
     </table>
   </vaadin-grid>
   </template>
-  <script>
-    Polymer({
-      is: 'list-page',
-      properties: {
-        active: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        }
-      },
-      attributeChanged: function(){
-        console.log(this.route);
-      },
-      attached: function(){
-        var grid = this.$.sort;
-        var detailsOpenIndex = -1;
-
-        on-selected-items-changed=
-
-
-      },
-
-    });
-  </script>
+    <script>
+        Polymer({
+            is: 'list-page',
+            properties: {
+                active: {
+                    type: Boolean,
+                    value: false,
+                    reflectToAttribute: true
+                },
+                page: {
+                    type: 'String'
+                }
+            },
+            behaviors: [AWSLBehaviors.ListVaadinBehavior],
+            observers: [
+                '_routeChanged(route)',
+                '_viewChanged(routeData.key)',
+                '_fastsearchChanged(fastsearch)'
+            ],
+            _routeChanged: function(newRoute) {
+                if (newRoute.path == "") {
+                    this.set('routeData.key', '');
+                    if (this.key !== undefined && this.key != "") {
+                        this._viewChanged('');
+                    }
+                }
+            },
+            _viewChanged: function(key) {
+                if (key === undefined || key == "") {
+                    this.reset();
+                } else {
+                    if (this.route.prefix == "/" + this.path && !this.settingRouteKey) {
+                        this.key = key;
+                        this.$.pages.entryAnimation = "slide-from-right-animation";
+                        this.$.pages.exitAnimation = "slide-left-animation";
+                        this.$.pages.selected = 1;
+                        this.$.editor.load(this.key);
+                    }
+                }
+            },
+            getItemsList: function() {
+                console.log(this.$.itemsList);
+                return this.$.itemsList;
+            },
+            getFilter: function() {
+                return this.$.filter;
+            },
+            getListToolbar: function() {
+                return this.$.tool;
+            },
+            reset: function() {
+                if (this.$.pages.selected != 0) {
+                    this._onClose();
+                    this.refresh();
+                }
+            },
+            _onNew: function() {
+                this.key = "0";
+                this.set('route.path', '/' + this.key);
+            },
+            _onClose: function() {
+                this.$.pages.entryAnimation = "slide-from-left-animation";
+                this.$.pages.exitAnimation = "slide-right-animation";
+                this.set('route.path', '');
+                this.set('routeData.key', '');
+                this.$.pages.selected = 0;
+            },
+            _editorSetTitle: function(event) {
+                if (this.$.pages.selected == 0) {
+                    event.stopPropagation();
+                }
+            },
+            customizeItemsList: function() {
+                this.parentElement.customizeItemsList(this.$.itemsList);
+            }
+        });
+    </script>
 </dom-module>

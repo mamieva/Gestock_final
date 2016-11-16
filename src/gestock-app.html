@@ -71,8 +71,7 @@
         <iron-pages attr-for-selected="name" selected="{{pageData.page}}" selected-attribute="selected">
           <main-page name="home" route="{{subRoute}}"></main-page>
           <config-page name="config" route="{{subRoute}}"></config-page>
-          <list-page name="users" route="{{subRoute}}" data={{pageData.page}}></list-page>
-          <vaadin-list name="users" route="{{subRoute}}"  oname="users"></vaadin-list>
+          <list-page name="users" route="{{subRoute}}" data="{{pageData.page}}"></list-page>
 
         </iron-pages>
         <!-- <main-router route="{{route}}"
