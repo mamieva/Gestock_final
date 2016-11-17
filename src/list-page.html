@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="./list-page-behavior.html">
 
 <dom-module id="list-page">
@@ -13,21 +14,12 @@
     height: 300px;
   }
   </style>
-  <iron-ajax auto
-    url="https://jsonplaceholder.typicode.com/{{data}}"
-    handle-as="json"
-    last-response="{{response}}">
-    </iron-ajax>
+  <div id="divAjax"></div>
   <paper-input id="filter" label="Filter by first name"></paper-input>
-  <vaadin-grid id="itemsList" items={{response}} >
-    <table>
-      <colgroup>
-        <col name="username" sortable hidden/>
-        <col name="name" sortable/>
-        <col name="email" sortable/>
-      </colgroup>
-    </table>
-  </vaadin-grid>
+  <div id="divList">
+    <vaadin-grid id="itemsList" items={{response}}>
+    </vaadin-grid>
+  </div>
   </template>
     <script>
         Polymer({
@@ -70,7 +62,7 @@
                 }
             },
             getItemsList: function() {
-                console.log(this.$.itemsList);
+                // console.log(this.$.itemsList);
                 return this.$.itemsList;
             },
             getFilter: function() {
