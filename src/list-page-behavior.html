@@ -74,11 +74,12 @@
             },
             attached: function() {
                 //
-                console.log('aa');
+                console.log('attached');
                 this.ajaxlist = document.createElement('iron-ajax');
 
-                this.ajaxlist.method = 'POST';
-                this.ajaxlist.contentType = 'application/json';
+                this.ajaxlist.method = 'GET';
+                //this.ajaxlist.contentType = 'application/json';
+                this.ajaxlist.handleAs = 'json';
 
                 this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
                 this.ajaxlist.addEventListener('error', this._handleError.bind(this));
@@ -91,44 +92,29 @@
 
                 //this.toserver.oname = this.oname;
 
-<<<<<<< HEAD
-                this.ajaxlist = document.createElement('iron-ajax');
-
-                this.ajaxlist.method = 'POST';
-                this.ajaxlist.contentType = 'application/json';
-
-                this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
-                this.ajaxlist.addEventListener('error', this._handleError.bind(this));
-
-                this.ajaxlist.url = "https://jsonplaceholder.typicode.com/users";
-                //this.toserver.oname = this.oname;
-                //
-                this.getItemsList().reallythis = this;
-                this.getItemsList().addEventListener('selected-items-changed', this._selectedItemChanged);
-                this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
-
-                if (this.getItemsList().awslcustomized === undefined) {
-                //     this.getItemsList().awslcustomized = true;
-                //     this.customizeItemsList();
-                // }
-                //
-                // if (this.refreshPending && this.getFilter() != null) {
-                //     if (this.getFilter().thefilter == null) {
-                //         this.refreshPending = true;
-                //     }
-                //     else {
-                //         this.refresh();
-                //     }
-                // }
-=======
                 // this.getItemsList().reallythis = this;
                 // this.getItemsList().addEventListener('selected-items-changed', this._selectedItemChanged);
                 // this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
-
->>>>>>> origin/CopiandoAPaco
             },
-            _handleResponse : function(){
-              return null;
+            _handleResponse : function(response){
+              let keys = Object.keys(this.ajaxlist.lastResponse[0]);
+              let grid = this.getItemsList();
+              keys.forEach(function(element){
+                //console.log(element);
+                var col = {"name" : element};
+                grid.addColumn(col);
+              });
+
+              // for( var name in keys){
+              //   //var col = {"name" : name.1};
+              //   console.log(name.value);
+              //   //this.getItemsList().addColumn(name);
+              // }
+              this.items = response.detail.response;
+              console.log(Object.keys(this.ajaxlist.lastResponse[0]));
+              console.log(response.detail.response[0]);
+              console.log(this.items);
+             //  return null;
             },
             _handleError: function(){
               return null;

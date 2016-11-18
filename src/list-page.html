@@ -14,23 +14,12 @@
     height: 300px;
   }
   </style>
-<<<<<<< HEAD
-  <!-- <iron-ajax auto
-    url="https://jsonplaceholder.typicode.com/{{data}}"
-    handle-as="json"
-    last-response="{{response}}">
-    </iron-ajax> -->
-  <paper-input id="filter" label="Filter by first name"></paper-input>
-  <vaadin-grid id="itemsList" items=[[items]] >
-  </vaadin-grid>
-=======
   <div id="divAjax"></div>
   <paper-input id="filter" label="Filter by first name"></paper-input>
   <div id="divList">
-    <vaadin-grid id="itemsList" items={{response}}>
+    <vaadin-grid id="itemsList" items={{items}}>
     </vaadin-grid>
   </div>
->>>>>>> origin/CopiandoAPaco
   </template>
     <script>
         Polymer({
@@ -73,10 +62,7 @@
                 }
             },
             getItemsList: function() {
-<<<<<<< HEAD
-=======
                 // console.log(this.$.itemsList);
->>>>>>> origin/CopiandoAPaco
                 return this.$.itemsList;
             },
             getFilter: function() {
