@@ -13,20 +13,13 @@
     height: 300px;
   }
   </style>
-  <iron-ajax auto
+  <!-- <iron-ajax auto
     url="https://jsonplaceholder.typicode.com/{{data}}"
     handle-as="json"
     last-response="{{response}}">
-    </iron-ajax>
+    </iron-ajax> -->
   <paper-input id="filter" label="Filter by first name"></paper-input>
-  <vaadin-grid id="itemsList" items={{response}} >
-    <table>
-      <colgroup>
-        <col name="username" sortable hidden/>
-        <col name="name" sortable/>
-        <col name="email" sortable/>
-      </colgroup>
-    </table>
+  <vaadin-grid id="itemsList" items=[[items]] >
   </vaadin-grid>
   </template>
     <script>
@@ -70,7 +63,6 @@
                 }
             },
             getItemsList: function() {
-                console.log(this.$.itemsList);
                 return this.$.itemsList;
             },
             getFilter: function() {

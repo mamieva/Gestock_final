@@ -96,22 +96,22 @@
 
 
 
-                // this.ajaxlist = document.createElement('iron-ajax');
+                this.ajaxlist = document.createElement('iron-ajax');
+
+                this.ajaxlist.method = 'POST';
+                this.ajaxlist.contentType = 'application/json';
+
+                this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
+                this.ajaxlist.addEventListener('error', this._handleError.bind(this));
+
+                this.ajaxlist.url = "https://jsonplaceholder.typicode.com/users";
+                //this.toserver.oname = this.oname;
                 //
-                // this.ajaxlist.method = 'POST';
-                // this.ajaxlist.contentType = 'application/json';
-                //
-                // this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
-                // this.ajaxlist.addEventListener('error', this._handleError.bind(this));
-                //
-                // this.ajaxlist.url = "https://jsonplaceholder.typicode.com/users";
-                // this.toserver.oname = this.oname;
-                //
-                // this.getItemsList().reallythis = this;
-                // this.getItemsList().addEventListener('selected-items-changed', this._selectedItemChanged);
-                // this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
-                //
-                // if (this.getItemsList().awslcustomized === undefined) {
+                this.getItemsList().reallythis = this;
+                this.getItemsList().addEventListener('selected-items-changed', this._selectedItemChanged);
+                this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
+
+                if (this.getItemsList().awslcustomized === undefined) {
                 //     this.getItemsList().awslcustomized = true;
                 //     this.customizeItemsList();
                 // }
