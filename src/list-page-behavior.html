@@ -4,7 +4,7 @@
 <script>
     var AWSLBehaviors = AWSLBehaviors || {};
 
-    (function () {
+    (function() {
         AWSLBehaviors.ListVaadinBehavior = {
             properties: {
                 oname: {
@@ -28,7 +28,7 @@
                 },
                 toserver: {
                     type: Object,
-                    value: function () {
+                    value: function() {
                         var obj = {
                             oname: "",
                             filterName: "",
@@ -61,41 +61,37 @@
             firstResponse: false,
             refreshPending: false,
 
-            insertSpinner: function()
-            {
+            insertSpinner: function() {
                 if (this.getItemsList().parentNode === this) {
                     if (Polymer.dom(this).childNodes.length == 0) {
                         this.async(this.insertSpinner, 100);
-                    }
-                    else {
+                    } else {
                         Polymer.dom(this).insertBefore(this.spinner, Polymer.dom(this).childNodes[0]);
                     }
-                }
-                else {
+                } else {
                     Polymer.dom(this.getItemsList().parentNode).insertBefore(this.spinner, this.getItemsList());
                 }
             },
-            attached: function () {
-                if (this.wasAttached) {
-                    return;
-                }
-                this.wasAttached = true;
+            attached: function() {
+                //
+                console.log('aa');
+                this.ajaxlist = document.createElement('iron-ajax');
 
-                this.spinner = document.createElement('paper-spinner');
+                this.ajaxlist.method = 'POST';
+                this.ajaxlist.contentType = 'application/json';
 
-                this.spinner.style.position= 'absolute';
-                this.spinner.style.zIndex= 100000;
-                this.spinner.style.left = '50%';
-                this.spinner.style.top = '150px';
-                //this.spinner.hidden = true;
+                this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
+                this.ajaxlist.addEventListener('error', this._handleError.bind(this));
 
-                this.insertSpinner();
+                this.ajaxlist.url = "https://jsonplaceholder.typicode.com/users";
 
-                this.spinner.active = true;
-                this.spinner.hidden = false;
+                this.$.divAjax.appendChild(this.ajaxlist);
 
+                this.ajaxlist.generateRequest();
 
+                //this.toserver.oname = this.oname;
 
+<<<<<<< HEAD
                 this.ajaxlist = document.createElement('iron-ajax');
 
                 this.ajaxlist.method = 'POST';
@@ -124,22 +120,33 @@
                 //         this.refresh();
                 //     }
                 // }
+=======
+                // this.getItemsList().reallythis = this;
+                // this.getItemsList().addEventListener('selected-items-changed', this._selectedItemChanged);
+                // this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
+
+>>>>>>> origin/CopiandoAPaco
             },
-            _selectedItemChangedNotify: function(key, select) {
+            _handleResponse : function(){
+              return null;
             },
-            getItemsList: function () {
+            _handleError: function(){
+              return null;
+            },
+            _selectedItemChangedNotify: function(key, select) {},
+            getItemsList: function() {
                 return null;
             },
-            getFilter: function () {
+            getFilter: function() {
                 return null;
             },
-            getListToolbar: function () {
+            getListToolbar: function() {
                 return null;
             },
-            customizeItemsList: function () {
-            },
-            _openFilter: function () {
+            customizeItemsList: function() {},
+            _openFilter: function() {
                 this.getFilter()._openFilter();
             }
-}})();
+        }
+    })();
 </script>
