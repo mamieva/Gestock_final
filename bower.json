@@ -25,7 +25,8 @@
     "paper-card": "PolymerElements/paper-card#^1.1.4",
     "iron-ajax": "PolymerElements/iron-ajax#^1.4.3",
     "google-chart": "GoogleWebComponents/google-chart#^1.1.1",
-    "vaadin-grid": "^1.2.0"
+    "vaadin-grid": "^1.2.0",
+    "paper-input": "PolymerElements/paper-input#^1.1.22"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

@@ -49,8 +49,8 @@
           <paper-item name="users">
             <a href="#/users/list">Usuarios</a>
           </paper-item>
-          <paper-item name="roles">
-            <a href="#/roles/list">Roles</a>
+          <paper-item name="comments">
+            <a href="#/comments/list">Roles</a>
           </paper-item>
           <paper-item name="sales">
             <a href="#/sales">Ventas</a>
@@ -69,9 +69,9 @@
         </paper-toolbar>
 
         <iron-pages attr-for-selected="name" selected="{{pageData.page}}" selected-attribute="selected">
-          <main-page name="home" route="{{subRoute}}"></main-page>
-          <config-page name="config" route="{{subRoute}}"></config-page>
-          <list-page name="users" route="{{subRoute}}" data="{{pageData.page}}"></list-page>
+          <!-- <main-page name="home" route="{{subRoute}}"></main-page> -->
+          <!-- <config-page name="config" route="{{subRoute}}"></config-page> -->
+          <list-page name="{{pageData.page}}" route="{{subRoute}}" data="{{pageData.page}}"></list-page>
 
         </iron-pages>
         <!-- <main-router route="{{route}}"

@@ -72,9 +72,10 @@
                     Polymer.dom(this.getItemsList().parentNode).insertBefore(this.spinner, this.getItemsList());
                 }
             },
-            attached: function() {
+            ready: function() {
                 //
-                console.log('attached');
+                //console.log('attached');
+                console.log(this.route);
                 this.ajaxlist = document.createElement('iron-ajax');
 
                 this.ajaxlist.method = 'GET';
@@ -84,24 +85,29 @@
                 this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
                 this.ajaxlist.addEventListener('error', this._handleError.bind(this));
 
-                this.ajaxlist.url = "https://jsonplaceholder.typicode.com/users";
+                //this.ajaxlist.url = "https://jsonplaceholder.typicode.com/" + this.data;
 
-                this.$.divAjax.appendChild(this.ajaxlist);
+                //this.$.divAjax.appendChild(this.ajaxlist);
 
-                this.ajaxlist.generateRequest();
+                //this.ajaxlist.generateRequest();
 
                 //this.toserver.oname = this.oname;
 
-                // this.getItemsList().reallythis = this;
-                // this.getItemsList().addEventListener('selected-items-changed', this._selectedItemChanged);
-                // this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
+                this.getItemsList().reallythis = this;
+                this.getItemsList().addEventListener('selected-items-changed', this._selectedItemChanged);
+                this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
             },
             _handleResponse : function(response){
               let keys = Object.keys(this.ajaxlist.lastResponse[0]);
               let grid = this.getItemsList();
               keys.forEach(function(element){
                 //console.log(element);
-                var col = {"name" : element};
+                //if(element === 'id'){
+                  var col = {"name" : element, "sortable": "true"};
+                //}
+                //else {
+                  //var col = {"name" : element};
+                //}
                 grid.addColumn(col);
               });
 
@@ -117,9 +123,11 @@
              //  return null;
             },
             _handleError: function(){
-              return null;
+              debugger
             },
-            _selectedItemChangedNotify: function(key, select) {},
+            _selectedItemChangedNotify: function(key, select) {
+              console.log("click");
+            },
             getItemsList: function() {
                 return null;
             },
@@ -132,6 +140,9 @@
             customizeItemsList: function() {},
             _openFilter: function() {
                 this.getFilter()._openFilter();
+            },
+            _selectedItemChanged: function(event){
+              return null;
             }
         }
     })();
