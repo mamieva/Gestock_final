@@ -46,16 +46,21 @@
                 url:{
                   type: 'String',
                   value: 'https://jsonplaceholder.typicode.com/'
+                },
+                route: {
+                  type: Object,
+                  notify: true
                 }
+
             },
             behaviors: [AWSLBehaviors.ListVaadinBehavior],
             observers: [
-                '_routeChanged(route)',
+                '_routeChanged(route.path)',
                 '_viewChanged(data)',
                 '_fastsearchChanged(fastsearch)'
             ],
             _routeChanged: function(newRoute) {
-              console.log('hola');
+              console.log(this.route);
                 if (newRoute.path == "") {
                     this.set('routeData.key', '');
                     if (this.key !== undefined && this.key != "") {
@@ -107,9 +112,10 @@
             _selectedItemChanged: function(event){
               console.log(this.items[this.selection.selected()[0]].id);
               var key = this.items[this.selection.selected()[0]].id;
-              window.location.href = '/users/hla';
-              //this.set('route.path', '/search/');
-              console.log(this.route);
+              //window.location.href = '/users/hla';
+              var reallythis = this.reallythis;
+              reallythis.set('route.path', '/'+ key);
+              //console.log(reallythis.route);
             }
         });
     </script>

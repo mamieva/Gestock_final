@@ -94,7 +94,7 @@
                 //this.toserver.oname = this.oname;
 
                 this.getItemsList().reallythis = this;
-                this.getItemsList().addEventListener('selected-items-changed', this._selectedItemChanged);
+                this.getItemsList().addEventListener('selected-items-changed', (this)._selectedItemChanged);
                 this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
             },
             _handleResponse : function(response){
