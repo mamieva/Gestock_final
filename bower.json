@@ -26,7 +26,8 @@
     "iron-ajax": "PolymerElements/iron-ajax#^1.4.3",
     "google-chart": "GoogleWebComponents/google-chart#^1.1.1",
     "vaadin-grid": "^1.2.0",
-    "paper-input": "PolymerElements/paper-input#^1.1.22"
+    "paper-input": "PolymerElements/paper-input#^1.1.22",
+    "neon-animation": "PolymerElements/neon-animation#^1.2.4"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
