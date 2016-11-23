@@ -20,6 +20,7 @@
 <link rel="import" href="./main-page.html">
 <link rel="import" href="./config-page.html">
 <link rel="import" href="./list-page.html">
+<link rel="import" href="./login-page.html">
 <dom-module id="gestock-app">
   <template>
     <style is="custom-style">
@@ -52,8 +53,8 @@
           <paper-item name="comments">
             <a href="#/comments">Roles</a>
           </paper-item>
-          <paper-item name="sales">
-            <a href="#/sales">Ventas</a>
+          <paper-item name="login">
+            <a href="#/login">Ventas</a>
           </paper-item>
           <paper-item name="purchases">Compras</paper-item>
           <paper-item name="cash">Caja</paper-item>
@@ -69,8 +70,9 @@
         </paper-toolbar>
 
         <iron-pages attr-for-selected="name" selected="{{pageData.page}}" selected-attribute="selected">
-          <!-- <main-page name="home" route="{{subRoute}}"></main-page> -->
+          <main-page name="home" route="{{subRoute}}"></main-page>
           <!-- <config-page name="config" route="{{subRoute}}"></config-page> -->
+          <login-page name="login" route="{{subRoute}}"></login-page>
           <list-page name="{{pageData.page}}" route="{{subRoute}}" data="{{pageData.page}}"></list-page>
 
         </iron-pages>
@@ -85,20 +87,20 @@
   <script>
     Polymer({
       is: 'gestock-app',
-      // observers: [
-      //   '_updateScroll(route)'
-      // ],
-      // attached: function() {
-      //   if (!this.pageData.page) {
-      //     this.set('pageData.page', 'home');
-      //   }
-      //   else {
-      //      console.log(this.pageData.page);
-      //   }
-      // },
-      // _updateScroll: function() {
-      //   window.scroll(0, 0);
-      // }
+      observers: [
+        '_updateScroll(route)'
+      ],
+      attached: function() {
+        if (!this.pageData.page) {
+          this.set('pageData.page', 'home');
+        }
+        else {
+           console.log(this.pageData.page);
+        }
+      },
+      _updateScroll: function() {
+        window.scroll(0, 0);
+      }
     });
   </script>
 </dom-module>

@@ -1,0 +1,137 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
+
+<dom-module id="login-page">
+    <style>
+        a {
+            color: #FF8A80;
+            cursor: pointer;
+        }
+        #toastError {
+            --paper-toast-background-color: red;
+            --paper-toast-color: white;
+        }
+        paper-toolbar {
+            background-color: #4285f4;
+            color: #fff;
+        }
+    </style>
+
+    <template>
+        <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+
+        <!-- <iron-ajax id="loginService"
+                   handle-as="json"
+                   content-type="application/json"
+                   method="POST"
+                   debounce-duration="300"></iron-ajax> -->
+
+        <div class="horizontal center-justified layout">
+            <div style="width:400px; margin:12px; height: auto;" id="main">
+                <paper-header-panel class="flex">
+                    <paper-toolbar>
+                        <div title>Wellcome to AweShur Web Demo - [[title]]</div>
+                    </paper-toolbar>
+                    <form is="iron-form" id="loginForm">
+                        <div class="layout vertical">
+                            <gold-email-input id="email" label="Email" required auto-validate on-keydown="checkForEnterA"></gold-email-input>
+                            <paper-input id="password" type="password" label="Password" password required auto-validate on-keydown="checkForEnter"></paper-input>
+                        </div>
+                        <div>&nbsp;</div>
+                        <div class="layout horizontal bottom">
+                            <div class="flex"></div>
+                            <paper-button submit raised id="loginButton">Login</paper-button>
+                        </div>
+                    </form>
+                </paper-header-panel>
+            </div>
+        </div>
+        <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
+        <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
+    </template>
+    <script>
+    Polymer({
+      is: "login-page",
+      properties: {
+          item: {
+              type: Object,
+          },
+          title: {
+              type: String,
+              value: "Login"
+          },
+          lastLogin: {
+              type: String,
+              value: ""
+          }
+      },
+      listeners: {
+          'loginButton.tap': 'onLogin',
+      },
+      attached: function () {
+          if (this.lastLogin != "") {
+              this.$.email.value = this.lastLogin;
+              this.$.password.focus();
+          }
+          else {
+              this.$.email.focus();
+          }
+      },
+      showError: function(errorMessage) {
+          this.$.toastError.text = errorMessage;
+          this.$.toastError.fitInto = this.$.main;
+          this.$.toastError.open();
+      },
+      showMessage: function (message) {
+          this.$.toastOk.text = message;
+          this.$.toastOk.fitInto = this.$.main;
+          this.$.toastOk.open();
+      },
+      checkForEnterA: function (e) {
+          if (e.keyCode === 13) {
+              this.$.password.focus();
+          }
+      },
+      checkForEnter: function (e) {
+          if (e.keyCode === 13) {
+              this.onLogin();
+          }
+      },
+      onLogin: function ()
+      {
+          var request;
+          if (!this.$.loginForm.validate())
+          {
+              this.showError("You must enter an email and password");
+              this.$.email.focus();
+              return;
+          }
+          var me = this;
+          this.$.loginService.body = {
+              email: this.$.email.value, password: this.$.password.value
+          };
+          this.$.loginService.url = "/Home/Login";
+          request = this.$.loginService.generateRequest();
+          request.completes.then(function (response) {
+              if (response.response.result) {
+                  window.location.reload();
+              }
+              else
+              {
+                  me.showError("Email or password incorrect");
+                  me.$.password.value = "";
+                  me.$.password.focus();
+              }
+          })
+          .catch(function (error) {
+              me.showError("Error connecting server");
+          });
+      },
+    });
+    </script>
+</dom-module>
