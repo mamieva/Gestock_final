@@ -4,7 +4,9 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
+<link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
 
 <dom-module id="login-page">
     <style>
@@ -25,14 +27,20 @@
     <template>
         <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
 
-        <!-- <iron-ajax id="loginService"
+        <iron-ajax id="loginService"
                    handle-as="json"
                    content-type="application/json"
                    method="POST"
-                   debounce-duration="300"></iron-ajax> -->
+                   debounce-duration="300"></iron-ajax>
+
+       <iron-localstorage
+         name="session"
+         value="{{session}}"
+         on-iron-localstorage-load-empty="initializeDefaultValue"
+       ></iron-localstorage>
 
         <div class="horizontal center-justified layout">
-            <div style="width:400px; margin:12px; height: auto;" id="main">
+            <div style="width:400px; margin:12px; height: 500px;" id="main">
                 <paper-header-panel class="flex">
                     <paper-toolbar>
                         <div title>Wellcome to AweShur Web Demo - [[title]]</div>
@@ -68,6 +76,10 @@
           lastLogin: {
               type: String,
               value: ""
+          },
+          session:{
+            type: Object,
+            hasEars: true
           }
       },
       listeners: {
@@ -85,6 +97,7 @@
       showError: function(errorMessage) {
           this.$.toastError.text = errorMessage;
           this.$.toastError.fitInto = this.$.main;
+          //console.log(this.$.toastError.open());
           this.$.toastError.open();
       },
       showMessage: function (message) {
@@ -102,8 +115,15 @@
               this.onLogin();
           }
       },
+      initializeDefaultValue: function(){
+        this.session = {
+          name: "Mickey",
+          hasEars: true
+        };
+      },
       onLogin: function ()
       {
+          console.log(this.session);
           var request;
           if (!this.$.loginForm.validate())
           {
@@ -113,13 +133,18 @@
           }
           var me = this;
           this.$.loginService.body = {
-              email: this.$.email.value, password: this.$.password.value
+              username: this.$.email.value, password: this.$.password.value
           };
-          this.$.loginService.url = "/Home/Login";
+          this.$.loginService.url = "http://localhost:3000/login";
           request = this.$.loginService.generateRequest();
+          console.log(request.completes);
           request.completes.then(function (response) {
+
+               console.log(response.response.token);
               if (response.response.result) {
-                  window.location.reload();
+                 console.log(response.detail);
+                 console.log(localStorage.getItem('session'));// = response.response.token;
+                  //window.location.reload();
               }
               else
               {
@@ -129,9 +154,10 @@
               }
           })
           .catch(function (error) {
+              console.log(error);
               me.showError("Error connecting server");
           });
-      },
+      }
     });
     </script>
 </dom-module>
