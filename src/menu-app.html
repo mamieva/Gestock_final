@@ -21,7 +21,7 @@
 <link rel="import" href="./config-page.html">
 <link rel="import" href="./list-page.html">
 <link rel="import" href="./login-page.html">
-<dom-module id="gestock-app">
+<dom-module id="menu-app">
   <template>
     <style is="custom-style">
         iron-selector a {
@@ -34,50 +34,71 @@
     <app-route route="{{route}}" pattern="/:page" data="{{pageData}}" tail="{{subRoute}}">
     </app-route>
     <!-- Aplicacion -->
-    <app-localstorage-document
-            id = "session"
-            key="session"
-            data="{{session}}"
-    </app-localstorage-document>
+    <paper-drawer-panel>
+      <!-- Panel lateral -->
+      <paper-header-panel drawer>
+        <!-- Barra de titulo del panel lateral -->
+        <paper-toolbar>
+          <div class="title">Gestock</div>
+        </paper-toolbar>
+        <!-- Menu del panel lateral -->
+        <paper-menu>
+        <iron-selector attr-for-selected="name" selected="{{pageData.page}}">
+          <paper-item name="home">
+            <a href="#/home">Inicio</a>
+          </paper-item>
+          <paper-item name="users">
+            <a href="#/users">Usuarios</a>
+          </paper-item>
+          <paper-item name="comments">
+            <a href="#/comments">Roles</a>
+          </paper-item>
+          <paper-item name="login">
+            <a href="#/login">Ventas</a>
+          </paper-item>
+          <paper-item name="purchases">Compras</paper-item>
+          <paper-item name="cash">Caja</paper-item>
+          <paper-item name="inventory">Inventario</paper-item>
+        </iron-selector>
+        </paper-menu>
+      </paper-header-panel>
+      <!-- Panel principal -->
+      <paper-header-panel main="" class="flex">
+        <paper-toolbar>
+          <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+          <div class="title">Sistema de Gestión de Inventario</div>
+        </paper-toolbar>
 
-    <neon-animated-pages id="pages" selected="0">
+        <iron-pages attr-for-selected="name" selected="{{pageData.page}}" selected-attribute="selected">
+          <main-page name="home" route="{{subRoute}}"></main-page>
+          <!-- <config-page name="config" route="{{subRoute}}"></config-page> -->
+          <login-page name="login" route="{{subRoute}}"></login-page>
+          <list-page name="{{pageData.page}}" route="{{subRoute}}" data="{{pageData.page}}"></list-page>
 
-      <login-page session="{{session}}"></login-page>
+        </iron-pages>
+        <!-- <main-router route="{{route}}"
+                      page="{{pageData.page}}"></main-router> -->
+      </paper-header-panel>
 
-      <menu-app></menu-app>
-
-    </neon-animated-pages>
+    </paper-drawer-panel>
 
   </template>
 
   <script>
     Polymer({
-      is: 'gestock-app',
-
-      properties:{
-        session:{
-          type: Object
-        }
-      },
-
+      is: 'menu-app',
       observers: [
         '_updateScroll(route)'
       ],
       attached: function() {
         if (!this.pageData.page) {
-          this.set('route.path', '/login');
+          this.set('pageData.page', 'home');
         }
         else {
            console.log(this.pageData.page);
         }
       },
       _updateScroll: function() {
-        if (this.session) {
-          alert("entra");
-        }
-        else {
-          alert("no");
-        }
         window.scroll(0, 0);
       }
     });

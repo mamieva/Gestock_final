@@ -6,7 +6,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
-<link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 
 <dom-module id="login-page">
     <style>
@@ -33,11 +33,11 @@
                    method="POST"
                    debounce-duration="300"></iron-ajax>
 
-       <iron-localstorage
-         name="session"
-         value="{{session}}"
-         on-iron-localstorage-load-empty="initializeDefaultValue"
-       ></iron-localstorage>
+        <!-- <app-localstorage-document
+                id = "session"
+                key="session"
+                data="{{session}}"
+            </app-localstorage-document> -->
 
         <div class="horizontal center-justified layout">
             <div style="width:400px; margin:12px; height: 500px;" id="main">
@@ -78,14 +78,14 @@
               value: ""
           },
           session:{
-            type: Object,
-            hasEars: true
+            type: Object
           }
       },
       listeners: {
           'loginButton.tap': 'onLogin',
       },
       attached: function () {
+        if (!this.session){
           if (this.lastLogin != "") {
               this.$.email.value = this.lastLogin;
               this.$.password.focus();
@@ -93,6 +93,11 @@
           else {
               this.$.email.focus();
           }
+        }
+        else {
+          this.$.session.destroy();
+          window.location.href = 'aaa';
+        }
       },
       showError: function(errorMessage) {
           this.$.toastError.text = errorMessage;
@@ -115,15 +120,9 @@
               this.onLogin();
           }
       },
-      initializeDefaultValue: function(){
-        this.session = {
-          name: "Mickey",
-          hasEars: true
-        };
-      },
       onLogin: function ()
       {
-          console.log(this.session);
+          //console.log(this.session);
           var request;
           if (!this.$.loginForm.validate())
           {
@@ -140,11 +139,16 @@
           console.log(request.completes);
           request.completes.then(function (response) {
 
-               console.log(response.response.token);
-              if (response.response.result) {
-                 console.log(response.detail);
-                 console.log(localStorage.getItem('session'));// = response.response.token;
-                  //window.location.reload();
+               //console.log(response.response.token);
+               me.session = {"token": response.response.token};
+               //console.log(me.session.token);
+               //me.$.session.destroy();
+               //me.session = {};
+               //me.$.session.setStoredValue('session', {"token":response.response.token});
+              if (response.response) {
+                 console.log('a full');
+                 //console.log(localStorage.getItem('session'));// = response.response.token;
+                  window.location.reload();
               }
               else
               {
