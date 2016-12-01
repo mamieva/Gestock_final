@@ -21,6 +21,7 @@
 <link rel="import" href="./config-page.html">
 <link rel="import" href="./list-page.html">
 <link rel="import" href="./login-page.html">
+<link rel="import" href="./menu-app.html">
 <dom-module id="gestock-app">
   <template>
     <style is="custom-style">
@@ -40,11 +41,11 @@
             data="{{session}}"
     </app-localstorage-document>
 
-    <neon-animated-pages id="pages" selected="0">
+    <neon-animated-pages id="pages" attr-for-selected="name" selected="{{pageData.page}}">
 
-      <login-page session="{{session}}"></login-page>
+      <login-page name="login"></login-page>
 
-      <menu-app></menu-app>
+      <menu-app name="menu" route="subRoute"></menu-app>
 
     </neon-animated-pages>
 
@@ -57,27 +58,54 @@
       properties:{
         session:{
           type: Object
+        },
+        isAuthenticated:{
+          type: Boolean
         }
+
       },
 
       observers: [
         '_updateScroll(route)'
       ],
+      listeners:{
+        'login': 'loginUser'
+      },
+      ready: function(){
+        console.log(this.pageData.page);
+      },
       attached: function() {
-        if (!this.pageData.page) {
-          this.set('route.path', '/login');
+        console.log(this.session);
+        //
+        if(this.session){
+          this.set('route.path','/menu');
         }
-        else {
-           console.log(this.pageData.page);
-        }
+        //console.log(this.session.isAuthenticated);
+        // if(!this.session.token){
+        //    if (!this.pageData.page) {
+        //    this.set('route.path', '/login');
+        //    //this.$.pages.selected = 0;
+        //      }
+        //    else {
+        //    //this.set('route.path', '/' + this.pageData.page);
+        //    //this.$.pages.selected = 0;
+        //    }
+        //   }
+        //   else{
+        //     //this.set('route.path', '/' + this.pageData.page);
+        //     //this.$.pages.selected = 1;
+        //   }
+        
+      },
+      loginUser: function(event){
+        //console.log('events disparado');
+        //this.isAuthenticated = true;
+        this.session = event.detail;
+        window.location.reload();
+        //console.log(this.session);
+
       },
       _updateScroll: function() {
-        if (this.session) {
-          alert("entra");
-        }
-        else {
-          alert("no");
-        }
         window.scroll(0, 0);
       }
     });

@@ -33,7 +33,7 @@
                    method="POST"
                    debounce-duration="300"></iron-ajax>
 
-        <!-- <app-localstorage-document
+         <!--<app-localstorage-document
                 id = "session"
                 key="session"
                 data="{{session}}"
@@ -43,17 +43,17 @@
             <div style="width:400px; margin:12px; height: 500px;" id="main">
                 <paper-header-panel class="flex">
                     <paper-toolbar>
-                        <div title>Wellcome to AweShur Web Demo - [[title]]</div>
+                        <div title> Bienvenidos a Gestock! </div>
                     </paper-toolbar>
                     <form is="iron-form" id="loginForm">
                         <div class="layout vertical">
-                            <gold-email-input id="email" label="Email" required auto-validate on-keydown="checkForEnterA"></gold-email-input>
-                            <paper-input id="password" type="password" label="Password" password required auto-validate on-keydown="checkForEnter"></paper-input>
+                            <gold-email-input id="email" label="Usuario" required auto-validate on-keydown="checkForEnterA"></gold-email-input>
+                            <paper-input id="password" type="password" label="Constraseña" password required auto-validate on-keydown="checkForEnter"></paper-input>
                         </div>
                         <div>&nbsp;</div>
                         <div class="layout horizontal bottom">
                             <div class="flex"></div>
-                            <paper-button submit raised id="loginButton">Login</paper-button>
+                            <paper-button submit raised id="loginButton">Entrar</paper-button>
                         </div>
                     </form>
                 </paper-header-panel>
@@ -95,8 +95,8 @@
           }
         }
         else {
-          this.$.session.destroy();
-          window.location.href = 'aaa';
+          //this.$.session.destroy();
+          //window.location.href = 'aaa';
         }
       },
       showError: function(errorMessage) {
@@ -136,7 +136,7 @@
           };
           this.$.loginService.url = "http://localhost:3000/login";
           request = this.$.loginService.generateRequest();
-          console.log(request.completes);
+          //console.log(request.completes);
           request.completes.then(function (response) {
 
                //console.log(response.response.token);
@@ -148,7 +148,8 @@
               if (response.response) {
                  console.log('a full');
                  //console.log(localStorage.getItem('session'));// = response.response.token;
-                  window.location.reload();
+                  //window.location.reload();
+                  me.fire('login', me.session);
               }
               else
               {
