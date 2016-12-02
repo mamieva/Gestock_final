@@ -130,15 +130,16 @@
             customizeItemsList: function() {
                 this.parentElement.customizeItemsList(this.$.itemsList);
             },
-            _selectedItemChanged: function(event) {
-                //console.log(this.items[this.selection.selected()[0]].id);
-                var key = this.items[this.selection.selected()[0]].id;
-                //window.location.href = '/users/hla';
-                var reallythis = this.reallythis;
-                reallythis.set('routeData.key', key);
-                reallythis.set('route.path', '/' + key);
-                //console.log(reallythis.route);
-            }
+            // _selectedItemChanged: function(event) {
+            //     console.log(event);
+            //     //console.log(this.items[this.selection.selected()[0]].id);
+            //     var key = this.items[this.selection.selected()[0]].id;
+            //     //window.location.href = '/users/hla';
+            //     var reallythis = this.reallythis;
+            //     reallythis.set('routeData.key', key);
+            //     reallythis.set('route.path', '/' + key);
+            //     //console.log(reallythis.route);
+            // }
         });
     </script>
 </dom-module>

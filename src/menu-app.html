@@ -24,6 +24,11 @@
 <dom-module id="menu-app">
   <template>
     <style is="custom-style">
+        :host{
+          display: block;
+          min-height: 900px; 
+          overflow: hidden;
+        }
         iron-selector a {
           text-decoration: none;
           color: black;
@@ -45,16 +50,16 @@
         <paper-menu>
         <iron-selector attr-for-selected="name" selected="{{pageData.page}}">
           <paper-item name="home">
-            <a href="#/home">Inicio</a>
+            <a href="#/menu/home">Inicio</a>
           </paper-item>
           <paper-item name="users">
-            <a href="#/users">Usuarios</a>
+            <a href="#/menu/users">Usuarios</a>
           </paper-item>
           <paper-item name="comments">
-            <a href="#/comments">Roles</a>
+            <a href="#/menu/comments">Roles</a>
           </paper-item>
           <paper-item name="login">
-            <a href="#/login">Ventas</a>
+            <a href="#/menu/login">Ventas</a>
           </paper-item>
           <paper-item name="purchases">Compras</paper-item>
           <paper-item name="cash">Caja</paper-item>
@@ -87,10 +92,17 @@
   <script>
     Polymer({
       is: 'menu-app',
+      properties:{
+        route: {
+                    type: Object,
+                    notify: true
+                }
+      },
       observers: [
         '_updateScroll(route)'
       ],
-      attached: function() {
+      attached: function() {   
+        console.log(this.route);     
         if (!this.pageData.page) {
           this.set('pageData.page', 'home');
         }

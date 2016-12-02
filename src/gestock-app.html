@@ -45,7 +45,7 @@
 
       <login-page name="login"></login-page>
 
-      <menu-app name="menu" route="subRoute"></menu-app>
+      <menu-app name="menu" route="{{subRoute}}"></menu-app>
 
     </neon-animated-pages>
 
@@ -79,6 +79,9 @@
         //
         if(this.session){
           this.set('route.path','/menu');
+        }
+        else{
+          this.set('route.path','/login');
         }
         //console.log(this.session.isAuthenticated);
         // if(!this.session.token){
