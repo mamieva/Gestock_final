@@ -55,9 +55,11 @@
           <paper-item name="users">
             <a href="#/menu/users">Usuarios</a>
           </paper-item>
-          <paper-item name="comments">
-            <a href="#/menu/comments">Roles</a>
-          </paper-item>
+          <template is="dom-if" if="[[_isEqual(user,'false')]]">
+            <paper-item name="comments">
+              <a href="#/menu/comments">Roles</a>
+            </paper-item>
+          </template>
           <paper-item name="login">
             <a href="#/menu/login">Ventas</a>
           </paper-item>
@@ -96,7 +98,11 @@
         route: {
                     type: Object,
                     notify: true
-                }
+                },
+        user:{
+          type: String,
+          value: "false"
+        }
       },
       observers: [
         '_updateScroll(route)'
@@ -112,6 +118,10 @@
       },
       _updateScroll: function() {
         window.scroll(0, 0);
+      },
+      _isEqual: function(obj,value){
+        //var value = false;
+        return obj === value;
       }
     });
   </script>

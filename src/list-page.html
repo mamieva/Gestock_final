@@ -91,9 +91,13 @@
             },
             _viewChanged: function(data) {
                 //console.log("cambio"+ this.url + data);
-                this.ajaxlist.url = this.url + data;
-                this.$.divAjax.appendChild(this.ajaxlist);
-                this.ajaxlist.generateRequest();
+                var notList = ["home"];
+                if (notList.indexOf(data) === -1){
+                    this.ajaxlist.url = this.url + data;
+                    this.$.divAjax.appendChild(this.ajaxlist);
+                    this.ajaxlist.generateRequest();
+                }
+                    
             },
             getItemsList: function() {
                 // console.log(this.$.itemsList);
