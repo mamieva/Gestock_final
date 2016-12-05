@@ -82,6 +82,8 @@
                 //this.ajaxlist.contentType = 'application/json';
                 this.ajaxlist.handleAs = 'json';
 
+                //this.ajaxlist.body = {"token" : this.session.token};
+
                 this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
                 this.ajaxlist.addEventListener('error', this._handleError.bind(this));
 

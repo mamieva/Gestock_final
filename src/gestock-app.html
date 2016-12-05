@@ -43,9 +43,9 @@
 
     <neon-animated-pages id="pages" attr-for-selected="name" selected="{{pageData.page}}">
 
-      <login-page name="login"></login-page>
+      <login-page name="login" session="{{session}}"></login-page>
 
-      <menu-app name="menu" route="{{subRoute}}"></menu-app>
+      <menu-app name="menu" session="{{session}}" route="{{subRoute}}"></menu-app>
 
     </neon-animated-pages>
 
@@ -76,6 +76,7 @@
       },
       attached: function() {
         console.log(this.session);
+        console.log(JSON.parse(window.localStorage.session).token);
         //
         if(this.session){
           this.set('route.path','/menu');

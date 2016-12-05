@@ -139,8 +139,8 @@
           //console.log(request.completes);
           request.completes.then(function (response) {
 
-               //console.log(response.response.token);
-               me.session = {"token": response.response.token};
+               //console.log(response.response);
+               me.session = response.response.data;
                //console.log(me.session.token);
                //me.$.session.destroy();
                //me.session = {};
