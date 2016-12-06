@@ -81,8 +81,11 @@
                 this.ajaxlist.method = 'GET';
                 //this.ajaxlist.contentType = 'application/json';
                 this.ajaxlist.handleAs = 'json';
+                //this.ajaxlist.contentType = "application/json";
+                //this.ajaxlist.headers = '{"x-access-token": "'+ JSON.parse(window.localStorage.session).token + '"}';
 
-                //this.ajaxlist.body = {"token" : this.session.token};
+                this.ajaxlist.params = {token : JSON.parse(window.localStorage.session).token};
+                //console.log(JSON.parse(window.localStorage.session).token);
 
                 this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
                 this.ajaxlist.addEventListener('error', this._handleError.bind(this));
@@ -100,8 +103,10 @@
                 this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
             },
             _handleResponse : function(response){
-              let keys = Object.keys(this.ajaxlist.lastResponse[0]);
+              let keys = Object.keys(this.ajaxlist.lastResponse.data[0]);
               let grid = this.getItemsList();
+              grid.addColumn({});
+              grid.style.display = "block";
               keys.forEach(function(element){
                 //console.log(element);
                 //if(element === 'id'){
@@ -118,14 +123,18 @@
               //   console.log(name.value);
               //   //this.getItemsList().addColumn(name);
               // }
-              this.items = response.detail.response;
-              console.log(Object.keys(this.ajaxlist.lastResponse[0]));
-              console.log(response.detail.response[0]);
+              this.items = response.detail.response.data;
+              console.log(Object.keys(this.ajaxlist.lastResponse.data[0]));
+              console.log(response.detail.response.data[0]);
               console.log(this.items);
              //  return null;
             },
-            _handleError: function(){
-              debugger
+            _handleError: function(err){
+              let grid = this.getItemsList();
+              //console.log(this.getItemsList());
+              this.items = [];
+              grid.style.display = "none";
+              //debugger
             },
             _selectedItemChangedNotify: function(key, select) {
               console.log("click");
@@ -144,13 +153,15 @@
                 this.getFilter()._openFilter();
             },
             _selectedItemChanged: function(event) {
+
                 var select = this.selection.selected();
+                //console.log(select[0]);
                 var reallythis = this.reallythis;
                 if (select.length > 0) {
 
                     console.log(event);
                     //console.log(this.items[this.selection.selected()[0]].id);
-                    var key = reallythis.items[select[0]].id;
+                    var key = reallythis.items[select[0]]._id;
                     //window.location.href = '/users/hla';
                     //var reallythis = this.reallythis;
                     reallythis.set('routeData.key', key);

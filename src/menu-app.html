@@ -78,9 +78,9 @@
 
         <iron-pages attr-for-selected="name" selected="{{pageData.page}}" selected-attribute="selected">
           <main-page name="home" route="{{subRoute}}"></main-page>
+          <list-page name="{{pageData.page}}" route="{{subRoute}}" data="{{pageData.page}}"></list-page>
           <!-- <config-page name="config" route="{{subRoute}}"></config-page> -->
           <!--<login-page name="login" route="{{subRoute}}"></login-page>-->
-          <list-page name="{{pageData.page}}" route="{{subRoute}}" data="{{pageData.page}}"></list-page>
 
         </iron-pages>
         <!-- <main-router route="{{route}}"
