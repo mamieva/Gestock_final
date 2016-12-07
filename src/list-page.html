@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="./list-page-behavior.html">
+<link rel="import" href="./users-form.html">
 
 <dom-module id="list-page">
     <template>
@@ -31,8 +32,11 @@
       <vaadin-grid id="itemsList" items={{items}}>
       </vaadin-grid>
   </div>
-  <div class="hola">
-    {{key}}
+  <div style="width: 200px; height: 200px" class="hola">
+    <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
+        <users-form name="users" key="{{routeData.key}}}"></users-form>
+        <roles-form></roles-form>
+    </iron-pages>
   </div>
 </neon-animated-pages>
   </template>

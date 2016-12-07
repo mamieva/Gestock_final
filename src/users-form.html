@@ -1,0 +1,40 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+
+<dom-module id="users-form">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+
+        <form is="iron-form" method="get" action="/" id="eventsDemo">
+          <paper-input name="username" label="username"  required auto-validate></paper-input>
+          <paper-input name="password" label="password" type="password" required auto-validate></paper-input>
+          <!--<paper-checkbox name="read" required>You must check this box</paper-checkbox><br>-->
+          <paper-button raised onclick="_delayedSubmit(event)" id="eventsDemoSubmit">
+          <paper-spinner id="spinner" hidden></paper-spinner>Submit</paper-button>
+          <paper-button raised onclick="_reset(event)">Reset</paper-button>
+        </form>       
+    </template>
+    <script>
+        Polymer({
+            is: 'users-form',
+            properties:{
+                key:{
+                    type: String
+                }
+            }
+        });
+    </script>
+</dom-module>

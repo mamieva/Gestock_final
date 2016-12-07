@@ -105,7 +105,7 @@
             _handleResponse : function(response){
               let keys = Object.keys(this.ajaxlist.lastResponse.data[0]);
               let grid = this.getItemsList();
-              grid.addColumn({});
+              grid.columns = [];
               grid.style.display = "block";
               keys.forEach(function(element){
                 //console.log(element);
@@ -131,9 +131,10 @@
             },
             _handleError: function(err){
               let grid = this.getItemsList();
+              grid.columns = [];
               //console.log(this.getItemsList());
               this.items = [];
-              grid.style.display = "none";
+              //grid.style.display = "none";
               //debugger
             },
             _selectedItemChangedNotify: function(key, select) {
