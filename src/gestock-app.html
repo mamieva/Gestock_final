@@ -78,7 +78,7 @@
         console.log(this.session);
         console.log(JSON.parse(window.localStorage.session).token);
         //
-        if(this.session){
+        if(this.session && this.pageData.page != 'login' ){
           this.set('route.path','/menu');
         }
         else{
@@ -105,6 +105,7 @@
         //console.log('events disparado');
         //this.isAuthenticated = true;
         this.session = event.detail;
+        this.set('route.path','/menu');
         window.location.reload();
         //console.log(this.session);
 

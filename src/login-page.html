@@ -7,40 +7,33 @@
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
-
 <dom-module id="login-page">
     <style>
         a {
             color: #FF8A80;
             cursor: pointer;
         }
+        
         #toastError {
             --paper-toast-background-color: red;
             --paper-toast-color: white;
         }
+        
         paper-toolbar {
             background-color: #4285f4;
             color: #fff;
         }
     </style>
-
     <template>
         <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
-
-        <iron-ajax id="loginService"
-                   handle-as="json"
-                   content-type="application/json"
-                   method="POST"
-                   debounce-duration="300"></iron-ajax>
-
-         <!--<app-localstorage-document
+        <iron-ajax id="loginService" handle-as="json" content-type="application/json" method="POST" debounce-duration="300"></iron-ajax>
+        <!--<app-localstorage-document
                 id = "session"
                 key="session"
                 data="{{session}}"
             </app-localstorage-document> -->
-
-        <div class="horizontal center-justified layout">
-            <div style="width:400px; margin:12px; height: 500px;" id="main">
+        <div class="horizontal center-justified layout" id="container">
+            <div style="width:400px; margin:12px; height: 300px;" id="main">
                 <paper-header-panel class="flex">
                     <paper-toolbar>
                         <div title> Bienvenidos a Gestock! </div>
@@ -100,6 +93,7 @@
         }
       },
       showError: function(errorMessage) {
+          //console.log("error msg");
           this.$.toastError.text = errorMessage;
           this.$.toastError.fitInto = this.$.main;
           //console.log(this.$.toastError.open());
@@ -126,7 +120,8 @@
           var request;
           if (!this.$.loginForm.validate())
           {
-              this.showError("You must enter an email and password");
+              console.log("no valida");
+              this.showError("Debe indicar un usuario y contraseña");
               this.$.email.focus();
               return;
           }
@@ -152,15 +147,16 @@
                   me.fire('login', me.session);
               }
               else
-              {
-                  me.showError("Email or password incorrect");
+              { 
+                  //console.log(response.response);
+                  me.showError("Usuario o Contraseña incorrectos");
                   me.$.password.value = "";
                   me.$.password.focus();
               }
           })
-          .catch(function (error) {
-              console.log(error);
-              me.showError("Error connecting server");
+          .catch(function (error,response) {
+              //console.log(error);              
+              me.showError("Verifique los datos ingresados");
           });
       }
     });

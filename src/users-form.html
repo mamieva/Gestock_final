@@ -2,30 +2,67 @@
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
-
 <dom-module id="users-form">
     <template>
         <style>
-            :host {
+             :host {
                 display: block;
             }
+            
+            .container {
+                display: block;
+                margin: 20px 0 0 20px;
+                width: 100%;
+            }
+            
+            form {
+                width: 100%;
+            }
+            
+            paper-input {
+                min-width: 300px;
+                max-width: 400px;
+                margin: auto;
+            }
+            
+            iron-icon,
+            div[suffix] {
+                color: hsl(0, 0%, 50%);
+                margin-right: 12px;
+            }
         </style>
-
-        <form is="iron-form" method="get" action="/" id="eventsDemo">
-          <paper-input name="username" label="username"  required auto-validate></paper-input>
-          <paper-input name="password" label="password" type="password" required auto-validate></paper-input>
-          <!--<paper-checkbox name="read" required>You must check this box</paper-checkbox><br>-->
-          <paper-button raised onclick="_delayedSubmit(event)" id="eventsDemoSubmit">
-          <paper-spinner id="spinner" hidden></paper-spinner>Submit</paper-button>
-          <paper-button raised onclick="_reset(event)">Reset</paper-button>
-        </form>       
+        <div class="container">
+            <form is="iron-form" method="POST" id="userForm">
+                <paper-input name="username" label="Usuario" required>
+                    <iron-icon icon="mail" prefix></iron-icon>
+                    <div suffix>@email.com</div>
+                </paper-input>
+                <paper-input password type="password" name="password" label="Contraseña" required>
+                    <iron-icon icon="communication:vpn-key" prefix></iron-icon>
+                </paper-input>
+                <paper-dropdown-menu label="Estado" name="status" required>
+                    <paper-listbox class="dropdown-content" attr-for-selected="name" selected="inactivo">
+                        <paper-item name="activo">ACTIVO</paper-item>
+                        <paper-item name="inactivo">INACTIVO</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+                <paper-button raised submit id="submit">Agregar</paper-button>
+                <paper-button raised onclick="_reset(event)">Limpiar</paper-button>
+                <div class="output"></div>
+            </form>
+        </div>
     </template>
     <script>
         Polymer({
@@ -34,6 +71,42 @@
                 key:{
                     type: String
                 }
+            },
+            listeners: {    
+                'iron-form-response': '_formResponse',
+                'iron-form-submit': '_formSubmit',
+                'iron-form-error': '_formError',
+                'iron-form-presubmit': '_formPresubmit',
+                'iron-form-invalid': '_formInvalid',
+                'submit.tap': '_submit'
+            },
+            ready: function(){
+                this._getForm().reallythis = this;
+                this._getForm().action = 'http://localhost:3000/user';                
+                var token = JSON.parse(window.localStorage.session).token
+                this._getForm().headers = {'x-access-token': token}
+                
+            },
+            _submit: function(event){                               
+                var user = this.$.userForm.serialize();
+                user.token = JSON.parse(window.localStorage.session).token;
+                this._getForm.params = user;
+                console.log(user);
+                this.$.userForm.submit();
+            },
+            _reset: function(){
+                alert("");
+            },
+            _formSubmit: function() {
+                console.log("aaaentro");
+                alert("aaaaaaaaaa");
+                //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
+            },
+            _getForm: function(){
+                return this.$.userForm;
+            },
+            _formPresubmit: function(){ 
+                console.log("presubmit");
             }
         });
     </script>
