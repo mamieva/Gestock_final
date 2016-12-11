@@ -45,11 +45,11 @@
         </style>
         <div class="container">
             <form is="iron-form" method="POST" id="userForm">
-                <paper-input name="username" label="Usuario" required>
+                <paper-input name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"  auto-validate required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <div suffix>@email.com</div>
                 </paper-input>
-                <paper-input password type="password" name="password" label="Contraseña" required>
+                <paper-input password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
                     <iron-icon icon="communication:vpn-key" prefix></iron-icon>
                 </paper-input>
                 <paper-dropdown-menu label="Estado" name="status" required>
@@ -107,6 +107,13 @@
             },
             _formPresubmit: function(){ 
                 console.log("presubmit");
+            },
+            _formInvalid: function(e){
+                console.log(e);
+                alert("invalido");
+            },
+            _formError: function(error){
+                console.log(error);
             }
         });
     </script>
