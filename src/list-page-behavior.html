@@ -83,8 +83,12 @@
                 this.ajaxlist.handleAs = 'json';
                 //this.ajaxlist.contentType = "application/json";
                 //this.ajaxlist.headers = '{"x-access-token": "'+ JSON.parse(window.localStorage.session).token + '"}';
+                var _token;
 
-                this.ajaxlist.params = {token : JSON.parse(window.localStorage.session).token};
+                if (typeof window.localStorage.session !== "undefined") {
+                    _token = JSON.parse(window.localStorage.session).token;
+                }
+                this.ajaxlist.params = {token : _token};
                 //console.log(JSON.parse(window.localStorage.session).token);
 
                 this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));

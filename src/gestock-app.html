@@ -57,7 +57,8 @@
 
       properties:{
         session:{
-          type: Object
+          type: Object,
+          value: []
         },
         isAuthenticated:{
           type: Boolean
@@ -73,15 +74,19 @@
       },
       ready: function(){
         console.log(this.pageData.page);
+        
       },
       attached: function() {
-        console.log(this.session);
-        console.log(JSON.parse(window.localStorage.session).token);
+        //console.log('sss',this.session.length);
+        //console.log(JSON.parse(window.localStorage.session).token);
         //
-        if(this.session && this.pageData.page != 'login' ){
+        if(this.session.length != 0 && this.pageData.page != 'login' ){
+          console.log("entro menu");
           this.set('route.path','/menu');
         }
         else{
+          //this.$.session.destroy();
+          console.log("entro login");
           this.set('route.path','/login');
         }
         //console.log(this.session.isAuthenticated);

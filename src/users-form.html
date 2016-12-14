@@ -14,6 +14,7 @@
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <dom-module id="users-form">
     <template>
         <style>
@@ -32,8 +33,8 @@
             }
             
             paper-input {
-                min-width: 300px;
-                max-width: 400px;
+                display: block;
+                width: 100%;
                 margin: auto;
             }
             
@@ -44,12 +45,15 @@
             }
         </style>
         <div class="container">
+            <h3>Usuario</h3>
             <form is="iron-form" method="POST" id="userForm">
-                <paper-input name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"  auto-validate required>
+                <paper-input name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
+                    auto-validate required>
                     <iron-icon icon="mail" prefix></iron-icon>
-                    <div suffix>@email.com</div>
+                    <!--<div suffix>@email.com</div>-->
                 </paper-input>
-                <paper-input password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
+                <paper-input password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+                    auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
                     <iron-icon icon="communication:vpn-key" prefix></iron-icon>
                 </paper-input>
                 <paper-dropdown-menu label="Estado" name="status" required>
@@ -59,9 +63,10 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
                 <paper-button raised submit id="submit">Agregar</paper-button>
-                <paper-button raised onclick="_reset(event)">Limpiar</paper-button>
+                <paper-button raised id="reset">Limpiar</paper-button>
                 <div class="output"></div>
             </form>
+            <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
         </div>
     </template>
     <script>
@@ -78,12 +83,18 @@
                 'iron-form-error': '_formError',
                 'iron-form-presubmit': '_formPresubmit',
                 'iron-form-invalid': '_formInvalid',
-                'submit.tap': '_submit'
+                'submit.tap': '_submit',
+                'reset.tap': '_reset'
             },
             ready: function(){
                 this._getForm().reallythis = this;
-                this._getForm().action = 'http://localhost:3000/user';                
-                var token = JSON.parse(window.localStorage.session).token
+                this._getForm().action = 'http://localhost:3000/user'; 
+                var token;
+
+                if (typeof window.localStorage.session !== "undefined") {
+                    token = JSON.parse(window.localStorage.session).token;
+                }               
+                //var token = JSON.parse(window.localStorage.session).token
                 this._getForm().headers = {'x-access-token': token}
                 
             },
@@ -91,11 +102,11 @@
                 var user = this.$.userForm.serialize();
                 user.token = JSON.parse(window.localStorage.session).token;
                 this._getForm.params = user;
-                console.log(user);
+                //console.log(user);
                 this.$.userForm.submit();
             },
-            _reset: function(){
-                alert("");
+            _reset: function(e){
+                this.$.userForm.reset();
             },
             _formSubmit: function() {
                 console.log("aaaentro");
@@ -109,11 +120,27 @@
                 console.log("presubmit");
             },
             _formInvalid: function(e){
-                console.log(e);
-                alert("invalido");
+                //console.log(e);
+                //alert("invalido");
             },
             _formError: function(error){
-                console.log(error);
+                console.log('a',error.detail);
+                this.showMessage("err");
+            },
+            showError: function(errorMessage) {
+                //console.log("error msg");
+                this.$.toastError.text = errorMessage;
+                this.$.toastError.fitInto = this.$.userForm;
+                //console.log(this.$.toastError.open());
+                this.$.toastError.open();
+             },
+            showMessage: function (message) {
+                this.$.toastOk.text = message;
+                this.$.toastOk.fitInto = this.$.userForm;
+                this.$.toastOk.open();
+            },
+            _formResponse: function(){
+                this.showMessage("aceptado");
             }
         });
     </script>
