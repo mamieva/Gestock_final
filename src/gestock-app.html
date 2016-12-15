@@ -62,6 +62,9 @@
         },
         isAuthenticated:{
           type: Boolean
+        },
+        route:{
+          type: Object
         }
 
       },
@@ -121,11 +124,13 @@
       },
       _routeChanged: function(newRoute){
         console.log(newRoute);
-        if(this.session.length != 0 && this.pageData.page != 'login' ){
+        console.log(this.route);
+        if(this.session.length != 0 && (newRoute == '/menu' || newRoute == '' )){
           console.log("entro menu");
           this.set('route.path','/menu');
         }
-        else{
+        
+        if (this.session.length == 0){
           //this.$.session.destroy();
           console.log("entro login");
           this.set('route.path','/login');
