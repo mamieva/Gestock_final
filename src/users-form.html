@@ -109,8 +109,6 @@
                 this.$.userForm.reset();
             },
             _formSubmit: function() {
-                console.log("aaaentro");
-                alert("aaaaaaaaaa");
                 //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
             },
             _getForm: function(){
@@ -120,12 +118,13 @@
                 console.log("presubmit");
             },
             _formInvalid: function(e){
-                //console.log(e);
-                //alert("invalido");
+                var msg = 'Verifique los datos ingresados';
+                this.showMessage(msg);
             },
             _formError: function(error){
-                console.log('a',error.detail);
-                this.showMessage("err");
+                //console.log('a',error.detail.request.response);
+                var msg = error.detail.request.response.message;
+                this.showMessage(msg);
             },
             showError: function(errorMessage) {
                 //console.log("error msg");

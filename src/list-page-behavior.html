@@ -140,6 +140,17 @@
               this.items = [];
               //grid.style.display = "none";
               //debugger
+              
+              var response = err.detail.request.response;
+              if(response != null){
+                  window.localStorage.removeItem("session");
+              }
+              else
+              {
+                  alert('404');
+              }
+              response = null;
+              console.log(err.detail.request.response);
             },
             _selectedItemChangedNotify: function(key, select) {
               console.log("click");

@@ -68,15 +68,12 @@
             behaviors: [AWSLBehaviors.ListVaadinBehavior],
             observers: [
                 '_routeChanged(route.path)',
-                // '_routeChanged1(routeData)',
                 '_viewChanged(data)',
                 '_fastsearchChanged(fastsearch)'
             ],
             _routeChanged: function(newRoute) {
-                //console.log(this.route.path);
-                //console.log(newRoute);
                 if (newRoute == "") {
-                   console.log('entro');
+                   //console.log('entro');
                    this.$.pages.entryAnimation = "slide-from-right-animation";
                    this.$.pages.exitAnimation = "slide-left-animation";
                    this.$.pages.selected = 0;
