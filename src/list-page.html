@@ -32,7 +32,7 @@
       <vaadin-grid id="itemsList" items={{items}}>
       </vaadin-grid>
   </div>
-  <div style="width: 200px; height: 200px" class="hola">
+  <div style="width: 200px; height: 200px">
     <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
         <users-form name="users" key="{{routeData.key}}}"></users-form>
         <roles-form></roles-form>
@@ -91,7 +91,6 @@
                 //this.$.editor.load(this.key);
             },
             _viewChanged: function(data) {
-                //console.log("cambio"+ this.url + data);
                 var notList = ["home"];
                 if (notList.indexOf(data) === -1){
                     this.ajaxlist.url = this.url + data;

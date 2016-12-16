@@ -44,40 +44,48 @@
                 margin-right: 12px;
             }
         </style>
-        <div class="container">
-            <h3>Usuario</h3>
-            <form is="iron-form" method="POST" id="userForm">
-                <paper-input name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
-                    auto-validate required>
-                    <iron-icon icon="mail" prefix></iron-icon>
-                    <!--<div suffix>@email.com</div>-->
-                </paper-input>
-                <paper-input password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
-                    auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
-                    <iron-icon icon="communication:vpn-key" prefix></iron-icon>
-                </paper-input>
-                <paper-dropdown-menu label="Estado" name="status" required>
-                    <paper-listbox class="dropdown-content" attr-for-selected="name" selected="inactivo">
-                        <paper-item name="activo">ACTIVO</paper-item>
-                        <paper-item name="inactivo">INACTIVO</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
-                <paper-button raised submit id="submit">Agregar</paper-button>
-                <paper-button raised id="reset">Limpiar</paper-button>
-                <div class="output"></div>
-            </form>
-            <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
-        </div>
-    </template>
-    <script>
+<div id="divAjax"></div>
+<div class="container">
+    <h3>Usuario</h3>
+    <form is="iron-form" method="POST" id="userForm">
+        <paper-input name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
+            auto-validate required>
+            <iron-icon icon="mail" prefix></iron-icon>
+            <!--<div suffix>@email.com</div>-->
+        </paper-input>
+        <paper-input password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+            auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
+            <iron-icon icon="communication:vpn-key" prefix></iron-icon>
+        </paper-input>
+        <paper-dropdown-menu label="Estado" name="status" required>
+            <paper-listbox class="dropdown-content" attr-for-selected="name" selected="inactivo">
+                <paper-item name="activo">ACTIVO</paper-item>
+                <paper-item name="inactivo">INACTIVO</paper-item>
+            </paper-listbox>
+        </paper-dropdown-menu>
+        <paper-button raised submit id="submit">Agregar</paper-button>
+        <paper-button raised id="reset">Limpiar</paper-button>
+        <div class="output"></div>
+    </form>
+    <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
+</div>
+</template>
+<script>
         Polymer({
             is: 'users-form',
-            properties:{
-                key:{
+            properties: {
+                key: {
                     type: String
+                },
+                ajaxlist: {
+                    type: Object
+                },
+                url:{
+                    type: String,
+                    value: 'http://localhost:3000/user'
                 }
             },
-            listeners: {    
+            listeners: {
                 'iron-form-response': '_formResponse',
                 'iron-form-submit': '_formSubmit',
                 'iron-form-error': '_formError',
@@ -86,59 +94,82 @@
                 'submit.tap': '_submit',
                 'reset.tap': '_reset'
             },
-            ready: function(){
+            ready: function () {
+                
                 this._getForm().reallythis = this;
-                this._getForm().action = 'http://localhost:3000/user'; 
+                this._getForm().action = this.url;
                 var token;
 
                 if (typeof window.localStorage.session !== "undefined") {
                     token = JSON.parse(window.localStorage.session).token;
-                }               
+                }
                 //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {'x-access-token': token}
-                
+                this._getForm().headers = { 'x-access-token': token }
+                //
+                //Cargar iron-ajax
+                this.ajaxlist = document.createElement('iron-ajax');
+                this.ajaxlist.method = 'GET';
+                this.ajaxlist.handleAs = 'json';
+                //
+                if (typeof window.localStorage.session !== "undefined") {
+                    _token = JSON.parse(window.localStorage.session).token;
+
+                    this.ajaxlist.params = { token: _token };
+                    //console.log(JSON.
+                    this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
+                    this.ajaxlist.addEventListener('error', this._handleError.bind(this));
+
+
+
+                }
             },
-            _submit: function(event){                               
+            _handleResponse: function(){
+                null
+            },
+            _handleError: function(){
+                null
+            },
+            _submit: function (event) {
                 var user = this.$.userForm.serialize();
                 user.token = JSON.parse(window.localStorage.session).token;
                 this._getForm.params = user;
                 //console.log(user);
                 this.$.userForm.submit();
             },
-            _reset: function(e){
+            _reset: function (e) {
                 this.$.userForm.reset();
             },
-            _formSubmit: function() {
+            _formSubmit: function () {
                 //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
             },
-            _getForm: function(){
+            _getForm: function () {
                 return this.$.userForm;
             },
-            _formPresubmit: function(){ 
+            _formPresubmit: function () {
                 console.log("presubmit");
             },
-            _formInvalid: function(e){
+            _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
                 this.showMessage(msg);
             },
-            _formError: function(error){
+            _formError: function (error) {
                 //console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
                 this.showMessage(msg);
             },
-            showError: function(errorMessage) {
+            showError: function (errorMessage) {
                 //console.log("error msg");
                 this.$.toastError.text = errorMessage;
                 this.$.toastError.fitInto = this.$.userForm;
                 //console.log(this.$.toastError.open());
                 this.$.toastError.open();
-             },
+            },
             showMessage: function (message) {
                 this.$.toastOk.text = message;
                 this.$.toastOk.fitInto = this.$.userForm;
                 this.$.toastOk.open();
             },
-            _formResponse: function(){
+            _formResponse: function () {
                 this.showMessage("aceptado");
             }
         });
