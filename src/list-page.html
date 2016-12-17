@@ -22,6 +22,7 @@
   <app-route route="{{route}}"
                    pattern="/:key"
                    data="{{routeData}}"
+                   tail="{{routeTail}}"
                    id="routeManager">
   </app-route>
   <div id="divAjax"></div>
@@ -34,7 +35,7 @@
   </div>
   <div style="width: 200px; height: 200px">
     <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
-        <users-form name="users" key="{{routeData.key}}}"></users-form>
+        <users-form name="users" route="{{routeTail}}" key="{{routeData.key}}"></users-form>
         <roles-form></roles-form>
     </iron-pages>
   </div>

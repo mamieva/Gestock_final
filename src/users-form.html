@@ -44,47 +44,61 @@
                 margin-right: 12px;
             }
         </style>
-<div id="divAjax"></div>
-<div class="container">
-    <h3>Usuario</h3>
-    <form is="iron-form" method="POST" id="userForm">
-        <paper-input name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
-            auto-validate required>
-            <iron-icon icon="mail" prefix></iron-icon>
-            <!--<div suffix>@email.com</div>-->
-        </paper-input>
-        <paper-input password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
-            auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
-            <iron-icon icon="communication:vpn-key" prefix></iron-icon>
-        </paper-input>
-        <paper-dropdown-menu label="Estado" name="status" required>
-            <paper-listbox class="dropdown-content" attr-for-selected="name" selected="inactivo">
-                <paper-item name="activo">ACTIVO</paper-item>
-                <paper-item name="inactivo">INACTIVO</paper-item>
-            </paper-listbox>
-        </paper-dropdown-menu>
-        <paper-button raised submit id="submit">Agregar</paper-button>
-        <paper-button raised id="reset">Limpiar</paper-button>
-        <div class="output"></div>
-    </form>
-    <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
-</div>
-</template>
-<script>
+        <app-route route="{{route}}"
+                   pattern="/:user"
+                   data="{{userData}}"
+                   tail="{{routeTail}}"
+                   id="routeManager">
+        <iron-ajax id="userAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+        <div class="container">
+            <h3>Usuario</h3>
+            <form is="iron-form" method="POST" id="userForm">
+                <paper-input id="username" name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
+                    auto-validate required >
+                    <iron-icon icon="mail" prefix></iron-icon>
+                    <!--<div suffix>@email.com</div>-->
+                </paper-input>
+                <paper-input id="password" password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+                    auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
+                    <iron-icon icon="communication:vpn-key" prefix></iron-icon>
+                </paper-input>
+                <paper-dropdown-menu  label="Estado" name="status" required>
+                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="INACTIVO">
+                        <paper-item name="ACTIVO">ACTIVO</paper-item>
+                        <paper-item name="INACTIVO">INACTIVO</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+                <paper-button raised submit id="submit">Agregar</paper-button>
+                <paper-button raised id="reset">Limpiar</paper-button>
+                <div class="output"></div>
+            </form>
+            <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
+        </div>
+    </template>
+    <script>
         Polymer({
             is: 'users-form',
             properties: {
+                route:{
+                    type: Object
+                },
                 key: {
                     type: String
                 },
                 ajaxlist: {
                     type: Object
                 },
-                url:{
+                url: {
                     type: String,
                     value: 'http://localhost:3000/user'
+                },
+                token: {
+                    type: String
                 }
             },
+            observers: [
+                "_viewChanged(key)"
+            ],
             listeners: {
                 'iron-form-response': '_formResponse',
                 'iron-form-submit': '_formSubmit',
@@ -95,41 +109,37 @@
                 'reset.tap': '_reset'
             },
             ready: function () {
-                
+                if (typeof window.localStorage.session !== "undefined") {
+                    this.token = JSON.parse(window.localStorage.session).token;
+                }
+                //console.log(this.key);
+                //cargar formulario
                 this._getForm().reallythis = this;
-                this._getForm().action = this.url;
-                var token;
-
-                if (typeof window.localStorage.session !== "undefined") {
-                    token = JSON.parse(window.localStorage.session).token;
-                }
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = { 'x-access-token': token }
-                //
+                this._getForm().action = this.url;                
                 //Cargar iron-ajax
-                this.ajaxlist = document.createElement('iron-ajax');
-                this.ajaxlist.method = 'GET';
-                this.ajaxlist.handleAs = 'json';
-                //
-                if (typeof window.localStorage.session !== "undefined") {
-                    _token = JSON.parse(window.localStorage.session).token;
-
-                    this.ajaxlist.params = { token: _token };
-                    //console.log(JSON.
-                    this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
-                    this.ajaxlist.addEventListener('error', this._handleError.bind(this));
-
-
-
-                }
+                // this.ajaxlist.method = 'GET';
+                // this.ajaxlist = document.createElement('iron-ajax');
+                // this.ajaxlist.handleAs = 'json';
+                // //
+                this.$.userAjax.reallythis = this;
+                this.$.userAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.userAjax.addEventListener('error', this._handleError.bind(this));
             },
-            _handleResponse: function(){
+            _handleResponse: function (response) {
+                console.log(response.detail.response.data);
+                var user = response.detail.response.data;
+                this.$.username.value = user.username;
+                this.$.status.selected = user.status;
+
+            },
+            _handleError: function () {
                 null
             },
-            _handleError: function(){
-                null
-            },
-            _submit: function (event) {
+            _submit: function (event) {                
+                //var token = JSON.parse(window.localStorage.session).token
+                this._getForm().headers = {
+                    'x-access-token': this.token
+                };
                 var user = this.$.userForm.serialize();
                 user.token = JSON.parse(window.localStorage.session).token;
                 this._getForm.params = user;
@@ -171,6 +181,17 @@
             },
             _formResponse: function () {
                 this.showMessage("aceptado");
+            },
+            _viewChanged: function(key){
+                
+                if (key != '' && key != 'undefined'){
+                    console.log(key);
+                    this.$.userAjax.headers = {
+                        'x-access-token': this.token
+                    };
+                    this.$.userAjax.url = this.url + '/' + key;
+                    this.$.userAjax.generateRequest();
+                }
             }
         });
     </script>

@@ -123,8 +123,8 @@
         window.scroll(0, 0);
       },
       _routeChanged: function(newRoute){
-        console.log(newRoute);
-        console.log(this.route);
+        //console.log(newRoute);
+        //console.log(this.route);
         if(this.session.length != 0 && (newRoute == '/menu' || newRoute == '' )){
           console.log("entro menu");
           this.set('route.path','/menu');
