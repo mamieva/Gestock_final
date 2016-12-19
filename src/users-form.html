@@ -109,7 +109,8 @@
                 'iron-form-presubmit': '_formPresubmit',
                 'iron-form-invalid': '_formInvalid',
                 'create.tap': '_createSubmit',
-                'reset.tap': '_reset'
+                'reset.tap': '_reset',
+                'apply_changes.tap': '_applychangesSubmit'
             },
             ready: function () {
                 if (typeof window.localStorage.session !== "undefined") {
@@ -118,7 +119,7 @@
                 //console.log(this.key);
                 //cargar formulario
                 this._getForm().reallythis = this;
-                this._getForm().action = this.url;
+                //this._getForm().action = this.url;
                 //Cargar iron-ajax
                 // this.ajaxlist.method = 'GET';
                 // this.ajaxlist = document.createElement('iron-ajax');
@@ -146,10 +147,25 @@
                 this._getForm().headers = {
                     'x-access-token': this.token
                 };
-                var user = this.$.userForm.serialize();
+                this._getForm().method = 'POST';
+                this._getForm().action = this.url;
+                var user = this._getForm().serialize();
                 user.token = JSON.parse(window.localStorage.session).token;
-                this._getForm.params = user;
+                this._getForm().params = user;
                 //console.log(user);
+                this.$.userForm.submit();
+            },
+            _applychangesSubmit: function(event){
+                //var token = JSON.parse(window.localStorage.session).token
+                this._getForm().headers = {
+                    'x-access-token': this.token
+                };
+                this._getForm().method = 'PUT';
+                this._getForm().action = this.url + '/' + this.key;
+                var user = this._getForm().serialize();
+                user.token = JSON.parse(window.localStorage.session).token;
+                this._getForm().params = user;
+                console.log(user);
                 this.$.userForm.submit();
             },
             _reset: function (e) {
@@ -197,10 +213,12 @@
                 this.$.delete.style.display = 'inline';
                 this.$.apply_changes.style.display = 'inline';
                 this.$.username.disabled = null;
+                this.$.password.disabled = null;
                 this.$.password.style.display = 'inline';
                 //
                 if (key != '' && key != 'undefined') {
                     this.$.username.disabled = 'disabled';
+                    this.$.password.disabled = 'disabled';
                     this.$.password.style.display = 'none';
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
