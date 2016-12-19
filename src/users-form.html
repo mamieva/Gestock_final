@@ -29,13 +29,16 @@
             }
             
             form {
-                width: 100%;
+                width: 900px;
             }
             
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
+            }
+            .botonera{
+                margin: 10px 0 0 0;
             }
             
             iron-icon,
@@ -44,42 +47,42 @@
                 margin-right: 12px;
             }
         </style>
-        <app-route route="{{route}}"
-                   pattern="/:user"
-                   data="{{userData}}"
-                   tail="{{routeTail}}"
-                   id="routeManager">
-        <iron-ajax id="userAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
-        <div class="container">
-            <h3>Usuario</h3>
-            <form is="iron-form" method="POST" id="userForm">
-                <paper-input id="username" name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
-                    auto-validate required >
-                    <iron-icon icon="mail" prefix></iron-icon>
-                    <!--<div suffix>@email.com</div>-->
-                </paper-input>
-                <paper-input id="password" password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
-                    auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
-                    <iron-icon icon="communication:vpn-key" prefix></iron-icon>
-                </paper-input>
-                <paper-dropdown-menu  label="Estado" name="status" required>
-                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="INACTIVO">
-                        <paper-item name="ACTIVO">ACTIVO</paper-item>
-                        <paper-item name="INACTIVO">INACTIVO</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
-                <paper-button raised submit id="submit">Agregar</paper-button>
+<app-route route="{{route}}" pattern="/:user" data="{{userData}}" tail="{{routeTail}}" id="routeManager">
+    <iron-ajax id="userAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+    <div class="container">
+        <h3>Usuario</h3>
+        <form is="iron-form" method="POST" id="userForm">
+            <paper-input id="username" name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
+                auto-validate required>
+                <iron-icon icon="mail" prefix></iron-icon>
+                <!--<div suffix>@email.com</div>-->
+            </paper-input>
+            <paper-input id="password" password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+                auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
+                <iron-icon icon="communication:vpn-key" prefix></iron-icon>
+            </paper-input>
+            <paper-dropdown-menu label="Estado" name="status" required>
+                <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="INACTIVO">
+                    <paper-item name="ACTIVO">ACTIVO</paper-item>
+                    <paper-item name="INACTIVO">INACTIVO</paper-item>
+                </paper-listbox>
+            </paper-dropdown-menu>
+            <div class="botonera">
+                <paper-button raised submit id="create">Agregar</paper-button>
+                <paper-button raised submit id="apply_changes">Modificar</paper-button>
+                <paper-button raised submit id="delete">Eliminar</paper-button>
                 <paper-button raised id="reset">Limpiar</paper-button>
-                <div class="output"></div>
-            </form>
-            <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
-        </div>
+            </div>
+            <div class="output"></div>
+        </form>
+        <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
+    </div>
     </template>
     <script>
         Polymer({
             is: 'users-form',
             properties: {
-                route:{
+                route: {
                     type: Object
                 },
                 key: {
@@ -105,7 +108,7 @@
                 'iron-form-error': '_formError',
                 'iron-form-presubmit': '_formPresubmit',
                 'iron-form-invalid': '_formInvalid',
-                'submit.tap': '_submit',
+                'create.tap': '_createSubmit',
                 'reset.tap': '_reset'
             },
             ready: function () {
@@ -115,7 +118,7 @@
                 //console.log(this.key);
                 //cargar formulario
                 this._getForm().reallythis = this;
-                this._getForm().action = this.url;                
+                this._getForm().action = this.url;
                 //Cargar iron-ajax
                 // this.ajaxlist.method = 'GET';
                 // this.ajaxlist = document.createElement('iron-ajax');
@@ -130,12 +133,15 @@
                 var user = response.detail.response.data;
                 this.$.username.value = user.username;
                 this.$.status.selected = user.status;
+                if (user.status == 'ACTIVO') {
+                    this.$.delete.style.display = 'none';
+                }
 
             },
             _handleError: function () {
                 null
             },
-            _submit: function (event) {                
+            _createSubmit: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
                 this._getForm().headers = {
                     'x-access-token': this.token
@@ -182,15 +188,31 @@
             _formResponse: function () {
                 this.showMessage("aceptado");
             },
-            _viewChanged: function(key){
-                
-                if (key != '' && key != 'undefined'){
-                    console.log(key);
+            _viewChanged: function (key) {
+                // Limpiar formulario
+                this.$.userForm.reset();
+                //Prendemos los botones
+                this.$.create.style.display = 'inline';
+                this.$.reset.style.display = 'inline';
+                this.$.delete.style.display = 'inline';
+                this.$.apply_changes.style.display = 'inline';
+                this.$.username.disabled = null;
+                this.$.password.style.display = 'inline';
+                //
+                if (key != '' && key != 'undefined') {
+                    this.$.username.disabled = 'disabled';
+                    this.$.password.style.display = 'none';
+                    this.$.create.style.display = 'none';
+                    this.$.reset.style.display = 'none';
                     this.$.userAjax.headers = {
                         'x-access-token': this.token
                     };
                     this.$.userAjax.url = this.url + '/' + key;
                     this.$.userAjax.generateRequest();
+                }
+                else {
+                    this.$.delete.style.display = 'none';
+                    this.$.apply_changes.style.display = 'none';
                 }
             }
         });
