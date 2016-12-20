@@ -62,7 +62,7 @@
                 <iron-icon icon="communication:vpn-key" prefix></iron-icon>
             </paper-input>
             <paper-dropdown-menu label="Estado" name="status" required>
-                <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="INACTIVO">
+                <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
                     <paper-item name="ACTIVO">ACTIVO</paper-item>
                     <paper-item name="INACTIVO">INACTIVO</paper-item>
                 </paper-listbox>
@@ -162,10 +162,11 @@
                 };
                 this._getForm().method = 'PUT';
                 this._getForm().action = this.url + '/' + this.key;
-                var user = this._getForm().serialize();
-                user.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = user;
-                console.log(user);
+                this._getForm().contentType ="application/x-www-form-urlencoded";
+                //var user = this._getForm().serialize();
+                //user.token = JSON.parse(window.localStorage.session).token;
+                //this._getForm().params = user;
+                console.log(this._getForm());
                 this.$.userForm.submit();
             },
             _reset: function (e) {
