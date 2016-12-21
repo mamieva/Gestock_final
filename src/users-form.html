@@ -148,8 +148,9 @@
         },
         _handleResponseUpdate: function (response) {
             console.log(response.detail.response);
-            var update = response.detail.response;
+            var update = response.detail.response;            
             this.showMessage('El usuario ha sido actualizado con exito');
+            window.location.reload();
         },
         _getUser: function () {
             this.$.userAjax.headers = {
@@ -173,7 +174,7 @@
             else {
                 this.$.updateAjax.body = serialize;
                 this.$.updateAjax.generateRequest();
-                window.location.reload();
+                // window.location.reload();
             }
         },
         _createSubmit: function (event) {
