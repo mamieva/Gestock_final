@@ -65,7 +65,7 @@
             <iron-icon icon="communication:vpn-key" prefix></iron-icon>
         </paper-input>
         <paper-dropdown-menu label="Estado" name="status" required>
-            <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
+            <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="">
                 <paper-item name="ACTIVO">ACTIVO</paper-item>
                 <paper-item name="INACTIVO">INACTIVO</paper-item>
             </paper-listbox>
@@ -137,6 +137,7 @@
             this.user = user;
             this.$.username.value = user.username;
             this.$.status.selected = user.status;
+            console.log(this.$.status.selected);
             if (user.status == 'ACTIVO') {
                 this.$.delete.style.display = 'none';
             }
@@ -150,7 +151,8 @@
             console.log(response.detail.response);
             var update = response.detail.response;            
             this.showMessage('El usuario ha sido actualizado con exito');
-            window.location.reload();
+            // window.location.reload();
+            this._viewChanged(this.key);
         },
         _getUser: function () {
             this.$.userAjax.headers = {
@@ -257,6 +259,7 @@
             this.$.password.style.display = 'inline-block';
             //
             if (key != '' && key != 'undefined') {
+                this.$.status.selected  ='';
                 this.$.username.disabled = 'disabled';
                 this.$.password.disabled = 'disabled';
                 this.$.password.style.display = 'none';
