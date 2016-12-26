@@ -150,7 +150,7 @@
                   alert('404');
               }
               response = null;
-              console.log(err.detail.request.response);
+              console.log('response',err.detail.request.status); //detail.request.response
             },
             _selectedItemChangedNotify: function(key, select) {
               console.log("click");
