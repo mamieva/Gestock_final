@@ -12,6 +12,7 @@
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
@@ -29,113 +30,129 @@
           text-decoration: none;
           color: black;
         }
-    </style>
-    <!-- Enrutador -->
-    <app-location route="{{route}}" use-hash-as-path></app-location>
-    <app-route route="{{route}}" pattern="/:page" data="{{pageData}}" tail="{{subRoute}}">
-    </app-route>
-    <!-- Aplicacion -->
-    <app-localstorage-document
-            id = "session"
-            key="session"
-            data="{{session}}"
-    </app-localstorage-document>
-
-    <neon-animated-pages id="pages" attr-for-selected="name" selected="{{pageData.page}}">
-
-      <login-page name="login"></login-page>
-
-      <menu-app name="menu" route="{{subRoute}}"></menu-app>
-
-    </neon-animated-pages>
-
-  </template>
-
-  <script>
-    Polymer({
-      is: 'gestock-app',
-
-      properties:{
-        session:{
-          type: Object,
-          value: []
-        },
-        isAuthenticated:{
-          type: Boolean
-        },
-        route:{
-          type: Object
-        }
-
-      },
-
-      observers: [
-        '_updateScroll(route)',
-        '_routeChanged(route.path)'
-      ],
-      listeners:{
-        'login': 'loginUser'
-      },
-      ready: function(){
-        console.log(this.pageData.page);
-
-      },
-      attached: function() {
-        //console.log('sss',this.session.length);
-        //console.log(JSON.parse(window.localStorage.session).token);
-        //
-        // if(this.session.length != 0 && this.pageData.page != 'login' ){
-        //   console.log("entro menu");
-        //   this.set('route.path','/menu');
-        // }
-        // else{
-        //   //this.$.session.destroy();
-        //   console.log("entro login");
-        //   this.set('route.path','/login');
-        // }
-        //console.log(this.session.isAuthenticated);
-        // if(!this.session.token){
-        //    if (!this.pageData.page) {
-        //    this.set('route.path', '/login');
-        //    //this.$.pages.selected = 0;
-        //      }
-        //    else {
-        //    //this.set('route.path', '/' + this.pageData.page);
-        //    //this.$.pages.selected = 0;
-        //    }
-        //   }
-        //   else{
-        //     //this.set('route.path', '/' + this.pageData.page);
-        //     //this.$.pages.selected = 1;
-        //   }
-
-      },
-      loginUser: function(event){
-        //console.log('events disparado');
-        //this.isAuthenticated = true;
-        this.session = event.detail;
-        this.set('route.path','/menu');
-        window.location.reload();
-        //console.log(this.session);
-
-      },
-      _updateScroll: function() {
-        window.scroll(0, 0);
-      },
-      _routeChanged: function(newRoute){
-        //console.log(newRoute);
-        //console.log(this.route);
-        if(this.session.length != 0 && (newRoute == '/menu' || newRoute == '' )){
-          console.log("entro menu");
-          this.set('route.path','/menu');
+        #toastError {
+            --paper-toast-background-color: #1D2A4F;
+            --paper-toast-color: white;
         }
         
-        if (this.session.length == 0){
-          //this.$.session.destroy();
-          console.log("entro login");
-          this.set('route.path','/login');
+        paper-toolbar {
+            background-color: #4285f4;
+            color: #fff;
         }
+    </style>
+<!-- Enrutador -->
+<app-location route="{{route}}" use-hash-as-path></app-location>
+<app-route route="{{route}}" pattern="/:page" data="{{pageData}}" tail="{{subRoute}}">
+</app-route>
+<!-- Aplicacion -->
+<app-localstorage-document id="session" key="session" data="{{session}}"> </app-localstorage-document>
+<paper-toast id="toastError" text="" class="fit-top"></paper-toast>
+
+<neon-animated-pages id="pages" attr-for-selected="name" selected="{{pageData.page}}">
+
+  <login-page id="login" name="login"></login-page>
+
+  <menu-app name="menu" route="{{subRoute}}"></menu-app>
+
+</neon-animated-pages>
+</template>
+
+<script>
+  Polymer({
+    is: 'gestock-app',
+
+    properties: {
+      session: {
+        type: Object,
+        value: []
+      },
+      isAuthenticated: {
+        type: Boolean
+      },
+      route: {
+        type: Object
       }
-    });
-  </script>
+
+    },
+
+    observers: [
+      '_updateScroll(route)',
+      '_routeChanged(route.path)'
+    ],
+    listeners: {
+      'login': '_loginUser',
+      'notAuthorized': '_notAuthorized'
+    },
+    ready: function () {
+      console.log(this.pageData.page);
+
+    },
+    attached: function () {
+      //console.log('sss',this.session.length);
+      //console.log(JSON.parse(window.localStorage.session).token);
+      //
+      // if(this.session.length != 0 && this.pageData.page != 'login' ){
+      //   console.log("entro menu");
+      //   this.set('route.path','/menu');
+      // }
+      // else{
+      //   //this.$.session.destroy();
+      //   console.log("entro login");
+      //   this.set('route.path','/login');
+      // }
+      //console.log(this.session.isAuthenticated);
+      // if(!this.session.token){
+      //    if (!this.pageData.page) {
+      //    this.set('route.path', '/login');
+      //    //this.$.pages.selected = 0;
+      //      }
+      //    else {
+      //    //this.set('route.path', '/' + this.pageData.page);
+      //    //this.$.pages.selected = 0;
+      //    }
+      //   }
+      //   else{
+      //     //this.set('route.path', '/' + this.pageData.page);
+      //     //this.$.pages.selected = 1;
+      //   }
+
+    },
+    _loginUser: function (event) {
+      //console.log('events disparado');
+      //this.isAuthenticated = true;
+      this.session = event.detail;
+      this.set('route.path', '/menu');
+      window.location.reload();
+      //console.log(this.session);
+
+    },
+    _notAuthorized: function (response) {
+      console.log('res', response);
+      this.set('route.path', '/login');      
+      this.$.toastError.duration = 5000;
+      this.$.toastError.text = response.detail.message;
+      //this.$.toastError.alwaysOnTop = true;
+      //this.$.toastError.fitInto = this.$.login;
+      //console.log(this.$.toastError.open());
+      this.$.toastError.open();
+    },
+    _updateScroll: function () {
+      window.scroll(0, 0);
+    },
+    _routeChanged: function (newRoute) {
+      //console.log(newRoute);
+      //console.log(this.route);
+      if (this.session.length != 0 && (newRoute == '/menu' || newRoute == '')) {
+        console.log("entro menu");
+        this.set('route.path', '/menu');
+      }
+
+      if (this.session.length == 0) {
+        //this.$.session.destroy();
+        console.log("entro login");
+        this.set('route.path', '/login');
+      }
+    }
+  });
+</script>
 </dom-module>

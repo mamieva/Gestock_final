@@ -144,6 +144,7 @@
               var response = err.detail.request.response;
               if(response != null){
                   window.localStorage.removeItem("session");
+                  this.fire("notAuthorized",response);
               }
               else
               {
