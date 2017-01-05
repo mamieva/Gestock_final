@@ -18,6 +18,19 @@
   #sort {
     height: 300px;
   }
+   paper-button {
+    font-family: 'Roboto', 'Noto', sans-serif;
+    font-weight: normal;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  paper-button.pink {
+    color: var(--paper-pink-a200);
+    --paper-button-ink-color: var(--paper-pink-a200);
+  }
+  paper-button.pink:hover {
+    background-color: var(--paper-pink-100);
+  }
   </style>
   <app-route route="{{route}}"
                    pattern="/:key"
@@ -29,6 +42,7 @@
   <neon-animated-pages id="pages" selected="0">
 
     <div id="divList">
+        <paper-button id="addUser" class="pink">Agregar Usuario</paper-button>
       <paper-input id="filter" label="Filter by first name"></paper-input>
       <vaadin-grid id="itemsList" items={{items}}>
       </vaadin-grid>
@@ -72,6 +86,9 @@
                 '_viewChanged(data)',
                 '_fastsearchChanged(fastsearch)'
             ],
+            listeners: {
+                'addUser.tap': '_addUser'
+            },
             _routeChanged: function(newRoute) {
                 if (newRoute == "") {
                    //console.log('entro');
@@ -135,6 +152,9 @@
             customizeItemsList: function() {
                 this.parentElement.customizeItemsList(this.$.itemsList);
             },
+            _addUser: function(){
+                this.set('route.path', '/');
+            }
             // _selectedItemChanged: function(event) {
             //     console.log(event);
             //     //console.log(this.items[this.selection.selected()[0]].id);

@@ -15,6 +15,9 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
+
 
 <link rel="import" href="./simple-dialog.html">
 <dom-module id="users-form">
@@ -53,6 +56,7 @@
 <div id="ajaxContainer">
     <iron-ajax id="userAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
     <iron-ajax id="updateAjax"></iron-ajax>
+    <iron-ajax id="deleteAjax"></iron-ajax>
 </div>
 <div class="container">
     <h3>Usuario</h3>
@@ -82,12 +86,14 @@
     </form>
     <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
     <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
-    
-      <simple-dialog id="dialog">
-        <h2>Dialog Title</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-      </simple-dialog>
-      <paper-button raised id="btnDialog" >dialog</paper-button>
+    <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+        <!--<h2>Eliminar Usuario</h2>-->
+        <p>¿Desea eliminar el usuario <strong>[[user.username]]</strong> ?</p>
+        <div class="buttons">
+            <paper-button dialog-dismiss>Cancelar</paper-button>
+            <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
+        </div>
+    </paper-dialog>
 </div>
 </template>
 <script>
@@ -123,15 +129,29 @@
             'iron-form-error': '_formError',
             'iron-form-presubmit': '_formPresubmit',
             'iron-form-invalid': '_formInvalid',
-            'create.tap': '_createSubmit',
+            'create.tap': '_createUser',
             'reset.tap': '_reset',
             'apply_changes.tap': '_updateUser',
-            'btnDialog.tap': 'btnDialog'
+            'delete.tap': '_deleteDialog',
+            'deleteAceptar.tap': '_deleteUser'
         },
-        btnDialog: function(){
-            this.$.dialog.toggle();
-        }
-        ,
+        _deleteUser: function () {
+            console.log("entro aceptar");
+            this.$.deleteAjax.headers = {
+                'x-access-token': this.token
+            };
+            this.$.deleteAjax.method = 'DELETE';
+            this.$.deleteAjax.url = this.url + '/' + this.key;
+            //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
+            // this.$.deleteAjax.debounceDuration = "300";
+            // var serialize = this._getForm().serialize();
+            //this.$.updateAjax.body = serialize;
+            this.$.deleteAjax.generateRequest();
+            // window.location.reload();
+        },
+        _deleteDialog: function () {
+            this.$.animated.open();
+        },
         ready: function () {
             //cargar formulario
             this._getForm().reallythis = this;
@@ -162,7 +182,7 @@
         },
         _handleResponseUpdate: function (response) {
             console.log(response.detail.response);
-            var update = response.detail.response;            
+            var update = response.detail.response;
             this.showMessage('El usuario ha sido actualizado con exito');
             // window.location.reload();
             this._viewChanged(this.key);
@@ -192,7 +212,7 @@
                 // window.location.reload();
             }
         },
-        _createSubmit: function (event) {
+        _createUser: function (event) {
             //var token = JSON.parse(window.localStorage.session).token
             this._getForm().headers = {
                 'x-access-token': this.token
@@ -272,7 +292,7 @@
             this.$.password.style.display = 'inline-block';
             //
             if (key != '' && key != 'undefined') {
-                this.$.status.selected  ='';
+                this.$.status.selected = '';
                 this.$.username.disabled = 'disabled';
                 this.$.password.disabled = 'disabled';
                 this.$.password.style.display = 'none';
