@@ -11,7 +11,7 @@
 
 <dom-module id="list-page">
     <template>
-  <style>
+        <style>
   :host{
     display: block;
   }
@@ -32,30 +32,26 @@
     background-color: var(--paper-pink-100);
   }
   </style>
-  <app-route route="{{route}}"
-                   pattern="/:key"
-                   data="{{routeData}}"
-                   tail="{{routeTail}}"
-                   id="routeManager">
-  </app-route>
-  <div id="divAjax"></div>
-  <neon-animated-pages id="pages" selected="0">
+<app-route route="{{route}}" pattern="/:key" data="{{routeData}}" tail="{{routeTail}}" id="routeManager">
+</app-route>
+<div id="divAjax"></div>
+<neon-animated-pages id="pages" selected="0">
 
     <div id="divList">
         <paper-button id="addUser" class="pink">Agregar Usuario</paper-button>
-      <paper-input id="filter" label="Filter by first name"></paper-input>
-      <vaadin-grid id="itemsList" items={{items}}>
-      </vaadin-grid>
-  </div>
-  <div style="width: 200px; height: 200px">
-    <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
-        <users-form name="users" route="{{route}}" key="{{routeData.key}}"></users-form>
-        <roles-form></roles-form>
-    </iron-pages>
-  </div>
+        <paper-input id="filter" label="Filter by first name"></paper-input>
+        <vaadin-grid id="itemsList" items={{items}}>
+        </vaadin-grid>
+    </div>
+    <div style="width: 200px; height: 200px">
+<iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
+    <users-form name="users" route="{{route}}" key="{{routeData.key}}"></users-form>
+    <roles-form></roles-form>
+</iron-pages>
+</div>
 </neon-animated-pages>
-  </template>
-    <script>
+</template>
+<script>
         Polymer({
             is: 'list-page',
             properties: {
@@ -89,72 +85,75 @@
             listeners: {
                 'addUser.tap': '_addUser'
             },
-            _routeChanged: function(newRoute) {
+            _routeChanged: function (newRoute) {
                 if (newRoute == "") {
-                   //console.log('entro');
-                   this.$.pages.entryAnimation = "slide-from-right-animation";
-                   this.$.pages.exitAnimation = "slide-left-animation";
-                   this.$.pages.selected = 0;
-                //     this.set('routeData.key', '');
-                //     if (this.key !== undefined && this.key != "") {
-                //         this._viewChanged('');
-                //     }
+                    //console.log('entro', this.data);
+                    this._viewChanged(this.data);
+                    this.$.pages.entryAnimation = "slide-from-right-animation";
+                    this.$.pages.exitAnimation = "slide-left-animation";
+                    this.$.pages.selected = 0;
+                    //     this.set('routeData.key', '');
+                    //     if (this.key !== undefined && this.key != "") {
+                    //         this._viewChanged('');
+                    //     }
                 }
-                 else {
-                //   console.log('entro');
-                  this.$.pages.entryAnimation = "slide-from-right-animation";
-                  this.$.pages.exitAnimation = "slide-left-animation";
-                  this.$.pages.selected = 1;
-                 }
-                 this._viewChanged(this.data);
+                else {
+                    //   console.log('entro');
+                    this.$.pages.entryAnimation = "slide-from-right-animation";
+                    this.$.pages.exitAnimation = "slide-left-animation";
+                    this.$.pages.selected = 1;
+                }
+                //this._viewChanged(this.data);
                 //this.$.editor.load(this.key);
             },
-            _viewChanged: function(data) {
+            _viewChanged: function (data) {
                 console.log("entra viewchang de lista");
                 var notList = ["home"];
-                if (notList.indexOf(data) === -1){
-                    this.ajaxlist.url = this.url + data;
-                    this.$.divAjax.appendChild(this.ajaxlist);
-                    this.ajaxlist.generateRequest();
+                if (data != 'undefined') {
+                    if (notList.indexOf(data) === -1) {
+                        this.ajaxlist.url = this.url + data;
+                        this.$.divAjax.appendChild(this.ajaxlist);
+                        this.ajaxlist.generateRequest();
+                    }
                 }
-                    
+
             },
-            getItemsList: function() {
+            getItemsList: function () {
                 // console.log(this.$.itemsList);
                 return this.$.itemsList;
             },
-            getFilter: function() {
+            getFilter: function () {
                 return this.$.filter;
             },
-            getListToolbar: function() {
+            getListToolbar: function () {
                 return this.$.tool;
             },
-            reset: function() {
+            reset: function () {
                 if (this.$.pages.selected != 0) {
                     this._onClose();
                     this.refresh();
                 }
             },
-            _onNew: function() {
+            _onNew: function () {
                 this.key = "0";
                 this.set('route.path', '/' + this.key);
             },
-            _onClose: function() {
+            _onClose: function () {
                 this.$.pages.entryAnimation = "slide-from-left-animation";
                 this.$.pages.exitAnimation = "slide-right-animation";
                 this.set('route.path', '');
                 this.set('routeData.key', '');
                 this.$.pages.selected = 0;
             },
-            _editorSetTitle: function(event) {
+            _editorSetTitle: function (event) {
                 if (this.$.pages.selected == 0) {
                     event.stopPropagation();
                 }
             },
-            customizeItemsList: function() {
+            customizeItemsList: function () {
                 this.parentElement.customizeItemsList(this.$.itemsList);
             },
-            _addUser: function(){
+            _addUser: function () {
                 this.set('route.path', '/');
             }
             // _selectedItemChanged: function(event) {
