@@ -163,6 +163,10 @@
             this.$.updateAjax.reallythis = this;
             this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
             this.$.updateAjax.addEventListener('error', this._handleError.bind(this));
+            ///
+            this.$.deleteAjax.reallythis = this;
+            this.$.deleteAjax.addEventListener('response', this._handleResponseDelete.bind(this));
+            this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
         },
         _handleResponse: function (response) {
             console.log(response.detail.response.data);
@@ -186,6 +190,14 @@
             this.showMessage('El usuario ha sido actualizado con exito');
             // window.location.reload();
             this._viewChanged(this.key);
+        },
+        _handleResponseDelete: function (response) {
+            console.log(response.detail.response);
+            var update = response.detail.response.message;
+            this.showMessage(update);
+            // window.location.reload();
+            this._viewChanged(this.key);
+            this.set('route.path','');
         },
         _getUser: function () {
             this.$.userAjax.headers = {
