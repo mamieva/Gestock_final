@@ -19,7 +19,7 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
-<dom-module id="users-form">
+<dom-module id="roles-form">
     <template>
         <style>
              :host {
@@ -66,8 +66,7 @@
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
                     </paper-input>
-                    <paper-input id="password" password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
-                        auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
+                    <paper-input id="description"  type="password" name="description" label="Descripción">
                         <iron-icon icon="communication:vpn-key" prefix></iron-icon>
                         </paper-input>
                         <paper-dropdown-menu label="Estado" name="status" required>
@@ -100,7 +99,7 @@
     </template>
     <script>
         Polymer({
-            is: 'users-form',
+            is: 'roles-form',
             properties: {
                 route: {
                     type: Object
@@ -113,7 +112,7 @@
                 },
                 url: {
                     type: String,
-                    value: 'http://localhost:3000/user'
+                    value: 'http://localhost:3000/role'
                 },
                 token: {
                     type: String

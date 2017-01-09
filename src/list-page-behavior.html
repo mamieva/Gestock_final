@@ -1,6 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-
 <script>
     var AWSLBehaviors = AWSLBehaviors || {};
 
@@ -88,7 +87,9 @@
                 if (typeof window.localStorage.session !== "undefined") {
                     _token = JSON.parse(window.localStorage.session).token;
                 }
-                this.ajaxlist.params = { token: _token };
+                this.ajaxlist.params = {
+                    token: _token
+                };
                 //console.log(JSON.parse(window.localStorage.session).token);
 
                 this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
@@ -109,14 +110,21 @@
             _handleResponse: function (response) {
                 //debugger;
                 // console.log('aaaaaaaaa',response.detail.response.data);
-                let keys = Object.keys(response.detail.response.data[0]);
+                var data = response.detail.response.data;
+                let keys = [];
+                if (data.length > 0) {
+                    keys = Object.keys(data[0]);
+                }
                 let grid = this.getItemsList();
                 grid.columns = [];
                 grid.style.display = "block";
                 keys.forEach(function (element) {
                     //console.log(element);
                     //if(element === 'id'){
-                    var col = { "name": element, "sortable": "true" };
+                    var col = {
+                        "name": element,
+                        "sortable": "true"
+                    };
                     //}
                     //else {
                     //var col = {"name" : element};
@@ -147,8 +155,7 @@
                 if (response != null) {
                     window.localStorage.removeItem("session");
                     this.fire("notAuthorized", response);
-                }
-                else {
+                } else {
                     alert('404');
                 }
                 response = null;
@@ -166,7 +173,7 @@
             getListToolbar: function () {
                 return null;
             },
-            customizeItemsList: function () { },
+            customizeItemsList: function () {},
             _openFilter: function () {
                 this.getFilter()._openFilter();
             },
