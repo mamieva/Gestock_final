@@ -88,6 +88,7 @@
             _routeChanged: function (newRoute) {
                 if (newRoute == "") {
                     //console.log('entro', this.data);
+                    //va a ejecutar el ajax dos veces
                     this._viewChanged(this.data);
                     this.$.pages.entryAnimation = "slide-from-right-animation";
                     this.$.pages.exitAnimation = "slide-left-animation";
