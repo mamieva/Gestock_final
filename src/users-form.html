@@ -85,6 +85,7 @@
             </form>
             <div class="roles">
                 <paper-autocomplete id="myId" label="Select"></paper-autocomplete>
+                <paper-autocomplete label="Select User" id="inputRemote" remote-source="true" min-length="2"></paper-autocomplete>
             </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
@@ -135,7 +136,8 @@
                 'reset.tap': '_reset',
                 'apply_changes.tap': '_updateUser',
                 'delete.tap': '_deleteDialog',
-                'deleteAceptar.tap': '_deleteUser'
+                'deleteAceptar.tap': '_deleteUser',
+                'autocomplete-change': '_changeInput'
             },
             _deleteUser: function () {
                 console.log("entro aceptar");
@@ -170,7 +172,7 @@
                 this.$.deleteAjax.addEventListener('response', this._handleResponseDelete.bind(this));
                 this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
                 //
-                this.$.myId.source = ["viejo","nuevo"];
+                this.$.myId.source = ["viejo", "nuevo"];
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
@@ -321,6 +323,27 @@
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';
                 }
+            },
+
+            _changeInput: function (event) {
+                var input = this.$.inputRemote;
+                var search = event.detail.option.text;
+                var url = 'https://api.github.com/search/users?q=' + search + '+in:login';
+                var req = new XMLHttpRequest();
+                req.open('GET', encodeURI(url));
+                req.onload = function () {
+                    if (req.status === 200) {
+                        var data = JSON.parse(req.response);
+                        var arr = data.items.map(function (obj) {
+                            return {
+                                text: obj.login,
+                                value: obj.login
+                            };
+                        });
+                        input.suggestions(arr);
+                    }
+                };
+                req.send();
             }
         });
     </script>
