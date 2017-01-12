@@ -54,20 +54,19 @@
         </style>
         <app-route route="{{route}}" pattern="/:user" data="{{userData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
-            <iron-ajax id="userAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+            <iron-ajax id="roleAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
         </div>
         <div class="container">
-            <h3>Usuario</h3>
-            <form is="iron-form" method="POST" id="userForm">
-                <paper-input id="username" name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
-                    auto-validate required>
+            <h3>Rol</h3>
+            <form is="iron-form" method="POST" id="roleForm">
+                <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
                     </paper-input>
-                    <paper-input id="description"  type="password" name="description" label="Descripción">
-                        <iron-icon icon="communication:vpn-key" prefix></iron-icon>
+                    <paper-input id="description" name="description" label="Descripción">
+                        <iron-icon icon="icons:description" prefix></iron-icon>
                         </paper-input>
                         <paper-dropdown-menu label="Estado" name="status" required>
                             <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="">
@@ -88,8 +87,8 @@
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-                <!--<h2>Eliminar Usuario</h2>-->
-                <p>¿Desea eliminar el usuario <strong>[[user.username]]</strong> ?</p>
+                <!--<h2>Eliminar rol</h2>-->
+                <p>¿Desea eliminar el rol <strong>[[user.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -157,9 +156,9 @@
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
-                this.$.userAjax.reallythis = this;
-                this.$.userAjax.addEventListener('response', this._handleResponse.bind(this));
-                this.$.userAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.roleAjax.reallythis = this;
+                this.$.roleAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.roleAjax.addEventListener('error', this._handleError.bind(this));
                 ///
                 this.$.updateAjax.reallythis = this;
                 this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
@@ -175,7 +174,7 @@
                 console.log(response.detail.response.data);
                 var user = response.detail.response.data;
                 this.user = user;
-                this.$.username.value = user.username;
+                this.$.name.value = user.name;
                 this.$.status.selected = user.status;
                 console.log(this.$.status.selected);
                 if (user.status == 'ACTIVO') {
@@ -185,12 +184,12 @@
             },
             _handleError: function (error) {
                 console.log(error);
-                this.showError('Se produjo un error al obtener el usuario');
+                this.showError('Se produjo un error al obtener el rol');
             },
             _handleResponseUpdate: function (response) {
                 console.log(response.detail.response);
                 var update = response.detail.response;
-                this.showMessage('El usuario ha sido actualizado con exito');
+                this.showMessage('El rol ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
@@ -203,11 +202,11 @@
                 this.set('route.path', '');
             },
             _getUser: function () {
-                this.$.userAjax.headers = {
+                this.$.roleAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.userAjax.url = this.url + '/' + this.key;
-                this.$.userAjax.generateRequest();
+                this.$.roleAjax.url = this.url + '/' + this.key;
+                this.$.roleAjax.generateRequest();
             },
             _updateUser: function (event) {
                 this.$.updateAjax.headers = {
@@ -237,7 +236,7 @@
                 user.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = user;
                 //console.log(user);
-                this.$.userForm.submit();
+                this.$.roleForm.submit();
             },
             _applychangesSubmit: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
@@ -251,16 +250,16 @@
                 //user.token = JSON.parse(window.localStorage.session).token;
                 //this._getForm().params = user;
                 console.log(this._getForm());
-                this.$.userForm.submit();
+                this.$.roleForm.submit();
             },
             _reset: function (e) {
-                this.$.userForm.reset();
+                this.$.roleForm.reset();
             },
             _formSubmit: function () {
                 //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
             },
             _getForm: function () {
-                return this.$.userForm;
+                return this.$.roleForm;
             },
             _formPresubmit: function () {
                 console.log("presubmit");
@@ -277,13 +276,13 @@
             showError: function (errorMessage) {
                 //console.log("error msg");
                 this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.userForm;
+                //this.$.toastError.fitInto = this.$.roleForm;
                 //console.log(this.$.toastError.open());
                 this.$.toastError.open();
             },
             showMessage: function (message) {
                 this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.userForm;
+                //this.$.toastOk.fitInto = this.$.roleForm;
                 this.$.toastOk.open();
             },
             _formResponse: function (response) {
@@ -298,21 +297,21 @@
                     this.token = JSON.parse(window.localStorage.session).token;
                 }
                 // Limpiar formulario
-                this.$.userForm.reset();
+                this.$.roleForm.reset();
                 //Prendemos los botones
                 this.$.create.style.display = 'inline-block';
                 this.$.reset.style.display = 'inline-block';
                 this.$.delete.style.display = 'inline-block';
                 this.$.apply_changes.style.display = 'inline-block';
-                this.$.username.disabled = null;
-                this.$.password.disabled = null;
-                this.$.password.style.display = 'inline-block';
+                this.$.name.disabled = null;
+                this.$.description.disabled = null;
+                this.$.description.style.display = 'inline-block';
                 //
                 if (key != '' && key != 'undefined') {
                     this.$.status.selected = '';
-                    this.$.username.disabled = 'disabled';
-                    this.$.password.disabled = 'disabled';
-                    this.$.password.style.display = 'none';
+                    this.$.name.disabled = 'disabled';
+                    this.$.description.disabled = 'disabled';
+                    this.$.description.style.display = 'none';
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
                     this._getUser();
