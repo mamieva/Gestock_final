@@ -57,6 +57,7 @@
             <iron-ajax id="userAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
+            <iron-ajax id="getAjax"></iron-ajax>
         </div>
         <div class="container">
             <h3>Usuario</h3>
@@ -84,8 +85,7 @@
                         </div>
             </form>
             <div class="roles">
-                <paper-autocomplete id="myId" label="Select"></paper-autocomplete>
-                <paper-autocomplete label="Select User" id="inputRemote" remote-source="true" min-length="2"></paper-autocomplete>
+                <paper-autocomplete label="Seleccionar Rol" id="inputRemote" min-length="2"></paper-autocomplete>
             </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
@@ -114,7 +114,7 @@
                 },
                 url: {
                     type: String,
-                    value: 'http://localhost:3000/user'
+                    value: 'http://localhost:3000/'
                 },
                 token: {
                     type: String
@@ -137,7 +137,8 @@
                 'apply_changes.tap': '_updateUser',
                 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deleteUser',
-                'autocomplete-change': '_changeInput'
+                //'autocomplete-change': '_changeRol',
+                'autocomplete-selected': "_selectedRol"
             },
             _deleteUser: function () {
                 console.log("entro aceptar");
@@ -145,7 +146,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url + '/' + this.key;
+                this.$.deleteAjax.url = this.url + 'user' + '/' + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -172,7 +173,8 @@
                 this.$.deleteAjax.addEventListener('response', this._handleResponseDelete.bind(this));
                 this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
                 //
-                this.$.myId.source = ["viejo", "nuevo"];
+                // Cargar Roles para el usuario
+                //this._getRoles();
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
@@ -209,7 +211,7 @@
                 this.$.userAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.userAjax.url = this.url + '/' + this.key;
+                this.$.userAjax.url = this.url + 'user' + '/' + this.key;
                 this.$.userAjax.generateRequest();
             },
             _updateUser: function (event) {
@@ -217,7 +219,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url + '/' + this.key;
+                this.$.updateAjax.url = this.url + 'user' + '/' + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -235,7 +237,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
-                this._getForm().action = this.url;
+                this._getForm().action = this.url + 'user';
                 var user = this._getForm().serialize();
                 user.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = user;
@@ -248,7 +250,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url + '/' + this.key;
+                this._getForm().action = this.url + 'user' + '/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var user = this._getForm().serialize();
                 //user.token = JSON.parse(window.localStorage.session).token;
@@ -319,31 +321,68 @@
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
                     this._getUser();
+                    this._getRoles();
                 } else {
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';
                 }
             },
 
-            _changeInput: function (event) {
+            _changeRol: function (event) {
                 var input = this.$.inputRemote;
                 var search = event.detail.option.text;
-                var url = 'https://api.github.com/search/users?q=' + search + '+in:login';
+                var url = this.url + 'roles';
                 var req = new XMLHttpRequest();
                 req.open('GET', encodeURI(url));
+                req.setRequestHeader('x-access-token', this.token);
+                req.responseType = 'json';
                 req.onload = function () {
                     if (req.status === 200) {
-                        var data = JSON.parse(req.response);
-                        var arr = data.items.map(function (obj) {
+                        //console.log(req.response)
+                        //var data = JSON.parse(req.response.data);
+                        var data = req.response.data;
+                        var arr = data.map(function (obj) {
                             return {
-                                text: obj.login,
-                                value: obj.login
+                                text: obj.name,
+                                value: obj._id
                             };
                         });
                         input.suggestions(arr);
                     }
                 };
                 req.send();
+            },
+            _selectedRol: function(id,value,text,target,option){
+                console.log('idddd',id);
+                alert(this.$.inputRemote.value);
+            },
+            _getRoles: function(){
+                var input = this.$.inputRemote;
+                //var search = event.detail.option.text;
+                var url = this.url + 'roles';
+                var req = new XMLHttpRequest();
+                req.open('GET', encodeURI(url));
+                req.setRequestHeader('x-access-token', this.token);
+                //console.log('token',this.token);
+                req.responseType = 'json';
+                req.onload = function () {
+                    //console.log('roles input',req.status);
+                    if (req.status === 200) {
+                        //console.log(req.response)
+                        //var data = JSON.parse(req.response.data);
+                        var data = req.response.data;
+                        console.log('data',data);
+                        var arr = data.map(function (obj) {
+                            return {
+                                text: obj.name,
+                                value: obj._id
+                            };
+                        });
+                        input.source = arr;
+                        console.log('a',input.source);
+                    }
+                };
+                req.send();                
             }
         });
     </script>
