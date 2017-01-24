@@ -18,6 +18,7 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="./simple-dialog.html">
 <dom-module id="users-form">
     <template>
@@ -57,7 +58,8 @@
             <iron-ajax id="userAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
-            <iron-ajax id="getAjax"></iron-ajax>
+            <iron-ajax id="getUserRoleAjax"></iron-ajax>
+            <iron-ajax id="createUserRoleAjax"></iron-ajax>
         </div>
         <div class="container">
             <h3>Usuario</h3>
@@ -85,7 +87,10 @@
                         </div>
             </form>
             <div class="roles">
-                <paper-autocomplete label="Seleccionar Rol" id="inputRemote" min-length="2"></paper-autocomplete>
+                <paper-autocomplete label="Seleccionar Rol" id="selectRole" min-length="2"></paper-autocomplete>
+                <paper-button raised submit id="addRole">Agregar</paper-button>
+                <vaadin-grid id="rolesList" items={{items}}>
+                </vaadin-grid>
             </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
@@ -137,6 +142,7 @@
                 'apply_changes.tap': '_updateUser',
                 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deleteUser',
+                'addRole.tap': '_addUserRole',
                 //'autocomplete-change': '_changeRol',
                 'autocomplete-selected': "_selectedRol"
             },
@@ -174,7 +180,15 @@
                 this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
                 //
                 // Cargar Roles para el usuario
-                //this._getRoles();
+                //
+                this.$.getUserRoleAjax.addEventListener('response', this._handleResponseGetUserRole.bind(
+                    this));
+                this.$.getUserRoleAjax.addEventListener('error', this._handleError.bind(this));
+                //
+                this.$.createUserRoleAjax.addEventListener('response', this._handleResponseCreateUserRole.bind(
+                    this));
+                this.$.createUserRoleAjax.addEventListener('error', this._handleError.bind(this));
+                //
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
@@ -322,6 +336,7 @@
                     this.$.reset.style.display = 'none';
                     this._getUser();
                     this._getRoles();
+                    this._getUserRole();
                 } else {
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';
@@ -329,7 +344,7 @@
             },
 
             _changeRol: function (event) {
-                var input = this.$.inputRemote;
+                var input = this.$.selectRole;
                 var search = event.detail.option.text;
                 var url = this.url + 'roles';
                 var req = new XMLHttpRequest();
@@ -352,12 +367,12 @@
                 };
                 req.send();
             },
-            _selectedRol: function(id,value,text,target,option){
-                console.log('idddd',id);
-                alert(this.$.inputRemote.value);
+            _selectedRol: function (id, value, text, target, option) {
+                console.log('idddd', id);
+                alert(this.$.selectRole.value);
             },
-            _getRoles: function(){
-                var input = this.$.inputRemote;
+            _getRoles: function () {
+                var input = this.$.selectRole;
                 //var search = event.detail.option.text;
                 var url = this.url + 'roles';
                 var req = new XMLHttpRequest();
@@ -371,7 +386,7 @@
                         //console.log(req.response)
                         //var data = JSON.parse(req.response.data);
                         var data = req.response.data;
-                        console.log('data',data);
+                        console.log('data', data);
                         var arr = data.map(function (obj) {
                             return {
                                 text: obj.name,
@@ -379,10 +394,73 @@
                             };
                         });
                         input.source = arr;
-                        console.log('a',input.source);
+                        console.log('a', input.source);
                     }
                 };
-                req.send();                
+                req.send();
+            },
+            _handleResponseGetUserRole: function (response) {
+                console.log('userrole', response);
+                //debugger;
+                // console.log('aaaaaaaaa',response.detail.response.data);
+                var data = response.detail.response.data;
+                let keys = [];
+                if (data.length > 0) {
+                    keys = Object.keys(data[0]);
+                }
+                let grid = this._getRolesList();
+                grid.columns = [];
+                grid.style.display = "block";
+                keys.forEach(function (element) {
+                    //console.log(element);
+                    //if(element === 'id'){
+                    var col = {
+                        "name": element,
+                        "sortable": "true"
+                    };
+                    //}
+                    //else {
+                    //var col = {"name" : element};
+                    //}
+                    grid.addColumn(col);
+                });
+
+                // for( var name in keys){
+                //   //var col = {"name" : name.1};
+                //   console.log(name.value);
+                //   //this.getItemsList().addColumn(name);
+                // }
+                grid.items = response.detail.response.data;
+
+            },
+            _getUserRole: function () {
+                this.$.getUserRoleAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.getUserRoleAjax.method = 'GET';
+                this.$.getUserRoleAjax.handleAs = 'json';
+                this.$.getUserRoleAjax.url = this.url + 'user/' + this.key + '/roles';
+                this.$.getUserRoleAjax.generateRequest();
+            },
+            _getRolesList: function () {
+                return this.$.rolesList;
+            },
+            _addUserRole: function () {
+                this.$.createUserRoleAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.createUserRoleAjax.method = 'POST';
+                this.$.createUserRoleAjax.url = this.url + 'user/' + this.key + '/role';
+                this.$.createUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
+                this.$.createUserRoleAjax.body = {"roleId": this.$.selectRole.value};
+                this.$.createUserRoleAjax.generateRequest();
+            },
+            _handleResponseCreateUserRole: function (response) {
+                console.log(response.detail.response);
+                var addRole = response.detail.response;
+                this.showMessage('El rol ha sido agregado con exito');
+                // window.location.reload();
+                this._viewChanged(this.key);
             }
         });
     </script>
