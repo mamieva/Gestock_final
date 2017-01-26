@@ -9,50 +9,52 @@
 <link rel="import" href="./list-page-behavior.html">
 <link rel="import" href="./users-form.html">
 <link rel="import" href="./roles-form.html">
-
 <dom-module id="list-page">
     <template>
         <style>
-  :host{
-    display: block;
-  }
-  #sort {
-    height: 300px;
-  }
-   paper-button {
-    font-family: 'Roboto', 'Noto', sans-serif;
-    font-weight: normal;
-    font-size: 14px;
-    -webkit-font-smoothing: antialiased;
-  }
-  paper-button.pink {
-    color: var(--paper-pink-a200);
-    --paper-button-ink-color: var(--paper-pink-a200);
-  }
-  paper-button.pink:hover {
-    background-color: var(--paper-pink-100);
-  }
-  </style>
-<app-route route="{{route}}" pattern="/:key" data="{{routeData}}" tail="{{routeTail}}" id="routeManager">
-</app-route>
-<div id="divAjax"></div>
-<neon-animated-pages id="pages" selected="0">
-
-    <div id="divList">
-        <paper-button id="addUser" class="pink">Agregar nuevo </paper-button>
-        <paper-input id="filter" label="Filter by first name"></paper-input>
-        <vaadin-grid id="itemsList" items={{items}}>
-        </vaadin-grid>
-    </div>
-    <div style="width: 200px; height: 200px">
-<iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
-    <users-form name="users" route="{{route}}" key="{{routeData.key}}"></users-form>
-    <roles-form name="roles" route="{{route}}" key="{{routeData.key}}"></roles-form>
-</iron-pages>
-</div>
-</neon-animated-pages>
-</template>
-<script>
+             :host {
+                display: block;
+            }
+            
+            #sort {
+                height: 300px;
+            }
+            
+            paper-button {
+                font-family: 'Roboto', 'Noto', sans-serif;
+                font-weight: normal;
+                font-size: 14px;
+                -webkit-font-smoothing: antialiased;
+            }
+            
+            paper-button.pink {
+                color: var(--paper-pink-a200);
+                --paper-button-ink-color: var(--paper-pink-a200);
+            }
+            
+            paper-button.pink:hover {
+                background-color: var(--paper-pink-100);
+            }
+        </style>
+        <app-route route="{{route}}" pattern="/:key" data="{{routeData}}" tail="{{routeTail}}" id="routeManager">
+        </app-route>
+        <div id="divAjax"></div>
+        <neon-animated-pages id="pages" selected="0">
+            <div id="divList">
+                <paper-button id="addUser" class="pink">Agregar nuevo </paper-button>
+                <paper-input id="filter" label="Filter by first name"></paper-input>
+                <vaadin-grid id="itemsList" items={{items}}>
+                </vaadin-grid>
+            </div>
+            <div style="width: 200px; height: 200px">
+                <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
+                    <users-form name="users" route="{{route}}" key="{{routeData.key}}"></users-form>
+                    <roles-form name="roles" route="{{route}}" key="{{routeData.key}}"></roles-form>
+                </iron-pages>
+            </div>
+        </neon-animated-pages>
+    </template>
+    <script>
         Polymer({
             is: 'list-page',
             properties: {
@@ -98,8 +100,7 @@
                     //     if (this.key !== undefined && this.key != "") {
                     //         this._viewChanged('');
                     //     }
-                }
-                else {
+                } else {
                     //   console.log('entro');
                     this.$.pages.entryAnimation = "slide-from-right-animation";
                     this.$.pages.exitAnimation = "slide-left-animation";
