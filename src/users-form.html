@@ -64,6 +64,7 @@
             <iron-ajax id="deleteAjax"></iron-ajax>
             <iron-ajax id="getUserRoleAjax"></iron-ajax>
             <iron-ajax id="createUserRoleAjax"></iron-ajax>
+            <iron-ajax id="deleteUserRoleAjax"></iron-ajax>
         </div>
         <div class="container">
             <h3>Usuario</h3>
@@ -98,7 +99,7 @@
             </div>
             <div class="botoneraRoles">
                 <paper-button raised submit id="deleteRole">Eliminar Seleccionados</paper-button>
-                <paper-button raised id="resetRole">Limpiar Grilla</paper-button>
+                <paper-button raised id="resetRole">Deseleccionar todos</paper-button>
             </div>
         </div>
         <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
@@ -160,7 +161,8 @@
                 'addRole.tap': '_addUserRole',
                 //'autocomplete-change': '_changeRol',
                 'autocomplete-selected': "_selectedRol",
-                'deleteRole.tap': "_deleteRoles"
+                'deleteRole.tap': "_deleteRoles",
+                'resetRole.tap': "_resetRoles"
             },
             _deleteUser: function () {
                 console.log("entro aceptar");
@@ -205,8 +207,13 @@
                     this));
                 this.$.createUserRoleAjax.addEventListener('error', this._handleError.bind(this));
                 //
+                // Gestionar grilla de roles
                 this._getRolesList().reallythis = this;
                 this._getRolesList().addEventListener('selected-items-changed', (this)._selectedItemChanged);
+                // 
+                this.$.deleteUserRoleAjax.addEventListener('response', this._handleResponseDeleteUserRole.bind(
+                    this));
+                this.$.deleteUserRoleAjax.addEventListener('error', this._handleError.bind(this));
 
             },
             _handleResponse: function (response) {
@@ -222,8 +229,9 @@
 
             },
             _handleError: function (error) {
-                console.log(error);
-                this.showError('Se produjo un error al obtener el usuario');
+                console.log('error',error);
+                this.showError(error.detail.request.response.message);
+                // this.showError('Se produjo un error al obtener el usuario');
             },
             _handleResponseUpdate: function (response) {
                 console.log(response.detail.response);
@@ -389,8 +397,8 @@
                 req.send();
             },
             _selectedRol: function (id, value, text, target, option) {
-                console.log('idddd', id);
-                alert(this.$.selectRole.value);
+                // console.log('idddd', id);
+                // alert(this.$.selectRole.value);
             },
             _getRoles: function () {
                 var input = this.$.selectRole;
@@ -422,8 +430,6 @@
             },
             _handleResponseGetUserRole: function (response) {
                 console.log('userrole', response);
-                //debugger;
-                // console.log('aaaaaaaaa',response.detail.response.data);
                 var data = response.detail.response.data;
                 let keys = [];
                 if (data.length > 0) {
@@ -452,6 +458,11 @@
                 //   //this.getItemsList().addColumn(name);
                 // }
                 this.itemsRoles = response.detail.response.data;
+                //console.log(this.itemsRoles);
+                if (!this.itemsRoles[0]) {
+                    this.$.rolesList.style.display = 'none';
+                }
+                //
                 // grid.items = response.detail.response.data;
 
             },
@@ -498,13 +509,30 @@
                     reallythis.$.resetRole.style.display = 'none';
                 }
             },
-            _deleteRoles: function(){
+            _deleteRoles: function () {
                 var selected = this.selectedRoles;
                 var reallythis = this;
-                selected.forEach(function(element,index,array){
-                    console.log('indice'+index,reallythis.itemsRoles[index]);
-
+                selected.forEach(function (element, index, array) {
+                    console.log('indice' + index, reallythis.itemsRoles[index]);
+                    var roleId = reallythis.itemsRoles[index]._id;
+                    reallythis.$.deleteUserRoleAjax.headers = {
+                        'x-access-token': reallythis.token
+                    };
+                    debugger
+                    reallythis.$.deleteUserRoleAjax.method = 'DELETE';
+                    reallythis.$.deleteUserRoleAjax.url = reallythis.url + 'user/' + reallythis.key +
+                        '/role/' + roleId;
+                    //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
+                    reallythis.$.deleteUserRoleAjax.generateRequest();
                 });
+                // reallythis._viewChanged(reallythis.key);
+            },
+            _handleResponseDeleteUserRole: function (response) {
+                console.log('deleterole', response);
+                this._viewChanged(this.key);
+            },
+            _resetRoles: function(){
+                this._getRolesList().selection.clear();
             }
         });
     </script>
