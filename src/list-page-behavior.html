@@ -139,7 +139,7 @@
                 // }
                 this.items = response.detail.response.data;
                 // console.log(Object.keys(this.ajaxlist.lastResponse.data[0]));
-                // console.log(response.detail.response.data[0]);
+                console.log(response.detail.response.data);
                 // console.log(this.items);
                 //  return null;
             },
@@ -193,6 +193,20 @@
                     reallythis.set('route.path', '/' + key);
                     //console.log(reallythis.route);
                 }
+            },
+            _filterList: function (filter) {
+                // console.log("cambiiaaa");
+                // debugger
+                var reallythis = this;
+                if (reallythis.$.filter.value != '') {
+                    this.getItemsList().items = this.items.filter(function (item) {
+                        return item.username.indexOf(filter) >= 0;
+                    });
+                }
+                else{
+                    this.getItemsList().items = this.items;
+                }
+                //this.items = ['hola'];
             }
         }
     })();

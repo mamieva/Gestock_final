@@ -9,6 +9,7 @@
 <link rel="import" href="./list-page-behavior.html">
 <link rel="import" href="./users-form.html">
 <link rel="import" href="./roles-form.html">
+<link rel="import" href="./products-form.html">
 <dom-module id="list-page">
     <template>
         <style>
@@ -42,14 +43,15 @@
         <neon-animated-pages id="pages" selected="0">
             <div id="divList">
                 <paper-button id="addUser" class="pink">Agregar nuevo </paper-button>
-                <paper-input id="filter" label="Filter by first name"></paper-input>
-                <vaadin-grid id="itemsList" items={{items}}>
+                <paper-input id="filter" label="Filter by first name" value={{filter}}></paper-input>
+                <vaadin-grid id="itemsList" items=[[items]]>
                 </vaadin-grid>
             </div>
             <div style="width: 200px; height: 200px">
                 <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
                     <users-form name="users" route="{{route}}" key="{{routeData.key}}"></users-form>
                     <roles-form name="roles" route="{{route}}" key="{{routeData.key}}"></roles-form>
+                    <products-form name="products" route="{{route}}" key="{{routeData.key}}"></products-form>
                 </iron-pages>
             </div>
         </neon-animated-pages>
@@ -76,6 +78,10 @@
                 route: {
                     type: Object,
                     notify: true
+                },
+                filter:{
+                    type: String,
+                    observer: "_filterList"
                 }
 
             },
@@ -87,6 +93,7 @@
             ],
             listeners: {
                 'addUser.tap': '_addUser'
+                // 'filter.keydown': '_filterList'
             },
             _routeChanged: function (newRoute) {
                 if (newRoute == "") {

@@ -229,7 +229,7 @@
 
             },
             _handleError: function (error) {
-                console.log('error',error);
+                console.log('error', error);
                 this.showError(error.detail.request.response.message);
                 // this.showError('Se produjo un error al obtener el usuario');
             },
@@ -354,6 +354,8 @@
                 this.$.username.disabled = null;
                 this.$.password.disabled = null;
                 this.$.password.style.display = 'inline-block';
+                this.$.deleteRole.style.display = 'none';
+                this.$.resetRole.style.display = 'none';
                 //
                 if (key != '' && key != 'undefined') {
                     this.$.status.selected = '';
@@ -501,7 +503,7 @@
                 var reallythis = this.reallythis;
                 reallythis.selectedRoles = this.selection.selected();
                 var select = reallythis.selectedRoles;
-                if (select.length > 0) {
+                if (select.length > 0 && select) {
                     reallythis.$.deleteRole.style.display = 'inline-block';
                     reallythis.$.resetRole.style.display = 'inline-block';
                 } else {
@@ -531,7 +533,7 @@
                 console.log('deleterole', response);
                 this._viewChanged(this.key);
             },
-            _resetRoles: function(){
+            _resetRoles: function () {
                 this._getRolesList().selection.clear();
             }
         });

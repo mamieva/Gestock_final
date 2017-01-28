@@ -19,7 +19,7 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
-<dom-module id="roles-form">
+<dom-module id="products-form">
     <template>
         <style>
              :host {
@@ -54,13 +54,13 @@
         </style>
         <app-route route="{{route}}" pattern="/:user" data="{{userData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
-            <iron-ajax id="roleAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+            <iron-ajax id="productAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
         </div>
         <div class="container">
-            <h3>Rol</h3>
-            <form is="iron-form" method="POST" id="roleForm">
+            <h3>Producto</h3>
+            <form is="iron-form" method="POST" id="productForm">
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
@@ -84,8 +84,8 @@
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-                <!--<h2>Eliminar rol</h2>-->
-                <p>¿Desea eliminar el rol <strong>[[user.name]]</strong> ?</p>
+                <!--<h2>Eliminar producto</h2>-->
+                <p>¿Desea eliminar el producto <strong>[[user.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -95,7 +95,7 @@
     </template>
     <script>
         Polymer({
-            is: 'roles-form',
+            is: 'products-form',
             properties: {
                 route: {
                     type: Object
@@ -108,7 +108,7 @@
                 },
                 url: {
                     type: String,
-                    value: 'http://localhost:3000/role'
+                    value: 'http://localhost:3000/product'
                 },
                 token: {
                     type: String
@@ -153,9 +153,9 @@
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
-                this.$.roleAjax.reallythis = this;
-                this.$.roleAjax.addEventListener('response', this._handleResponse.bind(this));
-                this.$.roleAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.productAjax.reallythis = this;
+                this.$.productAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.productAjax.addEventListener('error', this._handleError.bind(this));
                 ///
                 this.$.updateAjax.reallythis = this;
                 this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
@@ -181,12 +181,12 @@
             },
             _handleError: function (error) {
                 console.log(error);
-                this.showError('Se produjo un error al obtener el rol');
+                this.showError('Se produjo un error al obtener el producto');
             },
             _handleResponseUpdate: function (response) {
                 console.log(response.detail.response);
                 var update = response.detail.response;
-                this.showMessage('El rol ha sido actualizado con exito');
+                this.showMessage('El producto ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
@@ -199,11 +199,11 @@
                 this.set('route.path', '');
             },
             _getUser: function () {
-                this.$.roleAjax.headers = {
+                this.$.productAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.roleAjax.url = this.url + '/' + this.key;
-                this.$.roleAjax.generateRequest();
+                this.$.productAjax.url = this.url + '/' + this.key;
+                this.$.productAjax.generateRequest();
             },
             _updateUser: function (event) {
                 this.$.updateAjax.headers = {
@@ -233,7 +233,7 @@
                 user.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = user;
                 //console.log(user);
-                this.$.roleForm.submit();
+                this.$.productForm.submit();
             },
             _applychangesSubmit: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
@@ -247,16 +247,16 @@
                 //user.token = JSON.parse(window.localStorage.session).token;
                 //this._getForm().params = user;
                 console.log(this._getForm());
-                this.$.roleForm.submit();
+                this.$.productForm.submit();
             },
             _reset: function (e) {
-                this.$.roleForm.reset();
+                this.$.productForm.reset();
             },
             _formSubmit: function () {
                 //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
             },
             _getForm: function () {
-                return this.$.roleForm;
+                return this.$.productForm;
             },
             _formPresubmit: function () {
                 console.log("presubmit");
@@ -273,13 +273,13 @@
             showError: function (errorMessage) {
                 //console.log("error msg");
                 this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.roleForm;
+                //this.$.toastError.fitInto = this.$.productForm;
                 //console.log(this.$.toastError.open());
                 this.$.toastError.open();
             },
             showMessage: function (message) {
                 this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.roleForm;
+                //this.$.toastOk.fitInto = this.$.productForm;
                 this.$.toastOk.open();
             },
             _formResponse: function (response) {
@@ -294,7 +294,7 @@
                     this.token = JSON.parse(window.localStorage.session).token;
                 }
                 // Limpiar formulario
-                this.$.roleForm.reset();
+                this.$.productForm.reset();
                 //Prendemos los botones
                 this.$.create.style.display = 'inline-block';
                 this.$.reset.style.display = 'inline-block';
