@@ -6,10 +6,13 @@
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="./list-page-behavior.html">
 <link rel="import" href="./users-form.html">
 <link rel="import" href="./roles-form.html">
 <link rel="import" href="./products-form.html">
+<link rel="import" href="./user-filter.html">
 <dom-module id="list-page">
     <template>
         <style>
@@ -43,11 +46,12 @@
         <neon-animated-pages id="pages" selected="0">
             <div id="divList">
                 <paper-button id="addUser" class="pink">Agregar nuevo </paper-button>
+                <paper-button id="newFilter" class="pink">filtro </paper-button>
                 <paper-input id="filter" label="Filter by first name" value={{filter}}></paper-input>
                 <vaadin-grid id="itemsList" items=[[items]]>
                 </vaadin-grid>
             </div>
-            <div style="width: 200px; height: 200px">
+            <div>
                 <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
                     <users-form name="users" route="{{route}}" key="{{routeData.key}}"></users-form>
                     <roles-form name="roles" route="{{route}}" key="{{routeData.key}}"></roles-form>
@@ -55,6 +59,17 @@
                 </iron-pages>
             </div>
         </neon-animated-pages>
+        <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+            <!--<h2>Eliminar Usuario</h2>-->
+            <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
+                <user-filter name="users"></user-filter>
+                <user-filter name="roles"></user-filter>
+                <div class="buttons">
+                    <paper-button dialog-dismiss>Cancelar</paper-button>
+                    <paper-button dialog-confirm autofocus id="filtro">Aceptar</paper-button>
+                </div>
+            </iron-pages>
+        </paper-dialog>
     </template>
     <script>
         Polymer({
@@ -79,20 +94,21 @@
                     type: Object,
                     notify: true
                 },
-                filter:{
+                filter: {
                     type: String,
                     observer: "_filterList"
                 }
 
             },
-            behaviors: [AWSLBehaviors.ListVaadinBehavior],
+            behaviors: [ListBehaviors.ListVaadinBehavior],
             observers: [
                 '_routeChanged(route.path)',
                 '_viewChanged(data)',
                 '_fastsearchChanged(fastsearch)'
             ],
             listeners: {
-                'addUser.tap': '_addUser'
+                'addUser.tap': '_addUser',
+                'newFilter.tap': '_newFilter'
                 // 'filter.keydown': '_filterList'
             },
             _routeChanged: function (newRoute) {
