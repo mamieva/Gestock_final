@@ -1,0 +1,216 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<script>
+    var ListBehaviors = ListBehaviors || {};
+
+    (function () {
+        ListBehaviors.ListVaadinBehavior = {
+            properties: {
+                oname: {
+                    type: String,
+                },
+                filterName: {
+                    type: String,
+                    value: ""
+                },
+                ajaxlist: {
+                    type: Object
+                },
+                items: {
+                    type: Array
+                },
+                titleSearch: {
+                    type: String
+                },
+                lastTitle: {
+                    type: String
+                },
+                toserver: {
+                    type: Object,
+                    value: function () {
+                        var obj = {
+                            oname: "",
+                            filterName: "",
+                            sortIndex: 0,
+                            sortDir: "asc",
+                            dofastsearch: false,
+                            fastsearch: "",
+                            data: {},
+                            topRecords: 100,
+                            first: true
+                        };
+
+                        return obj;
+                    }
+                },
+                fastsearch: {
+                    type: String
+                },
+                itemsCount: {
+                    type: Number,
+                    value: 0
+                },
+                serverSideSorting: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+            spinner: null,
+            wasAttached: false,
+            firstResponse: false,
+            refreshPending: false,
+
+            insertSpinner: function () {
+                if (this.getItemsList().parentNode === this) {
+                    if (Polymer.dom(this).childNodes.length == 0) {
+                        this.async(this.insertSpinner, 100);
+                    } else {
+                        Polymer.dom(this).insertBefore(this.spinner, Polymer.dom(this).childNodes[0]);
+                    }
+                } else {
+                    Polymer.dom(this.getItemsList().parentNode).insertBefore(this.spinner, this.getItemsList());
+                }
+            },
+            ready: function () {
+                //
+                //console.log('attached');
+                //console.log(this.route);
+                this.ajaxlist = document.createElement('iron-ajax');
+
+                this.ajaxlist.method = 'GET';
+                //this.ajaxlist.contentType = 'application/json';
+                this.ajaxlist.handleAs = 'json';
+                //this.ajaxlist.contentType = "application/json";
+                //this.ajaxlist.headers = '{"x-access-token": "'+ JSON.parse(window.localStorage.session).token + '"}';
+                var _token;
+
+                if (typeof window.localStorage.session !== "undefined") {
+                    _token = JSON.parse(window.localStorage.session).token;
+                }
+                this.ajaxlist.params = {
+                    token: _token
+                };
+                //console.log(JSON.parse(window.localStorage.session).token);
+
+                this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
+                this.ajaxlist.addEventListener('error', this._handleError.bind(this));
+
+                //this.ajaxlist.url = "https://jsonplaceholder.typicode.com/" + this.data;
+
+                //this.$.divAjax.appendChild(this.ajaxlist);
+
+                //this.ajaxlist.generateRequest();
+
+                //this.toserver.oname = this.oname;
+
+                this.getItemsList().reallythis = this;
+                this.getItemsList().addEventListener('selected-items-changed', (this)._selectedItemChanged);
+                this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
+            },
+            _handleResponse: function (response) {
+                //debugger;
+                // console.log('aaaaaaaaa',response.detail.response.data);
+                var data = response.detail.response.data;
+                let keys = [];
+                if (data.length > 0) {
+                    keys = Object.keys(data[0]);
+                }
+                let grid = this.getItemsList();
+                grid.columns = [];
+                grid.style.display = "block";
+                keys.forEach(function (element) {
+                    //console.log(element);
+                    //if(element === 'id'){
+                    var col = {
+                        "name": element,
+                        "sortable": "true"
+                    };
+                    //}
+                    //else {
+                    //var col = {"name" : element};
+                    //}
+                    grid.addColumn(col);
+                });
+
+                // for( var name in keys){
+                //   //var col = {"name" : name.1};
+                //   console.log(name.value);
+                //   //this.getItemsList().addColumn(name);
+                // }
+                this.items = response.detail.response.data;
+                // console.log(Object.keys(this.ajaxlist.lastResponse.data[0]));
+                console.log(response.detail.response.data);
+                // console.log(this.items);
+                //  return null;
+            },
+            _handleError: function (err) {
+                let grid = this.getItemsList();
+                grid.columns = [];
+                //console.log(this.getItemsList());
+                this.items = [];
+                //grid.style.display = "none";
+                //debugger
+
+                var response = err.detail.request.response;
+                if (response != null) {
+                    window.localStorage.removeItem("session");
+                    this.fire("notAuthorized", response);
+                } else {
+                    alert('404');
+                }
+                response = null;
+                console.log('response', err.detail.request.status); //detail.request.response
+            },
+            _selectedItemChangedNotify: function (key, select) {
+                console.log("click");
+            },
+            getItemsList: function () {
+                return null;
+            },
+            getFilter: function () {
+                return null;
+            },
+            getListToolbar: function () {
+                return null;
+            },
+            customizeItemsList: function () {},
+            _openFilter: function () {
+                this.getFilter()._openFilter();
+            },
+            _selectedItemChanged: function (event) {
+
+                var select = this.selection.selected();
+                //console.log(select[0]);
+                var reallythis = this.reallythis;
+                if (select.length > 0) {
+
+                    console.log(event);
+                    //console.log(this.items[this.selection.selected()[0]].id);
+                    var key = reallythis.items[select[0]]._id;
+                    //window.location.href = '/users/hla';
+                    //var reallythis = this.reallythis;
+                    reallythis.set('routeData.key', key);
+                    reallythis.set('route.path', '/' + key);
+                    //console.log(reallythis.route);
+                }
+            },
+            _filterList: function (filter) {
+                // console.log("cambiiaaa");
+                // debugger
+                var reallythis = this;
+                if (reallythis.$.filter.value != '') {
+                    this.getItemsList().items = this.items.filter(function (item) {
+                        return item.username.indexOf(filter) >= 0;
+                    });
+                }
+                else{
+                    this.getItemsList().items = this.items;
+                }
+                //this.items = ['hola'];
+            },
+            _newFilter: function(){
+                this.$.animated.open();
+            }
+        }
+    })();
+</script>

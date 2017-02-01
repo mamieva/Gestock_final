@@ -1,0 +1,164 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<dom-module id="login-page">
+    <style>
+        a {
+            color: #FF8A80;
+            cursor: pointer;
+        }
+        
+        #toastError {
+            --paper-toast-background-color: #f63d33;
+            --paper-toast-color: white;
+        }
+        
+        paper-toolbar {
+            background-color: #4285f4;
+            color: #fff;
+        }
+    </style>
+    <template>
+        <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+        <iron-ajax id="loginService" handle-as="json" content-type="application/json" method="POST" debounce-duration="300"></iron-ajax>
+        <!--<app-localstorage-document
+                id = "session"
+                key="session"
+                data="{{session}}"
+            </app-localstorage-document> -->
+        <div class="horizontal center-justified layout" id="container">
+            <div style="width:400px; margin:12px; height: 300px;" id="main">
+                <paper-header-panel class="flex">
+                    <paper-toolbar>
+                        <div title> Bienvenidos a Gestock! </div>
+                    </paper-toolbar>
+                    <form is="iron-form" id="loginForm">
+                        <div class="layout vertical">
+                            <gold-email-input id="email" label="Usuario" required auto-validate on-keydown="checkForEnterA"></gold-email-input>
+                            <paper-input id="password" type="password" label="Constraseña" password required auto-validate on-keydown="checkForEnter"></paper-input>
+                        </div>
+                        <div>&nbsp;</div>
+                        <div class="layout horizontal bottom">
+                            <div class="flex"></div>
+                            <paper-button submit raised id="loginButton">Entrar</paper-button>
+                        </div>
+                    </form>
+                </paper-header-panel>
+            </div>
+        </div>
+        <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
+        <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
+    </template>
+    <script>
+    Polymer({
+      is: "login-page",
+      properties: {
+          item: {
+              type: Object,
+          },
+          title: {
+              type: String,
+              value: "Login"
+          },
+          lastLogin: {
+              type: String,
+              value: ""
+          },
+          session:{
+            type: Object
+          }
+      },
+      listeners: {
+          'loginButton.tap': 'onLogin',
+      },
+      attached: function () {
+        if (!this.session){
+          if (this.lastLogin != "") {
+              this.$.email.value = this.lastLogin;
+              this.$.password.focus();
+          }
+          else {
+              this.$.email.focus();
+          }
+        }
+        else {
+          //this.$.session.destroy();
+          //window.location.href = 'aaa';
+        }
+      },
+      showError: function(errorMessage) {
+          //console.log("error msg");
+          this.$.toastError.text = errorMessage;
+          this.$.toastError.fitInto = this.$.main;
+          //console.log(this.$.toastError.open());
+          this.$.toastError.open();
+      },
+      showMessage: function (message) {
+          this.$.toastOk.text = message;
+          this.$.toastOk.fitInto = this.$.main;
+          this.$.toastOk.open();
+      },
+      checkForEnterA: function (e) {
+          if (e.keyCode === 13) {
+              this.$.password.focus();
+          }
+      },
+      checkForEnter: function (e) {
+          if (e.keyCode === 13) {
+              this.onLogin();
+          }
+      },
+      onLogin: function ()
+      {
+          //console.log(this.session);
+          var request;
+          if (!this.$.loginForm.validate())
+          {
+              console.log("no valida");
+              this.showError("Debe indicar un usuario y contraseña");
+              this.$.email.focus();
+              return;
+          }
+          var me = this;
+          this.$.loginService.body = {
+              username: this.$.email.value, password: this.$.password.value
+          };
+          this.$.loginService.url = "http://localhost:3000/login";
+          request = this.$.loginService.generateRequest();
+          //console.log(request.completes);
+          request.completes.then(function (response) {
+
+               //console.log(response.response);
+               me.session = response.response.data;
+               //console.log(me.session.token);
+               //me.$.session.destroy();
+               //me.session = {};
+               //me.$.session.setStoredValue('session', {"token":response.response.token});
+              if (response.response) {
+                 console.log('a full');
+                 //console.log(localStorage.getItem('session'));// = response.response.token;
+                  //window.location.reload();
+                  me.fire('login', me.session);
+              }
+              else
+              { 
+                  //console.log(response.response);
+                  me.showError("Usuario o Contraseña incorrectos");
+                  me.$.password.value = "";
+                  me.$.password.focus();
+              }
+          })
+          .catch(function (error,response) {
+              //console.log(error);              
+              me.showError("Verifique los datos ingresados");
+          });
+      }
+    });
+    </script>
+</dom-module>

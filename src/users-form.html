@@ -1,0 +1,541 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="./simple-dialog.html">
+<dom-module id="users-form">
+    <template>
+        <style>
+             :host {
+                display: block;
+            }
+            
+            .container {
+                display: block;
+                margin: 20px 0 0 20px;
+                width: 100%;
+            }
+            
+            form {
+                width: 900px;
+            }
+            
+            paper-input {
+                display: block;
+                width: 100%;
+                margin: auto;
+            }
+            
+            .botoneraUsuario {
+                margin: 10px 0 0 0;
+            }
+            
+            iron-icon,
+            div[suffix] {
+                color: hsl(0, 0%, 50%);
+                margin-right: 12px;
+            }
+            
+            .roles {
+                width: 900px;
+            }
+        </style>
+        <app-route route="{{route}}" pattern="/:user" data="{{userData}}" tail="{{routeTail}}" id="routeManager"></app-route>
+        <div id="ajaxContainer">
+            <iron-ajax id="userAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+            <iron-ajax id="updateAjax"></iron-ajax>
+            <iron-ajax id="deleteAjax"></iron-ajax>
+            <iron-ajax id="getUserRoleAjax"></iron-ajax>
+            <iron-ajax id="createUserRoleAjax"></iron-ajax>
+            <iron-ajax id="deleteUserRoleAjax"></iron-ajax>
+        </div>
+        <div class="container">
+            <h3>Usuario</h3>
+            <form is="iron-form" method="POST" id="userForm">
+                <paper-input id="username" name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
+                    auto-validate required>
+                    <iron-icon icon="mail" prefix></iron-icon>
+                    <!--<div suffix>@email.com</div>-->
+                    </paper-input>
+                    <paper-input id="password" password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+                        auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
+                        <iron-icon icon="communication:vpn-key" prefix></iron-icon>
+                        </paper-input>
+                        <paper-dropdown-menu label="Estado" name="status" required>
+                            <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
+                                <paper-item name="ACTIVO">ACTIVO</paper-item>
+                                <paper-item name="INACTIVO">INACTIVO</paper-item>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <div class="botoneraUsuario">
+                            <paper-button raised submit id="create">Agregar</paper-button>
+                            <paper-button raised submit id="apply_changes">Modificar</paper-button>
+                            <paper-button raised submit id="delete">Eliminar</paper-button>
+                            <paper-button raised id="reset">Limpiar</paper-button>
+                        </div>
+            </form>
+            <div id="roles" class="roles">
+                <paper-autocomplete label="Seleccionar Rol" id="selectRole" min-length="2"></paper-autocomplete>
+                <paper-button raised submit id="addRole">Agregar</paper-button>
+                <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="multi">
+                </vaadin-grid>
+            </div>
+            <div class="botoneraRoles">
+                <paper-button raised submit id="deleteRole">Eliminar Seleccionados</paper-button>
+                <paper-button raised id="resetRole">Deseleccionar todos</paper-button>
+            </div>
+        </div>
+        <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
+        <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
+        <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+            <!--<h2>Eliminar Usuario</h2>-->
+            <p>¿Desea eliminar el usuario <strong>[[user.username]]</strong> ?</p>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Cancelar</paper-button>
+                <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
+            </div>
+        </paper-dialog>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'users-form',
+            properties: {
+                route: {
+                    type: Object
+                },
+                key: {
+                    type: String
+                },
+                ajaxlist: {
+                    type: Object
+                },
+                url: {
+                    type: String,
+                    value: 'http://localhost:3000/'
+                },
+                token: {
+                    type: String
+                },
+                user: {
+                    type: Object
+                },
+                itemsRoles: {
+                    type: Array
+                },
+                selectedRoles: {
+                    type: Array
+                }
+            },
+            observers: [
+                "_viewChanged(key)"
+            ],
+            listeners: {
+                'iron-form-response': '_formResponse',
+                'iron-form-submit': '_formSubmit',
+                'iron-form-error': '_formError',
+                'iron-form-presubmit': '_formPresubmit',
+                'iron-form-invalid': '_formInvalid',
+                'create.tap': '_createUser',
+                'reset.tap': '_reset',
+                'apply_changes.tap': '_updateUser',
+                'delete.tap': '_deleteDialog',
+                'deleteAceptar.tap': '_deleteUser',
+                'addRole.tap': '_addUserRole',
+                //'autocomplete-change': '_changeRol',
+                'autocomplete-selected': "_selectedRol",
+                'deleteRole.tap': "_deleteRoles",
+                'resetRole.tap': "_resetRoles"
+            },
+            _deleteUser: function () {
+                console.log("entro aceptar");
+                this.$.deleteAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.deleteAjax.method = 'DELETE';
+                this.$.deleteAjax.url = this.url + 'user' + '/' + this.key;
+                //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
+                // this.$.deleteAjax.debounceDuration = "300";
+                // var serialize = this._getForm().serialize();
+                //this.$.updateAjax.body = serialize;
+                this.$.deleteAjax.generateRequest();
+                // window.location.reload();
+            },
+            _deleteDialog: function () {
+                this.$.animated.open();
+            },
+            ready: function () {
+                //cargar formulario
+                this._getForm().reallythis = this;
+                // cargar eventos del ajax
+                this.$.userAjax.reallythis = this;
+                this.$.userAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.userAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.updateAjax.reallythis = this;
+                this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
+                this.$.updateAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.deleteAjax.reallythis = this;
+                this.$.deleteAjax.addEventListener('response', this._handleResponseDelete.bind(this));
+                this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
+                //
+                // Cargar Roles para el usuario
+                //
+                this.$.getUserRoleAjax.addEventListener('response', this._handleResponseGetUserRole.bind(
+                    this));
+                this.$.getUserRoleAjax.addEventListener('error', this._handleError.bind(this));
+                //
+                this.$.createUserRoleAjax.addEventListener('response', this._handleResponseCreateUserRole.bind(
+                    this));
+                this.$.createUserRoleAjax.addEventListener('error', this._handleError.bind(this));
+                //
+                // Gestionar grilla de roles
+                this._getRolesList().reallythis = this;
+                this._getRolesList().addEventListener('selected-items-changed', (this)._selectedItemChanged);
+                // 
+                this.$.deleteUserRoleAjax.addEventListener('response', this._handleResponseDeleteUserRole.bind(
+                    this));
+                this.$.deleteUserRoleAjax.addEventListener('error', this._handleError.bind(this));
+
+            },
+            _handleResponse: function (response) {
+                console.log(response.detail.response.data);
+                var user = response.detail.response.data;
+                this.user = user;
+                this.$.username.value = user.username;
+                this.$.status.selected = user.status;
+                console.log(this.$.status.selected);
+                if (user.status == 'ACTIVO') {
+                    this.$.delete.style.display = 'none';
+                }
+
+            },
+            _handleError: function (error) {
+                console.log('error', error);
+                this.showError(error.detail.request.response.message);
+                // this.showError('Se produjo un error al obtener el usuario');
+            },
+            _handleResponseUpdate: function (response) {
+                console.log(response.detail.response);
+                var update = response.detail.response;
+                this.showMessage('El usuario ha sido actualizado con exito');
+                // window.location.reload();
+                this._viewChanged(this.key);
+            },
+            _handleResponseDelete: function (response) {
+                console.log(response.detail.response);
+                var update = response.detail.response.message;
+                this.showMessage(update);
+                // window.location.reload();
+                this._viewChanged('');
+                this.set('route.path', '');
+            },
+            _getUser: function () {
+                this.$.userAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.userAjax.url = this.url + 'user' + '/' + this.key;
+                this.$.userAjax.generateRequest();
+            },
+            _updateUser: function (event) {
+                this.$.updateAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.updateAjax.method = 'PUT';
+                this.$.updateAjax.url = this.url + 'user' + '/' + this.key;
+                this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
+                this.$.updateAjax.debounceDuration = "300";
+                var serialize = this._getForm().serialize();
+                if (this.user.status == serialize.status) {
+                    this.showError('No se registraron cambios');
+                } else {
+                    this.$.updateAjax.body = serialize;
+                    this.$.updateAjax.generateRequest();
+                    // window.location.reload();
+                }
+            },
+            _createUser: function (event) {
+                //var token = JSON.parse(window.localStorage.session).token
+                this._getForm().headers = {
+                    'x-access-token': this.token
+                };
+                this._getForm().method = 'POST';
+                this._getForm().action = this.url + 'user';
+                var user = this._getForm().serialize();
+                user.token = JSON.parse(window.localStorage.session).token;
+                this._getForm().params = user;
+                //console.log(user);
+                this.$.userForm.submit();
+            },
+            _applychangesSubmit: function (event) {
+                //var token = JSON.parse(window.localStorage.session).token
+                this._getForm().headers = {
+                    'x-access-token': this.token
+                };
+                this._getForm().method = 'PUT';
+                this._getForm().action = this.url + 'user' + '/' + this.key;
+                this._getForm().contentType = "application/x-www-form-urlencoded";
+                //var user = this._getForm().serialize();
+                //user.token = JSON.parse(window.localStorage.session).token;
+                //this._getForm().params = user;
+                console.log(this._getForm());
+                this.$.userForm.submit();
+            },
+            _reset: function (e) {
+                this.$.userForm.reset();
+            },
+            _formSubmit: function () {
+                //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
+            },
+            _getForm: function () {
+                return this.$.userForm;
+            },
+            _formPresubmit: function () {
+                console.log("presubmit");
+            },
+            _formInvalid: function (e) {
+                var msg = 'Verifique los datos ingresados';
+                this.showMessage(msg);
+            },
+            _formError: function (error) {
+                //console.log('a',error.detail.request.response);
+                var msg = error.detail.request.response.message;
+                this.showMessage(msg);
+            },
+            showError: function (errorMessage) {
+                //console.log("error msg");
+                this.$.toastError.text = errorMessage;
+                //this.$.toastError.fitInto = this.$.userForm;
+                //console.log(this.$.toastError.open());
+                this.$.toastError.open();
+            },
+            showMessage: function (message) {
+                this.$.toastOk.text = message;
+                //this.$.toastOk.fitInto = this.$.userForm;
+                this.$.toastOk.open();
+            },
+            _formResponse: function (response) {
+                var message = response.detail.response.message;
+                var id = response.detail.response.data.id;
+                this.set('route.path', id);
+                this.showMessage(message);
+            },
+            _viewChanged: function (key) {
+                //Cargar token cuando se ingrese a la pantalla de formulario
+                if (typeof window.localStorage.session !== "undefined") {
+                    this.token = JSON.parse(window.localStorage.session).token;
+                }
+                // Limpiar formulario
+                this.$.userForm.reset();
+                //Prendemos los botones,regiones y elementos
+                this.$.create.style.display = 'inline-block';
+                this.$.reset.style.display = 'inline-block';
+                this.$.delete.style.display = 'inline-block';
+                this.$.apply_changes.style.display = 'inline-block';
+                this.$.roles.style.display = 'block';
+                this.$.username.disabled = null;
+                this.$.password.disabled = null;
+                this.$.password.style.display = 'inline-block';
+                this.$.deleteRole.style.display = 'none';
+                this.$.resetRole.style.display = 'none';
+                //
+                if (key != '' && key != 'undefined') {
+                    this.$.status.selected = '';
+                    this.$.username.disabled = 'disabled';
+                    this.$.password.disabled = 'disabled';
+                    this.$.password.style.display = 'none';
+                    this.$.create.style.display = 'none';
+                    this.$.reset.style.display = 'none';
+                    this._getUser();
+                    this._getRoles();
+                    this._getUserRole();
+                } else {
+                    this.$.roles.style.display = 'none';
+                    this.$.delete.style.display = 'none';
+                    this.$.apply_changes.style.display = 'none';
+                }
+            },
+
+            _changeRol: function (event) {
+                var input = this.$.selectRole;
+                var search = event.detail.option.text;
+                var url = this.url + 'roles';
+                var req = new XMLHttpRequest();
+                req.open('GET', encodeURI(url));
+                req.setRequestHeader('x-access-token', this.token);
+                req.responseType = 'json';
+                req.onload = function () {
+                    if (req.status === 200) {
+                        //console.log(req.response)
+                        //var data = JSON.parse(req.response.data);
+                        var data = req.response.data;
+                        var arr = data.map(function (obj) {
+                            return {
+                                text: obj.name,
+                                value: obj._id
+                            };
+                        });
+                        input.suggestions(arr);
+                    }
+                };
+                req.send();
+            },
+            _selectedRol: function (id, value, text, target, option) {
+                // console.log('idddd', id);
+                // alert(this.$.selectRole.value);
+            },
+            _getRoles: function () {
+                var input = this.$.selectRole;
+                //var search = event.detail.option.text;
+                var url = this.url + 'roles';
+                var req = new XMLHttpRequest();
+                req.open('GET', encodeURI(url));
+                req.setRequestHeader('x-access-token', this.token);
+                //console.log('token',this.token);
+                req.responseType = 'json';
+                req.onload = function () {
+                    //console.log('roles input',req.status);
+                    if (req.status === 200) {
+                        //console.log(req.response)
+                        //var data = JSON.parse(req.response.data);
+                        var data = req.response.data;
+                        console.log('data', data);
+                        var arr = data.map(function (obj) {
+                            return {
+                                text: obj.name,
+                                value: obj._id
+                            };
+                        });
+                        input.source = arr;
+                        console.log('a', input.source);
+                    }
+                };
+                req.send();
+            },
+            _handleResponseGetUserRole: function (response) {
+                console.log('userrole', response);
+                var data = response.detail.response.data;
+                let keys = [];
+                if (data.length > 0) {
+                    keys = Object.keys(data[0]);
+                }
+                let grid = this._getRolesList();
+                grid.columns = [];
+                grid.style.display = "block";
+                keys.forEach(function (element) {
+                    //console.log(element);
+                    //if(element === 'id'){
+                    var col = {
+                        "name": element,
+                        "sortable": "true"
+                    };
+                    //}
+                    //else {
+                    //var col = {"name" : element};
+                    //}
+                    grid.addColumn(col);
+                });
+
+                // for( var name in keys){
+                //   //var col = {"name" : name.1};
+                //   console.log(name.value);
+                //   //this.getItemsList().addColumn(name);
+                // }
+                this.itemsRoles = response.detail.response.data;
+                //console.log(this.itemsRoles);
+                if (!this.itemsRoles[0]) {
+                    this.$.rolesList.style.display = 'none';
+                }
+                //
+                // grid.items = response.detail.response.data;
+
+            },
+            _getUserRole: function () {
+                this.$.getUserRoleAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.getUserRoleAjax.method = 'GET';
+                this.$.getUserRoleAjax.handleAs = 'json';
+                this.$.getUserRoleAjax.url = this.url + 'user/' + this.key + '/roles';
+                this.$.getUserRoleAjax.generateRequest();
+            },
+            _getRolesList: function () {
+                return this.$.rolesList;
+            },
+            _addUserRole: function () {
+                this.$.createUserRoleAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.createUserRoleAjax.method = 'POST';
+                this.$.createUserRoleAjax.url = this.url + 'user/' + this.key + '/role';
+                this.$.createUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
+                this.$.createUserRoleAjax.body = {
+                    "roleId": this.$.selectRole.value
+                };
+                this.$.createUserRoleAjax.generateRequest();
+            },
+            _handleResponseCreateUserRole: function (response) {
+                console.log(response.detail.response);
+                var addRole = response.detail.response;
+                this.showMessage('El rol ha sido agregado con exito');
+                // window.location.reload();
+                this._viewChanged(this.key);
+            },
+            _selectedItemChanged: function (event) {
+                var reallythis = this.reallythis;
+                reallythis.selectedRoles = this.selection.selected();
+                var select = reallythis.selectedRoles;
+                if (select.length > 0 && select) {
+                    reallythis.$.deleteRole.style.display = 'inline-block';
+                    reallythis.$.resetRole.style.display = 'inline-block';
+                } else {
+                    reallythis.$.deleteRole.style.display = 'none';
+                    reallythis.$.resetRole.style.display = 'none';
+                }
+            },
+            _deleteRoles: function () {
+                var selected = this.selectedRoles;
+                var reallythis = this;
+                selected.forEach(function (element, index, array) {
+                    console.log('indice' + index, reallythis.itemsRoles[index]);
+                    var roleId = reallythis.itemsRoles[index]._id;
+                    reallythis.$.deleteUserRoleAjax.headers = {
+                        'x-access-token': reallythis.token
+                    };
+                    debugger
+                    reallythis.$.deleteUserRoleAjax.method = 'DELETE';
+                    reallythis.$.deleteUserRoleAjax.url = reallythis.url + 'user/' + reallythis.key +
+                        '/role/' + roleId;
+                    //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
+                    reallythis.$.deleteUserRoleAjax.generateRequest();
+                });
+                // reallythis._viewChanged(reallythis.key);
+            },
+            _handleResponseDeleteUserRole: function (response) {
+                console.log('deleterole', response);
+                this._viewChanged(this.key);
+            },
+            _resetRoles: function () {
+                this._getRolesList().selection.clear();
+            }
+        });
+    </script>
+</dom-module>
