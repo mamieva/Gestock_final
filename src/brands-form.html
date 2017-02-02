@@ -19,7 +19,7 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
-<dom-module id="roles-form">
+<dom-module id="brands-form">
     <template>
         <style>
              :host {
@@ -52,15 +52,15 @@
                 margin-right: 12px;
             }
         </style>
-        <app-route route="{{route}}" pattern="/:role" data="{{roleData}}" tail="{{routeTail}}" id="routeManager"></app-route>
+        <app-route route="{{route}}" pattern="/:supplier" data="{{supplierData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
-            <iron-ajax id="roleAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+            <iron-ajax id="brandAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
         </div>
         <div class="container">
-            <h3>Rol</h3>
-            <form is="iron-form" method="POST" id="roleForm">
+            <h3>Marca</h3>
+            <form is="iron-form" method="POST" id="brandForm">
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
@@ -81,11 +81,21 @@
                             <paper-button raised id="reset">Limpiar</paper-button>
                         </div>
             </form>
+            <div id="suppliers" class="suppliers">
+                <paper-autocomplete label="Seleccionar Proveedor" id="selectSupplier" min-length="2"></paper-autocomplete>
+                <paper-button raised submit id="addSupplier">Agregar</paper-button>
+                <vaadin-grid id="suppliersList" items={{itemsSuppliers}} selection-mode="multi">
+                </vaadin-grid>
+            </div>
+            <div class="botoneraSupplier">
+                <paper-button raised submit id="deleteSupplier">Eliminar Seleccionados</paper-button>
+                <paper-button raised id="resetSupplier">Deseleccionar todos</paper-button>
+            </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-                <!--<h2>Eliminar rol</h2>-->
-                <p>¿Desea eliminar el rol <strong>[[role.name]]</strong> ?</p>
+                <!--<h2>Eliminar marca</h2>-->
+                <p>¿Desea eliminar la marca <strong>[[supplier.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -95,7 +105,7 @@
     </template>
     <script>
         Polymer({
-            is: 'roles-form',
+            is: 'brands-form',
             properties: {
                 route: {
                     type: Object
@@ -108,12 +118,12 @@
                 },
                 url: {
                     type: String,
-                    value: 'http://localhost:3000/role'
+                    value: 'http://localhost:3000/brand'
                 },
                 token: {
                     type: String
                 },
-                role: {
+                supplier: {
                     type: Object
                 }
             },
@@ -126,13 +136,13 @@
                 'iron-form-error': '_formError',
                 'iron-form-presubmit': '_formPresubmit',
                 'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createRole',
+                'create.tap': '_createSupplier',
                 'reset.tap': '_reset',
-                'apply_changes.tap': '_updateRole',
+                'apply_changes.tap': '_updateSupplier',
                 'delete.tap': '_deleteDialog',
-                'deleteAceptar.tap': '_deleteRole'
+                'deleteAceptar.tap': '_deleteSupplier'
             },
-            _deleteRole: function () {
+            _deleteSupplier: function () {
                 console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
@@ -153,9 +163,9 @@
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
-                this.$.roleAjax.reallythis = this;
-                this.$.roleAjax.addEventListener('response', this._handleResponse.bind(this));
-                this.$.roleAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.brandAjax.reallythis = this;
+                this.$.brandAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.brandAjax.addEventListener('error', this._handleError.bind(this));
                 ///
                 this.$.updateAjax.reallythis = this;
                 this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
@@ -169,24 +179,24 @@
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
-                var role = response.detail.response.data;
-                this.role = role;
-                this.$.name.value = role.name;
-                this.$.status.selected = role.status;
+                var supplier = response.detail.response.data;
+                this.supplier = supplier;
+                this.$.name.value = supplier.name;
+                this.$.status.selected = supplier.status;
                 console.log(this.$.status.selected);
-                if (role.status == 'ACTIVO') {
+                if (supplier.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
 
             },
             _handleError: function (error) {
                 console.log(error);
-                this.showError('Se produjo un error al obtener el rol');
+                this.showError('Se produjo un error al obtener la marca');
             },
             _handleResponseUpdate: function (response) {
                 console.log(response.detail.response);
                 var update = response.detail.response;
-                this.showMessage('El rol ha sido actualizado con exito');
+                this.showMessage('La marca ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
@@ -198,14 +208,14 @@
                 this._viewChanged('');
                 this.set('route.path', '');
             },
-            _getRole: function () {
-                this.$.roleAjax.headers = {
+            _getSupplier: function () {
+                this.$.brandAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.roleAjax.url = this.url + '/' + this.key;
-                this.$.roleAjax.generateRequest();
+                this.$.brandAjax.url = this.url + '/' + this.key;
+                this.$.brandAjax.generateRequest();
             },
-            _updateRole: function (event) {
+            _updateSupplier: function (event) {
                 this.$.updateAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -214,7 +224,7 @@
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                if (this.role.status == serialize.status) {
+                if (this.supplier.status == serialize.status) {
                     this.showError('No se registraron cambios');
                 } else {
                     this.$.updateAjax.body = serialize;
@@ -222,18 +232,18 @@
                     // window.location.reload();
                 }
             },
-            _createRole: function (event) {
+            _createSupplier: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
                 this._getForm().headers = {
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
                 this._getForm().action = this.url;
-                var role = this._getForm().serialize();
-                role.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = role;
-                //console.log(role);
-                this.$.roleForm.submit();
+                var supplier = this._getForm().serialize();
+                supplier.token = JSON.parse(window.localStorage.session).token;
+                this._getForm().params = supplier;
+                //console.log(supplier);
+                this.$.brandForm.submit();
             },
             _applychangesSubmit: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
@@ -243,20 +253,20 @@
                 this._getForm().method = 'PUT';
                 this._getForm().action = this.url + '/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var role = this._getForm().serialize();
-                //role.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = role;
+                //var supplier = this._getForm().serialize();
+                //supplier.token = JSON.parse(window.localStorage.session).token;
+                //this._getForm().params = supplier;
                 console.log(this._getForm());
-                this.$.roleForm.submit();
+                this.$.brandForm.submit();
             },
             _reset: function (e) {
-                this.$.roleForm.reset();
+                this.$.brandForm.reset();
             },
             _formSubmit: function () {
                 //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
             },
             _getForm: function () {
-                return this.$.roleForm;
+                return this.$.brandForm;
             },
             _formPresubmit: function () {
                 console.log("presubmit");
@@ -273,13 +283,13 @@
             showError: function (errorMessage) {
                 //console.log("error msg");
                 this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.roleForm;
+                //this.$.toastError.fitInto = this.$.brandForm;
                 //console.log(this.$.toastError.open());
                 this.$.toastError.open();
             },
             showMessage: function (message) {
                 this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.roleForm;
+                //this.$.toastOk.fitInto = this.$.brandForm;
                 this.$.toastOk.open();
             },
             _formResponse: function (response) {
@@ -294,7 +304,7 @@
                     this.token = JSON.parse(window.localStorage.session).token;
                 }
                 // Limpiar formulario
-                this.$.roleForm.reset();
+                this.$.brandForm.reset();
                 //Prendemos los botones
                 this.$.create.style.display = 'inline-block';
                 this.$.reset.style.display = 'inline-block';
@@ -311,7 +321,7 @@
                     this.$.description.style.display = 'none';
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
-                    this._getRole();
+                    this._getSupplier();
                 } else {
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';
