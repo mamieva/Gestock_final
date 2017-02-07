@@ -52,7 +52,7 @@
                 margin-right: 12px;
             }
         </style>
-        <app-route route="{{route}}" pattern="/:user" data="{{userData}}" tail="{{routeTail}}" id="routeManager"></app-route>
+        <app-route route="{{route}}" pattern="/:role" data="{{roleData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
             <iron-ajax id="roleAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
@@ -85,7 +85,7 @@
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
                 <!--<h2>Eliminar rol</h2>-->
-                <p>¿Desea eliminar el rol <strong>[[user.name]]</strong> ?</p>
+                <p>¿Desea eliminar el rol <strong>[[role.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -113,7 +113,7 @@
                 token: {
                     type: String
                 },
-                user: {
+                role: {
                     type: Object
                 }
             },
@@ -126,13 +126,13 @@
                 'iron-form-error': '_formError',
                 'iron-form-presubmit': '_formPresubmit',
                 'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createUser',
+                'create.tap': '_createRole',
                 'reset.tap': '_reset',
-                'apply_changes.tap': '_updateUser',
+                'apply_changes.tap': '_updateRole',
                 'delete.tap': '_deleteDialog',
-                'deleteAceptar.tap': '_deleteUser'
+                'deleteAceptar.tap': '_deleteRole'
             },
-            _deleteUser: function () {
+            _deleteRole: function () {
                 console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
@@ -169,12 +169,12 @@
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
-                var user = response.detail.response.data;
-                this.user = user;
-                this.$.name.value = user.name;
-                this.$.status.selected = user.status;
+                var role = response.detail.response.data;
+                this.role = role;
+                this.$.name.value = role.name;
+                this.$.status.selected = role.status;
                 console.log(this.$.status.selected);
-                if (user.status == 'ACTIVO') {
+                if (role.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
 
@@ -195,17 +195,17 @@
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
-                this._viewChanged('');
+                //this._viewChanged('');
                 this.set('route.path', '');
             },
-            _getUser: function () {
+            _getRole: function () {
                 this.$.roleAjax.headers = {
                     'x-access-token': this.token
                 };
                 this.$.roleAjax.url = this.url + '/' + this.key;
                 this.$.roleAjax.generateRequest();
             },
-            _updateUser: function (event) {
+            _updateRole: function (event) {
                 this.$.updateAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -214,7 +214,7 @@
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                if (this.user.status == serialize.status) {
+                if (this.role.status == serialize.status) {
                     this.showError('No se registraron cambios');
                 } else {
                     this.$.updateAjax.body = serialize;
@@ -222,17 +222,17 @@
                     // window.location.reload();
                 }
             },
-            _createUser: function (event) {
+            _createRole: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
                 this._getForm().headers = {
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
                 this._getForm().action = this.url;
-                var user = this._getForm().serialize();
-                user.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = user;
-                //console.log(user);
+                var role = this._getForm().serialize();
+                role.token = JSON.parse(window.localStorage.session).token;
+                this._getForm().params = role;
+                //console.log(role);
                 this.$.roleForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -243,9 +243,9 @@
                 this._getForm().method = 'PUT';
                 this._getForm().action = this.url + '/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var user = this._getForm().serialize();
-                //user.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = user;
+                //var role = this._getForm().serialize();
+                //role.token = JSON.parse(window.localStorage.session).token;
+                //this._getForm().params = role;
                 console.log(this._getForm());
                 this.$.roleForm.submit();
             },
@@ -311,7 +311,7 @@
                     this.$.description.style.display = 'none';
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
-                    this._getUser();
+                    this._getRole();
                 } else {
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';

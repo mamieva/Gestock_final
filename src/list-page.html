@@ -12,6 +12,8 @@
 <link rel="import" href="./users-form.html">
 <link rel="import" href="./roles-form.html">
 <link rel="import" href="./products-form.html">
+<link rel="import" href="./brands-form.html">
+<link rel="import" href="./persons-form.html">
 <link rel="import" href="./user-filter.html">
 <dom-module id="list-page">
     <template>
@@ -56,13 +58,15 @@
                     <users-form name="users" route="{{route}}" key="{{routeData.key}}"></users-form>
                     <roles-form name="roles" route="{{route}}" key="{{routeData.key}}"></roles-form>
                     <products-form name="products" route="{{route}}" key="{{routeData.key}}"></products-form>
+                    <brands-form name="brands" route="{{route}}" key="{{routeData.key}}"></brands-form>
+                    <persons-form name="suppliers" route="{{route}}" key="{{routeData.key}}"></persons-form>
                 </iron-pages>
             </div>
         </neon-animated-pages>
         <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
             <!--<h2>Eliminar Usuario</h2>-->
             <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
-                <user-filter name="users"></user-filter>
+                <user-filter id="userfilter" name="users"></user-filter>
                 <user-filter name="roles"></user-filter>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
@@ -108,7 +112,8 @@
             ],
             listeners: {
                 'addUser.tap': '_addUser',
-                'newFilter.tap': '_newFilter'
+                'newFilter.tap': '_newFilter',
+                'userfilter.submitFilter': '_prueba'
                 // 'filter.keydown': '_filterList'
             },
             _routeChanged: function (newRoute) {
@@ -134,10 +139,15 @@
             },
             _viewChanged: function (data) {
                 //console.log("entra viewchang de lista");
+                var type = data;
                 var notList = ["home"];
-                if (data != 'undefined') {
-                    if (notList.indexOf(data) === -1) {
-                        this.ajaxlist.url = this.url + data;
+                var inList = ["suppliers"];
+                if (type != 'undefined') {
+                    if (notList.indexOf(type) === -1) {
+                        if(inList.indexOf(type) >= 0 ){
+                            type = "persons";
+                        }
+                        this.ajaxlist.url = this.url + type;
                         this.$.divAjax.appendChild(this.ajaxlist);
                         this.ajaxlist.generateRequest();
                     }
@@ -181,17 +191,12 @@
             },
             _addUser: function () {
                 this.set('route.path', '/');
+            },
+            _prueba: function (e) {
+                console.log(e);
+                this.$.animated.close();
+                
             }
-            // _selectedItemChanged: function(event) {
-            //     console.log(event);
-            //     //console.log(this.items[this.selection.selected()[0]].id);
-            //     var key = this.items[this.selection.selected()[0]].id;
-            //     //window.location.href = '/users/hla';
-            //     var reallythis = this.reallythis;
-            //     reallythis.set('routeData.key', key);
-            //     reallythis.set('route.path', '/' + key);
-            //     //console.log(reallythis.route);
-            // }
         });
     </script>
 </dom-module>
