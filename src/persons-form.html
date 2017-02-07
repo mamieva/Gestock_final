@@ -19,7 +19,7 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
-<dom-module id="products-form">
+<dom-module id="persons-form">
     <template>
         <style>
              :host {
@@ -52,40 +52,48 @@
                 margin-right: 12px;
             }
         </style>
-        <app-route route="{{route}}" pattern="/:product" data="{{productData}}" tail="{{routeTail}}" id="routeManager"></app-route>
+        <app-route route="{{route}}" pattern="/:person" data="{{personData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
-            <iron-ajax id="productAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+            <iron-ajax id="personAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
         </div>
         <div class="container">
-            <h3>Producto</h3>
-            <form is="iron-form" method="POST" id="productForm">
+            <h3>Persona</h3>
+            <form is="iron-form" method="POST" id="personForm">
+                <paper-dropdown-menu label="Tipo Persona" name="type" required>
+                    <paper-listbox id="type" class="dropdown-content" attr-for-selected="name" selected="">
+                        <paper-item name="CLIENTE">CLIENTE</paper-item>
+                        <paper-item name="PROVEEDOR">PROVEEDOR</paper-item>
+                        <paper-item name="VENDEDOR">VENDEDOR</paper-item>
+                        <paper-item name="CAJERO">CAJERO</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
-                    </paper-input>
-                    <paper-input id="description" name="description" label="Descripción">
-                        <iron-icon icon="icons:description" prefix></iron-icon>
-                        </paper-input>
-                        <paper-dropdown-menu label="Estado" name="status" required>
-                            <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="">
-                                <paper-item name="ACTIVO">ACTIVO</paper-item>
-                                <paper-item name="INACTIVO">INACTIVO</paper-item>
-                            </paper-listbox>
-                        </paper-dropdown-menu>
-                        <div class="botonera">
-                            <paper-button raised submit id="create">Agregar</paper-button>
-                            <paper-button raised submit id="apply_changes">Modificar</paper-button>
-                            <paper-button raised submit id="delete">Eliminar</paper-button>
-                            <paper-button raised id="reset">Limpiar</paper-button>
-                        </div>
+                </paper-input>
+                <paper-input id="lastname" name="lastname" label="Apellido">
+                    <iron-icon icon="icons:description" prefix></iron-icon>
+                </paper-input>
+                <paper-input id="address" name="address" label="Dirección">
+                    <iron-icon icon="icons:description" prefix></iron-icon>
+                </paper-input>
+                <paper-input id="address" name="address" label="Dirección">
+                    <iron-icon icon="icons:description" prefix></iron-icon>
+                </paper-input>
+                <div class="botonera">
+                    <paper-button raised submit id="create">Agregar</paper-button>
+                    <paper-button raised submit id="apply_changes">Modificar</paper-button>
+                    <paper-button raised submit id="delete">Eliminar</paper-button>
+                    <paper-button raised id="reset">Limpiar</paper-button>
+                </div>
             </form>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-                <!--<h2>Eliminar producto</h2>-->
-                <p>¿Desea eliminar el producto <strong>[[product.name]]</strong> ?</p>
+                <!--<h2>Eliminar persona</h2>-->
+                <p>¿Desea eliminar la persona <strong>[[person.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -95,7 +103,7 @@
     </template>
     <script>
         Polymer({
-            is: 'products-form',
+            is: 'persons-form',
             properties: {
                 route: {
                     type: Object
@@ -108,12 +116,12 @@
                 },
                 url: {
                     type: String,
-                    value: 'http://localhost:3000/product'
+                    value: 'http://localhost:3000/person'
                 },
                 token: {
                     type: String
                 },
-                product: {
+                person: {
                     type: Object
                 }
             },
@@ -126,13 +134,13 @@
                 'iron-form-error': '_formError',
                 'iron-form-presubmit': '_formPresubmit',
                 'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createProduct',
+                'create.tap': '_createPerson',
                 'reset.tap': '_reset',
-                'apply_changes.tap': '_updateProduct',
+                'apply_changes.tap': '_updatePerson',
                 'delete.tap': '_deleteDialog',
-                'deleteAceptar.tap': '_deleteProduct'
+                'deleteAceptar.tap': '_deletePerson'
             },
-            _deleteProduct: function () {
+            _deletePerson: function () {
                 console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
@@ -153,9 +161,9 @@
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
-                this.$.productAjax.reallythis = this;
-                this.$.productAjax.addEventListener('response', this._handleResponse.bind(this));
-                this.$.productAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.personAjax.reallythis = this;
+                this.$.personAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.personAjax.addEventListener('error', this._handleError.bind(this));
                 ///
                 this.$.updateAjax.reallythis = this;
                 this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
@@ -169,24 +177,24 @@
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
-                var product = response.detail.response.data;
-                this.product = product;
-                this.$.name.value = product.name;
-                this.$.status.selected = product.status;
+                var person = response.detail.response.data;
+                this.person = person;
+                this.$.name.value = person.name;
+                this.$.status.selected = person.status;
                 console.log(this.$.status.selected);
-                if (product.status == 'ACTIVO') {
+                if (person.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
 
             },
             _handleError: function (error) {
                 console.log(error);
-                this.showError('Se produjo un error al obtener el producto');
+                this.showError('Se produjo un error al obtener la persona');
             },
             _handleResponseUpdate: function (response) {
                 console.log(response.detail.response);
                 var update = response.detail.response;
-                this.showMessage('El producto ha sido actualizado con exito');
+                this.showMessage('La persona ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
@@ -198,14 +206,14 @@
                 this._viewChanged('');
                 this.set('route.path', '');
             },
-            _getProduct: function () {
-                this.$.productAjax.headers = {
+            _getPerson: function () {
+                this.$.personAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.productAjax.url = this.url + '/' + this.key;
-                this.$.productAjax.generateRequest();
+                this.$.personAjax.url = this.url + '/' + this.key;
+                this.$.personAjax.generateRequest();
             },
-            _updateProduct: function (event) {
+            _updatePerson: function (event) {
                 this.$.updateAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -214,7 +222,7 @@
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                if (this.product.status == serialize.status) {
+                if (this.person.status == serialize.status) {
                     this.showError('No se registraron cambios');
                 } else {
                     this.$.updateAjax.body = serialize;
@@ -222,18 +230,18 @@
                     // window.location.reload();
                 }
             },
-            _createProduct: function (event) {
+            _createPerson: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
                 this._getForm().headers = {
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
                 this._getForm().action = this.url;
-                var product = this._getForm().serialize();
-                product.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = product;
-                //console.log(product);
-                this.$.productForm.submit();
+                var person = this._getForm().serialize();
+                person.token = JSON.parse(window.localStorage.session).token;
+                this._getForm().params = person;
+                //console.log(person);
+                this.$.personForm.submit();
             },
             _applychangesSubmit: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
@@ -243,20 +251,20 @@
                 this._getForm().method = 'PUT';
                 this._getForm().action = this.url + '/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var product = this._getForm().serialize();
-                //product.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = product;
+                //var person = this._getForm().serialize();
+                //person.token = JSON.parse(window.localStorage.session).token;
+                //this._getForm().params = person;
                 console.log(this._getForm());
-                this.$.productForm.submit();
+                this.$.personForm.submit();
             },
             _reset: function (e) {
-                this.$.productForm.reset();
+                this.$.personForm.reset();
             },
             _formSubmit: function () {
                 //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
             },
             _getForm: function () {
-                return this.$.productForm;
+                return this.$.personForm;
             },
             _formPresubmit: function () {
                 console.log("presubmit");
@@ -273,13 +281,13 @@
             showError: function (errorMessage) {
                 //console.log("error msg");
                 this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.productForm;
+                //this.$.toastError.fitInto = this.$.personForm;
                 //console.log(this.$.toastError.open());
                 this.$.toastError.open();
             },
             showMessage: function (message) {
                 this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.productForm;
+                //this.$.toastOk.fitInto = this.$.personForm;
                 this.$.toastOk.open();
             },
             _formResponse: function (response) {
@@ -294,7 +302,7 @@
                     this.token = JSON.parse(window.localStorage.session).token;
                 }
                 // Limpiar formulario
-                this.$.productForm.reset();
+                this.$.personForm.reset();
                 //Prendemos los botones
                 this.$.create.style.display = 'inline-block';
                 this.$.reset.style.display = 'inline-block';
@@ -311,7 +319,7 @@
                     this.$.description.style.display = 'none';
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
-                    this._getProduct();
+                    this._getPerson();
                 } else {
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';

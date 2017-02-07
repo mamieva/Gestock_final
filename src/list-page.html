@@ -13,6 +13,7 @@
 <link rel="import" href="./roles-form.html">
 <link rel="import" href="./products-form.html">
 <link rel="import" href="./brands-form.html">
+<link rel="import" href="./persons-form.html">
 <link rel="import" href="./user-filter.html">
 <dom-module id="list-page">
     <template>
@@ -58,6 +59,7 @@
                     <roles-form name="roles" route="{{route}}" key="{{routeData.key}}"></roles-form>
                     <products-form name="products" route="{{route}}" key="{{routeData.key}}"></products-form>
                     <brands-form name="brands" route="{{route}}" key="{{routeData.key}}"></brands-form>
+                    <persons-form name="suppliers" route="{{route}}" key="{{routeData.key}}"></persons-form>
                 </iron-pages>
             </div>
         </neon-animated-pages>
@@ -137,10 +139,15 @@
             },
             _viewChanged: function (data) {
                 //console.log("entra viewchang de lista");
+                var type = data;
                 var notList = ["home"];
-                if (data != 'undefined') {
-                    if (notList.indexOf(data) === -1) {
-                        this.ajaxlist.url = this.url + data;
+                var inList = ["suppliers"];
+                if (type != 'undefined') {
+                    if (notList.indexOf(type) === -1) {
+                        if(inList.indexOf(type) >= 0 ){
+                            type = "persons";
+                        }
+                        this.ajaxlist.url = this.url + type;
                         this.$.divAjax.appendChild(this.ajaxlist);
                         this.ajaxlist.generateRequest();
                     }
