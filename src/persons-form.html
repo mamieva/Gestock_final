@@ -89,28 +89,13 @@
                 </paper-dropdown-menu>
                 <paper-input id="grossIncomeCode" name="grossIncomeCode" label="Codigo Ingresos Brutos">
                     <iron-icon icon="icons:description" prefix></iron-icon>
-                </paper-input>                
-                <div class="address">
-                    <paper-input id="address" name="address" label="Dirección">
-                        <iron-icon icon="icons:description" prefix></iron-icon>
-                    </paper-input>
-                    <paper-button raised submit id="addAddress">Agregar Domicilio</paper-button>
-                    <paper-button raised submit id="deleteAddress">Eliminar Seleccionado</paper-button>
-                    <vaadin-grid id="addressList" items={{itemsAddress}} selection-mode="multi">
-                    </vaadin-grid>
-                </div>
-                <div class="contacts">
-                    <paper-input id="contactName" name="contactName" label="Nombre Contacto">
-                        <iron-icon icon="icons:description" prefix></iron-icon>
-                    </paper-input>
-                    <paper-input id="contactPhone" name="contactPhone" label="Teléfono Contacto">
-                        <iron-icon icon="icons:description" prefix></iron-icon>
-                    </paper-input>
-                    <paper-button raised submit id="addContact">Agregar Contacto</paper-button>
-                    <paper-button raised submit id="deleteContact">Eliminar Seleccionado</paper-button>
-                    <vaadin-grid id="contactsList" items={{itemsContacts}} selection-mode="multi">
-                    </vaadin-grid>
-                </div>
+                </paper-input>
+                <paper-dropdown-menu label="Estado" name="status" required>
+                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
+                        <paper-item name="ACTIVO">ACTIVO</paper-item>
+                        <paper-item name="INACTIVO">INACTIVO</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
                 <div class="botonera">
                     <paper-button raised submit id="create">Agregar</paper-button>
                     <paper-button raised submit id="apply_changes">Modificar</paper-button>
@@ -118,6 +103,27 @@
                     <paper-button raised id="reset">Limpiar</paper-button>
                 </div>
             </form>
+            <div id="addresses">
+                <paper-input id="address" name="address" label="Dirección">
+                    <iron-icon icon="icons:description" prefix></iron-icon>
+                </paper-input>
+                <paper-button raised submit id="addAddress">Agregar Domicilio</paper-button>
+                <paper-button raised submit id="deleteAddress">Eliminar Seleccionado</paper-button>
+                <vaadin-grid id="addressList" items={{itemsAddress}} selection-mode="multi">
+                </vaadin-grid>
+            </div>
+            <div id="contacts">
+                <paper-input id="contactName" name="contactName" label="Nombre Contacto">
+                    <iron-icon icon="icons:description" prefix></iron-icon>
+                </paper-input>
+                <paper-input id="contactPhone" name="contactPhone" label="Teléfono Contacto">
+                    <iron-icon icon="icons:description" prefix></iron-icon>
+                </paper-input>
+                <paper-button raised submit id="addContact">Agregar Contacto</paper-button>
+                <paper-button raised submit id="deleteContact">Eliminar Seleccionado</paper-button>
+                <vaadin-grid id="contactsList" items={{itemsContacts}} selection-mode="multi">
+                </vaadin-grid>
+            </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
@@ -235,7 +241,7 @@
                 var contactCol = [{
                     "name": "name",
                     "sortable": "true"
-                },{
+                }, {
                     "name": "phone",
                     "sortable": "true"
                 }];
@@ -243,7 +249,7 @@
                 // Gestionar grilla de direcciones
                 this._getContactList().reallythis = this;
                 this._getContactList().addEventListener('selected-items-changed', (this)._selectedContactChanged);
-                
+
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
@@ -307,20 +313,10 @@
                 };
                 this._getForm().method = 'POST';
                 this._getForm().action = this.url;
-                var person = new Object();
-                person.type= this.$.type.selected;
-                person.firstName =  this.$.firstName.value;
-                person.lastName = this.$.lastName.value;
-                person.address = this.itemsAddress;
-                person.tributaryCode = this.$.tributaryCode.value;
-                person.taxStatus = this.$.taxStatus.selected;
-                person.grossIncomeCode = this.$.grossIncomeCode.value;
-                person.contacts = this.itemsContacts;
-                person.status = 'ACTIVO';
-
-                console.log(person);
-                // person.token = JSON.parse(window.localStorage.session).token;
+                var person = this._getForm().serialize();
+                person.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = person;
+                //console.log(person);
                 this.$.personForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -346,7 +342,9 @@
             _getForm: function () {
                 return this.$.personForm;
             },
-            _formPresubmit: function () {
+            _formPresubmit: function (event) {
+                console.log(event);
+                // this.request.params = {"status": "ACTIVO"};
                 console.log("presubmit");
             },
             _formInvalid: function (e) {
@@ -388,6 +386,8 @@
                 this.$.reset.style.display = 'inline-block';
                 this.$.delete.style.display = 'inline-block';
                 this.$.apply_changes.style.display = 'inline-block';
+                this.$.addresses.style.display = 'block';
+                this.$.contacts.style.display = 'block';
                 // this.$.name.disabled = null;
                 // this.$.description.disabled = null;
                 // this.$.description.style.display = 'inline-block';
@@ -395,13 +395,15 @@
                 //
                 if (key != '' && key != 'undefined') {
                     this.$.status.selected = '';
-                    this.$.name.disabled = 'disabled';
-                    this.$.description.disabled = 'disabled';
-                    this.$.description.style.display = 'none';
+                    // this.$.name.disabled = 'disabled';
+                    // this.$.description.disabled = 'disabled';
+                    // this.$.description.style.display = 'none';
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
                     this._getPerson();
                 } else {
+                    this.$.addresses.style.display = 'none';
+                    this.$.contacts.style.display = 'none';
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';
                 }
@@ -409,7 +411,7 @@
             _getAddressList: function () {
                 return this.$.addressList;
             },
-            _getContactList: function(){
+            _getContactList: function () {
                 return this.$.contactsList;
             },
             _addAddress: function () {
@@ -424,7 +426,7 @@
                 var reallythis = this.reallythis;
                 reallythis.selectedAddress = this.selection.selected();
                 var select = reallythis.selectedAddress;
-                console.log("select",select)
+                console.log("select", select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteAddress.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
@@ -439,8 +441,8 @@
                 selected.forEach(function (element, index, array) {
                     // console.log('indice' + index, reallythis.itemsAddress[index]);
                     // reallythis.itemsAddress.splice(index,1);
-                    reallythis.splice("itemsAddress",element,1);
-                    
+                    reallythis.splice("itemsAddress", element, 1);
+
                 });
                 // reallythis._viewChanged(reallythis.key);
             },
@@ -456,7 +458,7 @@
                 var reallythis = this.reallythis;
                 reallythis.selectedContacts = this.selection.selected();
                 var select = reallythis.selectedContacts;
-                console.log("select",select)
+                console.log("select", select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteContact.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
@@ -471,8 +473,8 @@
                 selected.forEach(function (element, index, array) {
                     // console.log('indice' + index, reallythis.itemsAddress[index]);
                     // reallythis.itemsAddress.splice(index,1);
-                    reallythis.splice("itemsContacts",element,1);
-                    
+                    reallythis.splice("itemsContacts", element, 1);
+
                 });
                 // reallythis._viewChanged(reallythis.key);
             },
