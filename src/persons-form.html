@@ -57,6 +57,7 @@
             <iron-ajax id="personAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
+            <iron-ajax id="addContactAjax"></iron-ajax>
         </div>
         <div class="container">
             <h3>Persona</h3>
@@ -216,15 +217,19 @@
                 // cargar eventos del ajax
                 this.$.personAjax.reallythis = this;
                 this.$.personAjax.addEventListener('response', this._handleResponse.bind(this));
-                this.$.personAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.personAjax.addEventListener('error', this._handleErrorMessage.bind(this));
                 ///
                 this.$.updateAjax.reallythis = this;
                 this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
-                this.$.updateAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.updateAjax.addEventListener('error', this._handleErrorMessage.bind(this));
                 ///
                 this.$.deleteAjax.reallythis = this;
                 this.$.deleteAjax.addEventListener('response', this._handleResponseDelete.bind(this));
-                this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.deleteAjax.addEventListener('error', this._handleErrorMessage.bind(this));
+                ///
+                this.$.addContactAjax.reallythis = this;
+                this.$.addContactAjax.addEventListener('response', this._handleResponseMessage.bind(this));
+                this.$.addContactAjax.addEventListener('error', this._handleErrorMessage.bind(this));
                 //
                 // this.$.myId.source = ["viejo","nuevo"];
                 // cargar columna de grilla de direcciones
@@ -255,17 +260,27 @@
                 console.log(response.detail.response.data);
                 var person = response.detail.response.data;
                 this.person = person;
-                this.$.name.value = person.name;
+                this.$.type.selected = person.type;
+                this.$.firstName.value = person.firstName;
+                this.$.lastName.value = person.lastName;
+                this.$.tributaryCode.value = person.tributaryCode;
+                this.$.grossIncomeCode.value = person.grossIncomeCode;
+                this.$.taxStatus.selected = person.taxStatus;
                 this.$.status.selected = person.status;
+                this.itemsContacts = person.contacts;
+                this.itemsAddress = person.addresses;
                 console.log(this.$.status.selected);
                 if (person.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
 
             },
-            _handleError: function (error) {
-                console.log(error);
-                this.showError('Se produjo un error al obtener la persona');
+            _handleErrorMessage: function (response) {
+                var message = response.detail.request.response.message
+                // console.log(response);
+                this.showError(message);
+                this.set('route.path', '');
+                // this.showError('Se produjo un error al obtener la persona');
             },
             _handleResponseUpdate: function (response) {
                 console.log(response.detail.response);
@@ -447,6 +462,25 @@
                 // reallythis._viewChanged(reallythis.key);
             },
             _addContact: function () {
+                this.$.addContactAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.addContactAjax.method = 'POST';
+                this.$.addContactAjax.url = this.url + '/' + this.key + '/contact';
+                this.$.addContactAjax.contentType = "application/x-www-form-urlencoded";
+                this.$.addContactAjax.debounceDuration = "300";
+                var serialize = {
+                    "name": this.$.contactName.value,
+                    "phone": this.$.contactPhone.value
+                };
+                if (this.person.status == serialize.status) {
+                    this.showError('No se registraron cambios');
+                } else {
+                    this.$.addContactAjax.body = serialize;
+                    this.$.addContactAjax.generateRequest();
+                    // window.location.reload();
+                }
+                //
                 var contact = {
                     "name": this.$.contactName.value,
                     "phone": this.$.contactPhone.value
@@ -478,6 +512,10 @@
                 });
                 // reallythis._viewChanged(reallythis.key);
             },
+            _handleResponseMessage: function (response) {
+                var message = response.detail.response.message;
+                this.showMessage(message);                
+            }
         });
     </script>
 </dom-module>
