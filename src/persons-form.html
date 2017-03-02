@@ -507,12 +507,12 @@
                     'x-access-token': reallythis.token
                 };
                 //debugger
-                // reallythis.$.deleteAddressAjax.body = {"addresses": addressesArray};
-                reallythis.$.deleteAddressAjax.body = addressesArray;
+                reallythis.$.deleteAddressAjax.body = {"addresses": JSON.stringify(addressesArray)};
+                // reallythis.$.deleteAddressAjax.body = addressesArray;
                 console.log(reallythis.$.deleteAddressAjax.body);
                 reallythis.$.deleteAddressAjax.method = 'DELETE';
                 reallythis.$.deleteAddressAjax.url = reallythis.url + '/' + reallythis.key + '/addresses';
-                //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
+                reallythis.$.deleteAddressAjax.contentType = 'application/x-www-form-urlencoded';
                 console.log("llega a request")
                 reallythis.$.deleteAddressAjax.generateRequest();
 
