@@ -82,14 +82,17 @@
                 this.ajaxlist.handleAs = 'json';
                 //this.ajaxlist.contentType = "application/json";
                 //this.ajaxlist.headers = '{"x-access-token": "'+ JSON.parse(window.localStorage.session).token + '"}';
-                var _token;
+                // var _token;
 
-                if (typeof window.localStorage.session !== "undefined") {
-                    _token = JSON.parse(window.localStorage.session).token;
-                }
-                this.ajaxlist.params = {
-                    token: _token
-                };
+                // if (typeof window.localStorage.session !== "undefined") {
+                //     _token = JSON.parse(window.localStorage.session).token;
+                // }
+                // this.ajaxlist.params = {
+                //     token: _token
+                // };
+                // this.ajaxlist.headers = {
+                //     'x-access-token': this.token
+                // };
                 //console.log(JSON.parse(window.localStorage.session).token);
 
                 this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
@@ -178,20 +181,17 @@
                 this.getFilter()._openFilter();
             },
             _selectedItemChanged: function (event) {
-
                 var select = this.selection.selected();
                 //console.log(select[0]);
                 var reallythis = this.reallythis;
                 if (select.length > 0) {
-
-                    console.log(event);
                     //console.log(this.items[this.selection.selected()[0]].id);
                     var key = reallythis.items[select[0]]._id;
                     //window.location.href = '/users/hla';
                     //var reallythis = this.reallythis;
-                    reallythis.set('routeData.key', key);
+                    // reallythis.set('routeData.key', key);
                     reallythis.set('route.path', '/' + key);
-                    //console.log(reallythis.route);
+                    // console.log(reallythis.route);
                 }
             },
             _filterList: function (filter) {

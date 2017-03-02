@@ -11,8 +11,8 @@
 <link rel="import" href="./list-page-behavior.html">
 <link rel="import" href="./users-form.html">
 <link rel="import" href="./roles-form.html">
-<link rel="import" href="./products-form.html">
-<link rel="import" href="./brands-form.html">
+<!--<link rel="import" href="./products-form.html">-->
+<!--<link rel="import" href="./brands-form.html">-->
 <link rel="import" href="./persons-form.html">
 <link rel="import" href="./user-filter.html">
 <dom-module id="list-page">
@@ -59,12 +59,11 @@
                     <roles-form name="roles" route="{{route}}" key="{{routeData.key}}"></roles-form>
                     <products-form name="products" route="{{route}}" key="{{routeData.key}}"></products-form>
                     <brands-form name="brands" route="{{route}}" key="{{routeData.key}}"></brands-form>
-                    <persons-form name="suppliers" route="{{route}}" key="{{routeData.key}}"></persons-form>
+                    <persons-form name="proveedor" route="{{route}}" key="{{routeData.key}}" type="persons"></persons-form>
                 </iron-pages>
             </div>
         </neon-animated-pages>
         <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-            <!--<h2>Eliminar Usuario</h2>-->
             <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
                 <user-filter id="userfilter" name="users"></user-filter>
                 <user-filter name="roles"></user-filter>
@@ -77,126 +76,143 @@
     </template>
     <script>
         Polymer({
-            is: 'list-page',
-            properties: {
-                active: {
-                    type: Boolean,
-                    value: false,
-                    reflectToAttribute: true
-                },
-                page: {
-                    type: 'String'
-                },
-                data: {
-                    type: 'String'
-                },
-                url: {
-                    type: 'String',
-                    value: "http://localhost:3000/" //'https://jsonplaceholder.typicode.com/'
-                },
-                route: {
-                    type: Object,
-                    notify: true
-                },
-                filter: {
-                    type: String,
-                    observer: "_filterList"
-                }
-
-            },
-            behaviors: [ListBehaviors.ListVaadinBehavior],
-            observers: [
-                '_routeChanged(route.path)',
-                '_viewChanged(data)',
-                '_fastsearchChanged(fastsearch)'
-            ],
-            listeners: {
-                'addUser.tap': '_addUser',
-                'newFilter.tap': '_newFilter',
-                'userfilter.submitFilter': '_prueba'
-                // 'filter.keydown': '_filterList'
-            },
-            _routeChanged: function (newRoute) {
-                if (newRoute == "") {
-                    //console.log('entro', this.data);
-                    //va a ejecutar el ajax dos veces
-                    this._viewChanged(this.data);
-                    this.$.pages.entryAnimation = "slide-from-right-animation";
-                    this.$.pages.exitAnimation = "slide-left-animation";
-                    this.$.pages.selected = 0;
-                    //     this.set('routeData.key', '');
-                    //     if (this.key !== undefined && this.key != "") {
-                    //         this._viewChanged('');
-                    //     }
-                } else {
-                    //   console.log('entro');
-                    this.$.pages.entryAnimation = "slide-from-right-animation";
-                    this.$.pages.exitAnimation = "slide-left-animation";
-                    this.$.pages.selected = 1;
-                }
-                //this._viewChanged(this.data);
-                //this.$.editor.load(this.key);
-            },
-            _viewChanged: function (data) {
-                //console.log("entra viewchang de lista");
-                var type = data;
-                var notList = ["home"];
-                var inList = ["suppliers"];
-                if (type != 'undefined') {
-                    if (notList.indexOf(type) === -1) {
-                        if(inList.indexOf(type) >= 0 ){
-                            type = "persons";
-                        }
-                        this.ajaxlist.url = this.url + type;
-                        this.$.divAjax.appendChild(this.ajaxlist);
-                        this.ajaxlist.generateRequest();
+                is: 'list-page',
+                properties: {
+                    active: {
+                        type: Boolean,
+                        value: false,
+                        reflectToAttribute: true
+                    },
+                    page: {
+                        type: 'String'
+                    },
+                    data: {
+                        type: 'String'
+                    },
+                    url: {
+                        type: 'String',
+                        value: "http://localhost:3000/" //'https://jsonplaceholder.typicode.com/'
+                    },
+                    route: {
+                        type: Object,
+                        notify: true
+                    },
+                    filter: {
+                        type: String,
+                        observer: "_filterList"
+                    },
+                    token: {
+                        type: String
                     }
-                }
 
-            },
-            getItemsList: function () {
-                // console.log(this.$.itemsList);
-                return this.$.itemsList;
-            },
-            getFilter: function () {
-                return this.$.filter;
-            },
-            getListToolbar: function () {
-                return this.$.tool;
-            },
-            reset: function () {
-                if (this.$.pages.selected != 0) {
-                    this._onClose();
-                    this.refresh();
-                }
-            },
-            _onNew: function () {
-                this.key = "0";
-                this.set('route.path', '/' + this.key);
-            },
-            _onClose: function () {
-                this.$.pages.entryAnimation = "slide-from-left-animation";
-                this.$.pages.exitAnimation = "slide-right-animation";
-                this.set('route.path', '');
-                this.set('routeData.key', '');
-                this.$.pages.selected = 0;
-            },
-            _editorSetTitle: function (event) {
-                if (this.$.pages.selected == 0) {
-                    event.stopPropagation();
-                }
-            },
-            customizeItemsList: function () {
-                this.parentElement.customizeItemsList(this.$.itemsList);
-            },
-            _addUser: function () {
-                this.set('route.path', '/');
-            },
-            _prueba: function (e) {
-                console.log(e);
-                this.$.animated.close();
-                
-            }
-        });
+                },
+                behaviors: [ListBehaviors.ListVaadinBehavior],
+                observers: [
+                    '_routeChanged(route.path)',
+                    '_viewChanged(data)',
+                    '_fastsearchChanged(fastsearch)'
+                ],
+                listeners: {
+                    'addUser.tap': '_addUser',
+                    'newFilter.tap': '_newFilter',
+                    'userfilter.submitFilter': '_prueba'
+                    // 'filter.keydown': '_filterList'
+                },
+                _routeChanged: function (newRoute) {
+                    debugger
+                    if (newRoute == "") {
+                        //console.log('entro', this.data);
+                        //va a ejecutar el ajax dos veces
+                        // this._viewChanged(this.data);
+                        this.$.pages.entryAnimation = "slide-from-right-animation";
+                        this.$.pages.exitAnimation = "slide-left-animation";
+                        this.$.pages.selected = 0;
+                        //     this.set('routeData.key', '');
+                        //     if (this.key !== undefined && this.key != "") {
+                        //         this._viewChanged('');
+                        //     }
+                    } else {
+                        //   console.log('entro');
+                        this.$.pages.entryAnimation = "slide-from-right-animation";
+                        this.$.pages.exitAnimation = "slide-left-animation";
+                        this.$.pages.selected = 1;
+                    }
+                    //this._viewChanged(this.data);
+                    //this.$.editor.load(this.key);
+                },
+                _viewChanged: function (data) {
+                    console.log("entra viewchang de lista",data);
+                    this.ajaxlist.headers = '';
+                    this.ajaxlist.params = '';
+                    this.ajaxlist.url = '';
+
+                    if (typeof window.localStorage.session !== "undefined") {
+                        this.token = JSON.parse(window.localStorage.session).token;
+                    }
+                    var type = data;
+                    var notList = ["home"];
+                    var inList = ["proveedor"];
+                    if (type != 'undefined') {
+                        if (notList.indexOf(type) === -1) {
+                            if (inList.indexOf(type) >= 0) {
+                                this.ajaxlist.params = {
+                                    type: type.toUpperCase()
+                                };
+                                type = "persons";
+                            }
+                                this.ajaxlist.headers = {
+                                    'x-access-token': this.token
+                                };
+                                this.ajaxlist.url = this.url + type;
+                                this.$.divAjax.appendChild(this.ajaxlist);
+                                this.ajaxlist.generateRequest();
+                            }
+                        }
+
+                    },
+                    getItemsList: function () {
+                            // console.log(this.$.itemsList);
+                            return this.$.itemsList;
+                        },
+                        getFilter: function () {
+                            return this.$.filter;
+                        },
+                        getListToolbar: function () {
+                            return this.$.tool;
+                        },
+                        reset: function () {
+                            if (this.$.pages.selected != 0) {
+                                this._onClose();
+                                this.refresh();
+                            }
+                        },
+                        _onNew: function () {
+                            this.key = "0";
+                            this.set('route.path', '/' + this.key);
+                        },
+                        _onClose: function () {
+                            this.$.pages.entryAnimation = "slide-from-left-animation";
+                            this.$.pages.exitAnimation = "slide-right-animation";
+                            this.set('route.path', '');
+                            // this.set('routeData.key', '');
+                            this.$.pages.selected = 0;
+                        },
+                        _editorSetTitle: function (event) {
+                            if (this.$.pages.selected == 0) {
+                                event.stopPropagation();
+                            }
+                        },
+                        customizeItemsList: function () {
+                            this.parentElement.customizeItemsList(this.$.itemsList);
+                        },
+                        _addUser: function () {
+                            this.set('route.path', '/');
+                        },
+                        _prueba: function (e) {
+                            console.log(e);
+                            this.$.animated.close();
+
+                        }
+                });
     </script>
 </dom-module>

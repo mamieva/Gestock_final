@@ -94,7 +94,7 @@
             <div id="roles" class="roles">
                 <paper-autocomplete label="Seleccionar Rol" id="selectRole" min-length="2"></paper-autocomplete>
                 <paper-button raised submit id="addRole">Agregar</paper-button>
-                <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="multi">
+                <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="single">
                 </vaadin-grid>
             </div>
             <div class="botoneraRoles">
@@ -142,6 +142,9 @@
                 },
                 selectedRoles: {
                     type: Array
+                },
+                name:{
+                    type: String
                 }
             },
             observers: [
@@ -161,7 +164,7 @@
                 'addRole.tap': '_addUserRole',
                 //'autocomplete-change': '_changeRol',
                 'autocomplete-selected': "_selectedRol",
-                'deleteRole.tap': "_deleteRoles",
+                'deleteRole.click': "_deleteRoles",
                 'resetRole.tap': "_resetRoles"
             },
             _deleteUser: function () {
@@ -182,6 +185,7 @@
                 this.$.animated.open();
             },
             ready: function () {
+                debugger
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
@@ -217,12 +221,12 @@
 
             },
             _handleResponse: function (response) {
-                console.log(response.detail.response.data);
                 var user = response.detail.response.data;
                 this.user = user;
                 this.$.username.value = user.username;
                 this.$.status.selected = user.status;
-                console.log(this.$.status.selected);
+                // this.itemsRoles = user.roles;
+                // console.log(this.$.status.selected);
                 if (user.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
@@ -339,38 +343,41 @@
                 this.showMessage(message);
             },
             _viewChanged: function (key) {
-                //Cargar token cuando se ingrese a la pantalla de formulario
-                if (typeof window.localStorage.session !== "undefined") {
-                    this.token = JSON.parse(window.localStorage.session).token;
-                }
-                // Limpiar formulario
-                this.$.userForm.reset();
-                //Prendemos los botones,regiones y elementos
-                this.$.create.style.display = 'inline-block';
-                this.$.reset.style.display = 'inline-block';
-                this.$.delete.style.display = 'inline-block';
-                this.$.apply_changes.style.display = 'inline-block';
-                this.$.roles.style.display = 'block';
-                this.$.username.disabled = null;
-                this.$.password.disabled = null;
-                this.$.password.style.display = 'inline-block';
-                this.$.deleteRole.style.display = 'none';
-                this.$.resetRole.style.display = 'none';
-                //
-                if (key != '' && key != 'undefined') {
-                    this.$.status.selected = '';
-                    this.$.username.disabled = 'disabled';
-                    this.$.password.disabled = 'disabled';
-                    this.$.password.style.display = 'none';
-                    this.$.create.style.display = 'none';
-                    this.$.reset.style.display = 'none';
-                    this._getUser();
-                    this._getRoles();
-                    this._getUserRole();
-                } else {
-                    this.$.roles.style.display = 'none';
-                    this.$.delete.style.display = 'none';
-                    this.$.apply_changes.style.display = 'none';
+                debugger
+                if (this.name === 'users') {
+                    //Cargar token cuando se ingrese a la pantalla de formulario
+                    if (typeof window.localStorage.session !== "undefined") {
+                        this.token = JSON.parse(window.localStorage.session).token;
+                    }
+                    // Limpiar formulario
+                    this.$.userForm.reset();
+                    //Prendemos los botones,regiones y elementos
+                    this.$.create.style.display = 'inline-block';
+                    this.$.reset.style.display = 'inline-block';
+                    this.$.delete.style.display = 'inline-block';
+                    this.$.apply_changes.style.display = 'inline-block';
+                    this.$.roles.style.display = 'block';
+                    this.$.username.disabled = null;
+                    this.$.password.disabled = null;
+                    this.$.password.style.display = 'inline-block';
+                    this.$.deleteRole.style.display = 'none';
+                    this.$.resetRole.style.display = 'none';
+                    //
+                    if (key != '' && key != 'undefined') {
+                        this.$.status.selected = '';
+                        this.$.username.disabled = 'disabled';
+                        this.$.password.disabled = 'disabled';
+                        this.$.password.style.display = 'none';
+                        this.$.create.style.display = 'none';
+                        this.$.reset.style.display = 'none';
+                        this._getUser();
+                        this._getRoles();
+                        this._getUserRole();
+                    } else {
+                        this.$.roles.style.display = 'none';
+                        this.$.delete.style.display = 'none';
+                        this.$.apply_changes.style.display = 'none';
+                    }
                 }
             },
 
@@ -512,6 +519,7 @@
                 }
             },
             _deleteRoles: function () {
+                debugger
                 var selected = this.selectedRoles;
                 var reallythis = this;
                 selected.forEach(function (element, index, array) {
@@ -522,7 +530,8 @@
                     };
                     //debugger
                     reallythis.$.deleteUserRoleAjax.method = 'DELETE';
-                    reallythis.$.deleteUserRoleAjax.url = reallythis.url + 'user/' + reallythis.key +
+                    reallythis.$.deleteUserRoleAjax.url = reallythis.url + 'user/' +
+                        reallythis.key +
                         '/role/' + roleId;
                     //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
                     reallythis.$.deleteUserRoleAjax.generateRequest();
@@ -531,7 +540,7 @@
             },
             _handleResponseDeleteUserRole: function (response) {
                 console.log('deleterole', response);
-                this._viewChanged(this.key);
+                // this._viewChanged(this.key);
             },
             _resetRoles: function () {
                 this._getRolesList().selection.clear();
