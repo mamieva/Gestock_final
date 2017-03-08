@@ -60,18 +60,23 @@
             <iron-ajax id="addContactAjax"></iron-ajax>
             <iron-ajax id="addAddressAjax"></iron-ajax>
             <iron-ajax id="deleteAddressAjax"></iron-ajax>
+            <iron-ajax id="deleteContactsAjax"></iron-ajax>
         </div>
         <div class="container">
             <h3>Persona</h3>
             <form is="iron-form" method="POST" id="personForm">
                 <paper-dropdown-menu label="Tipo Persona" name="type" required>
-                    <paper-listbox id="type" class="dropdown-content" attr-for-selected="name" selected="">
+                    <paper-listbox id="type" class="dropdown-content" attr-for-selected="name" selected="{{type}}">
                         <paper-item name="CLIENTE">CLIENTE</paper-item>
                         <paper-item name="PROVEEDOR">PROVEEDOR</paper-item>
                         <paper-item name="VENDEDOR">VENDEDOR</paper-item>
                         <paper-item name="CAJERO">CAJERO</paper-item>
                     </paper-listbox>
                 </paper-dropdown-menu>
+                <paper-input id="businessName" name="businessName" label="Razón Social" required>
+                    <iron-icon icon="mail" prefix></iron-icon>
+                    <!--<div suffix>@email.com</div>-->
+                </paper-input>
                 <paper-input id="firstName" name="firstName" label="Nombres" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
@@ -83,7 +88,7 @@
                     <iron-icon icon="icons:description" prefix></iron-icon>
                 </paper-input>
                 <paper-dropdown-menu label="Tipo Contribuyente" name="taxStatus" required>
-                    <paper-listbox id="taxStatus" class="dropdown-content" attr-for-selected="name" selected="">
+                    <paper-listbox id="taxStatus" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="RESPONSABLE INSCRIPTO">RESPONSABLE INSCRIPTO</paper-item>
                         <paper-item name="RESPONSABLE NO INSCRIPTO">RESPONSABLE NO INSCRIPTO</paper-item>
                         <paper-item name="MONOTRIBUTO">MONOTRIBUTO</paper-item>
@@ -176,7 +181,14 @@
                 selectedContacts: {
                     type: Array
                 },
+                typePerson: {
+                    type: String
+                },
                 type: {
+                    type: String,
+                    observer: "prueba"
+                },
+                name: {
                     type: String
                 }
             },
@@ -198,6 +210,23 @@
                 'deleteAddress.tap': '_deleteAddress',
                 'addContact.tap': '_addContact',
                 'deleteContact.tap': '_deleteContact'
+            },
+            prueba: function (value) {
+                if (value === "PROVEEDOR") {
+                    this.$.businessName.disabled = null;
+                    this.$.businessName.style.display = "inline";
+                    this.$.firstName.style.display = "none";
+                    this.$.firstName.disabled = "disabled";
+                    this.$.lastName.style.display = "none";
+                    this.$.lastName.disabled = "disabled";
+                } else {
+                    this.$.businessName.disabled = "disabled";
+                    this.$.businessName.style.display = "none";
+                    this.$.firstName.disabled = null;
+                    this.$.firstName.style.display = "inline";
+                    this.$.lastName.disabled = null;
+                    this.$.lastName.style.display = "inline";
+                }
             },
             _deletePerson: function () {
                 console.log("entro aceptar");
@@ -233,15 +262,21 @@
                 this.$.deleteAjax.addEventListener('error', this._handleErrorMessage.bind(this));
                 ///
                 this.$.addContactAjax.reallythis = this;
-                this.$.addContactAjax.addEventListener('response', this._handleResponseMessage.bind(this));
+                this.$.addContactAjax.addEventListener('response', this._handleResponseContacts.bind(this));
                 this.$.addContactAjax.addEventListener('error', this._handleErrorMessage.bind(this));
                 ///
+                this.$.deleteContactsAjax.reallythis = this;
+                this.$.deleteContactsAjax.addEventListener('response', this._handleResponseContacts.bind(
+                    this));
+                this.$.deleteContactsAjax.addEventListener('error', this._handleErrorMessage.bind(this));
+                ///
+                ///
                 this.$.addAddressAjax.reallythis = this;
-                this.$.addAddressAjax.addEventListener('response', this._handleResponseMessage.bind(this));
+                this.$.addAddressAjax.addEventListener('response', this._handleResponseAddress.bind(this));
                 this.$.addAddressAjax.addEventListener('error', this._handleErrorMessage.bind(this));
                 ///
                 this.$.deleteAddressAjax.reallythis = this;
-                this.$.deleteAddressAjax.addEventListener('response', this._handleResponseMessage.bind(this));
+                this.$.deleteAddressAjax.addEventListener('response', this._handleResponseAddress.bind(this));
                 this.$.deleteAddressAjax.addEventListener('error', this._handleErrorMessage.bind(this));
                 //
                 // this.$.myId.source = ["viejo","nuevo"];
@@ -274,6 +309,7 @@
                 var person = response.detail.response.data;
                 this.person = person;
                 this.$.type.selected = person.type;
+                this.$.businessName.value = person.businessName;
                 this.$.firstName.value = person.firstName;
                 this.$.lastName.value = person.lastName;
                 this.$.tributaryCode.value = person.tributaryCode;
@@ -403,8 +439,10 @@
                 this.showMessage(message);
             },
             _viewChanged: function (key) {
-                debugger
-                if (this.type === 'persons') {
+                // debugger
+                console.log("type", this.typePerson)
+                console.log("name", this.name)
+                if (this.typePerson === 'persons') {
                     //Cargar token cuando se ingrese a la pantalla de formulario
                     if (typeof window.localStorage.session !== "undefined") {
                         this.token = JSON.parse(window.localStorage.session).token;
@@ -420,10 +458,13 @@
                     this.$.contacts.style.display = 'block';
                     // this.$.name.disabled = null;
                     // this.$.description.disabled = null;
-                    // this.$.description.style.display = 'inline-block';
+                    // this.$.description.style.display = 'inline-block';                    
                     this.$.deleteAddress.style.display = 'none';
                     //
                     if (key != '' && key != 'undefined') {
+                        var type = this.name.toUpperCase();
+                        this.type = type;
+                        console.log("if");
                         this.$.status.selected = '';
                         // this.$.name.disabled = 'disabled';
                         // this.$.description.disabled = 'disabled';
@@ -432,6 +473,9 @@
                         this.$.reset.style.display = 'none';
                         this._getPerson();
                     } else {
+                        console.log("else");
+                        var type = this.name.toUpperCase();
+                        this.type = type;
                         this.$.addresses.style.display = 'none';
                         this.$.contacts.style.display = 'none';
                         this.$.delete.style.display = 'none';
@@ -465,6 +509,8 @@
                     // window.location.reload();
                 }
                 //
+                this.$.address.value = '';
+                //
                 var address = {
                     "address": this.$.address.value
                 };
@@ -491,14 +537,9 @@
                 var addressesArray = [];
 
                 selected.forEach(function (element, index, array) {
-                    // console.log('indice' + index, reallythis.itemsAddress[index]);
-                    // reallythis.itemsAddress.splice(index,1);
-                    reallythis.splice("itemsAddress", element, 1);
-                    //
-                    // Borrar todas las direcciones
-                    console.log('indice' + index, reallythis.itemsAddress[index]);
+                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
                     var addressId = reallythis.itemsAddress[index]._id;
-                    // var roleId = reallythis.itemsAddress[index];
+                    console.log('indice' + index, reallythis.itemsAddress[index]);
                     addressesArray.push(addressId);
 
                 });
@@ -507,13 +548,25 @@
                     'x-access-token': reallythis.token
                 };
                 //debugger
-                // reallythis.$.deleteAddressAjax.body = {"addresses": addressesArray};
-                reallythis.$.deleteAddressAjax.body = addressesArray;
+<<<<<<< HEAD
+<<<<<<< HEAD
+                // reallythis.$.deleteAddressAjax.params = addressesArray;
+                reallythis.$.deleteAddressAjax.contentType = "application/x-www-form-urlencoded";
+=======
+=======
+>>>>>>> origin/CopiandoAPaco
+                reallythis.$.deleteAddressAjax.body = {"addresses": JSON.stringify(addressesArray)};
+                // reallythis.$.deleteAddressAjax.body = addressesArray;
                 console.log(reallythis.$.deleteAddressAjax.body);
+>>>>>>> origin/CopiandoAPaco
                 reallythis.$.deleteAddressAjax.method = 'DELETE';
                 reallythis.$.deleteAddressAjax.url = reallythis.url + '/' + reallythis.key + '/addresses';
-                //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
+                reallythis.$.deleteAddressAjax.contentType = 'application/x-www-form-urlencoded';
                 console.log("llega a request")
+                reallythis.$.deleteAddressAjax.body = {
+                    "addresses": JSON.stringify(addressesArray)
+                };
+                console.log(reallythis.$.deleteAddressAjax.body);
                 reallythis.$.deleteAddressAjax.generateRequest();
 
                 // reallythis._viewChanged(reallythis.key);
@@ -538,6 +591,9 @@
                     // window.location.reload();
                 }
                 //
+                this.$.contactName.value = '';
+                this.$.contactPhone.value = '';
+                //
                 var contact = {
                     "name": this.$.contactName.value,
                     "phone": this.$.contactPhone.value
@@ -561,18 +617,50 @@
             _deleteContact: function () {
                 var selected = this.selectedContacts;
                 var reallythis = this;
+                var contactsArray = [];
+
                 selected.forEach(function (element, index, array) {
-                    // console.log('indice' + index, reallythis.itemsAddress[index]);
-                    // reallythis.itemsAddress.splice(index,1);
-                    reallythis.splice("itemsContacts", element, 1);
+                    //Obtener id dentro de la lista de contactos, a traves de los seleccionados
+                    console.log('indice' + index, reallythis.itemsContacts[index]);
+                    var contactId = reallythis.itemsContacts[index]._id;
+                    contactsArray.push(contactId);
 
                 });
+                console.log(contactsArray);
+                reallythis.$.deleteContactsAjax.headers = {
+                    'x-access-token': reallythis.token
+                };
+                //debugger
+                // reallythis.$.deleteAddressAjax.params = addressesArray;
+                reallythis.$.deleteContactsAjax.contentType = "application/x-www-form-urlencoded";
+                reallythis.$.deleteContactsAjax.method = 'DELETE';
+                reallythis.$.deleteContactsAjax.url = reallythis.url + '/' + reallythis.key + '/contacts';
+                //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
+                console.log("llega a request")
+                reallythis.$.deleteContactsAjax.body = {
+                    "contacts": JSON.stringify(contactsArray)
+                };
+                console.log(reallythis.$.deleteContactsAjax.body);
+                reallythis.$.deleteContactsAjax.generateRequest();
+
                 // reallythis._viewChanged(reallythis.key);
             },
             _handleResponseMessage: function (response) {
                 var message = response.detail.response.message;
                 this.showMessage(message);
-            }
+            },
+            _handleResponseAddress: function (response) {
+                var message = response.detail.response.message;
+                var data = response.detail.response.data;
+                this.itemsAddress = data;
+                this.showMessage(message);
+            },
+            _handleResponseContacts: function (response) {
+                var message = response.detail.response.message;
+                var data = response.detail.response.data;
+                this.itemsContacts = data;
+                this.showMessage(message);
+            },
         });
     </script>
 </dom-module>
