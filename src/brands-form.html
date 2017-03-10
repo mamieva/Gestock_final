@@ -25,44 +25,34 @@
              :host {
                 display: block;
             }
-
-
-
+            
             .container {
                 display: block;
                 margin: 20px 0 0 20px;
                 width: 100%;
             }
-
-
-
+            
             form {
                 width: 900px;
             }
-
-
-
+            
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-
-
-
+            
             .botonera {
                 margin: 10px 0 0 0;
             }
-
-
-
+            
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
         </style>
-        <app-route route="{{route}}" pattern="/:brand" data="{{brandData}}" tail="{{routeTail}}" id="routeManager"></app-route>
+        <app-route route="{{route}}" pattern="/:supplier" data="{{supplierData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
             <iron-ajax id="brandAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
@@ -74,25 +64,25 @@
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
-                </paper-input>
-                <paper-input id="description" name="description" label="Descripción">
-                    <iron-icon icon="icons:description" prefix></iron-icon>
-                </paper-input>
-                <paper-dropdown-menu label="Estado" name="status" required>
-                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="">
-                        <paper-item name="ACTIVO">ACTIVO</paper-item>
-                        <paper-item name="INACTIVO">INACTIVO</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
-                <div class="botonera">
-                    <paper-button raised submit id="create">Agregar</paper-button>
-                    <paper-button raised submit id="apply_changes">Modificar</paper-button>
-                    <paper-button raised submit id="delete">Eliminar</paper-button>
-                    <paper-button raised id="reset">Limpiar</paper-button>
-                </div>
+                    </paper-input>
+                    <paper-input id="description" name="description" label="Descripción">
+                        <iron-icon icon="icons:description" prefix></iron-icon>
+                        </paper-input>
+                        <paper-dropdown-menu label="Estado" name="status" required>
+                            <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="">
+                                <paper-item name="ACTIVO">ACTIVO</paper-item>
+                                <paper-item name="INACTIVO">INACTIVO</paper-item>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                        <div class="botonera">
+                            <paper-button raised submit id="create">Agregar</paper-button>
+                            <paper-button raised submit id="apply_changes">Modificar</paper-button>
+                            <paper-button raised submit id="delete">Eliminar</paper-button>
+                            <paper-button raised id="reset">Limpiar</paper-button>
+                        </div>
             </form>
             <div id="suppliers" class="suppliers">
-                <paper-autocomplete label="Seleccionar Proveedor" id="selectSupplier" min-length="0"></paper-autocomplete>
+                <paper-autocomplete label="Seleccionar Proveedor" id="selectSupplier" min-length="2"></paper-autocomplete>
                 <paper-button raised submit id="addSupplier">Agregar</paper-button>
                 <vaadin-grid id="suppliersList" items={{itemsSuppliers}} selection-mode="multi">
                 </vaadin-grid>
@@ -105,7 +95,7 @@
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
                 <!--<h2>Eliminar marca</h2>-->
-                <p>¿Desea eliminar la marca <strong>[[brand.name]]</strong> ?</p>
+                <p>¿Desea eliminar la marca <strong>[[supplier.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -130,14 +120,10 @@
                     type: String,
                     value: 'http://localhost:3000/brand'
                 },
-                url_base: {
-                    type: String,
-                    value: 'http://localhost:3000/'
-                },
                 token: {
                     type: String
                 },
-                brand: {
+                supplier: {
                     type: Object
                 }
             },
@@ -150,14 +136,13 @@
                 'iron-form-error': '_formError',
                 'iron-form-presubmit': '_formPresubmit',
                 'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createBrand',
+                'create.tap': '_createSupplier',
                 'reset.tap': '_reset',
-                'apply_changes.tap': '_updateBrand',
+                'apply_changes.tap': '_updateSupplier',
                 'delete.tap': '_deleteDialog',
-                'deleteAceptar.tap': '_deleteBrand',
-                'addSupplier.tap': '_addSupplier'
+                'deleteAceptar.tap': '_deleteSupplier'
             },
-            _deleteBrand: function () {
+            _deleteSupplier: function () {
                 console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
@@ -194,12 +179,12 @@
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
-                var brand = response.detail.response.data;
-                this.brand = brand;
-                this.$.name.value = brand.name;
-                this.$.status.selected = brand.status;
+                var supplier = response.detail.response.data;
+                this.supplier = supplier;
+                this.$.name.value = supplier.name;
+                this.$.status.selected = supplier.status;
                 console.log(this.$.status.selected);
-                if (brand.status == 'ACTIVO') {
+                if (supplier.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
 
@@ -223,14 +208,14 @@
                 this._viewChanged('');
                 this.set('route.path', '');
             },
-            _getBrand: function () {
+            _getSupplier: function () {
                 this.$.brandAjax.headers = {
                     'x-access-token': this.token
                 };
                 this.$.brandAjax.url = this.url + '/' + this.key;
                 this.$.brandAjax.generateRequest();
             },
-            _updateBrand: function (event) {
+            _updateSupplier: function (event) {
                 this.$.updateAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -239,7 +224,7 @@
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                if (this.brand.status == serialize.status) {
+                if (this.supplier.status == serialize.status) {
                     this.showError('No se registraron cambios');
                 } else {
                     this.$.updateAjax.body = serialize;
@@ -247,17 +232,17 @@
                     // window.location.reload();
                 }
             },
-            _createBrand: function (event) {
+            _createSupplier: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
                 this._getForm().headers = {
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
                 this._getForm().action = this.url;
-                var brand = this._getForm().serialize();
-                brand.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = brand;
-                //console.log(brand);
+                var supplier = this._getForm().serialize();
+                supplier.token = JSON.parse(window.localStorage.session).token;
+                this._getForm().params = supplier;
+                //console.log(supplier);
                 this.$.brandForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -268,9 +253,9 @@
                 this._getForm().method = 'PUT';
                 this._getForm().action = this.url + '/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var brand = this._getForm().serialize();
-                //brand.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = brand;
+                //var supplier = this._getForm().serialize();
+                //supplier.token = JSON.parse(window.localStorage.session).token;
+                //this._getForm().params = supplier;
                 console.log(this._getForm());
                 this.$.brandForm.submit();
             },
@@ -329,7 +314,6 @@
                 this.$.description.disabled = null;
                 this.$.description.style.display = 'inline-block';
                 //
-                this._getSupplier();
                 if (key != '' && key != 'undefined') {
                     this.$.status.selected = '';
                     this.$.name.disabled = 'disabled';
@@ -337,55 +321,11 @@
                     this.$.description.style.display = 'none';
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
-                    this._getBrand();
+                    this._getSupplier();
                 } else {
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';
                 }
-            },
-            _getSupplier: function () {
-                //obtener todos los roles para poder Agregar
-                var input = this.$.selectSupplier;
-                //var search = event.detail.option.text;
-                var url = this.url_base + 'persons';
-                var req = new XMLHttpRequest();
-                req.open('GET', encodeURI(url));
-                req.setRequestHeader('x-access-token', this.token);
-                var params = { type: "PROVEEDOR" };
-                req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                // req.setRequestHeader("Content-length", params.length);
-                // console.log('entra brand', this.token);
-                req.responseType = 'json';
-                req.onload = function () {
-                    //console.log('roles input',req.status);
-                    if (req.status === 200) {
-                        //console.log(req.response)
-                        //var data = JSON.parse(req.response.data);
-                        var data = req.response.data;
-                        // console.log('data', data);
-                        var arr = data.map(function (obj) {
-                            return {
-                                text: obj.businessName,
-                                value: obj._id
-                            };
-                        });
-                        input.source = arr;
-                        console.log('a', input.source);
-                    }
-                };
-                req.send(params);
-            },
-            _addSupplier : function(){
-                this.$.createUserRoleAjax.headers = {
-                    'x-access-token': this.token
-                };
-                this.$.createUserRoleAjax.method = 'POST';
-                this.$.createUserRoleAjax.url = this.url + 'user/' + this.key + '/suppliers';
-                this.$.createUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
-                this.$.createUserRoleAjax.body = {
-                    "roleId": this.$.selectRole.value
-                };
-                this.$.createUserRoleAjax.generateRequest();
             }
         });
     </script>
