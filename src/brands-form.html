@@ -58,6 +58,7 @@
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
             <iron-ajax id="addSupplierAjax"></iron-ajax>
+            <iron-ajax id="deleteSuppliersAjax"></iron-ajax>
         </div>
         <div class="container">
             <h3>Marca</h3>
@@ -87,10 +88,9 @@
                 <paper-button raised submit id="addSupplier">Agregar</paper-button>
                 <vaadin-grid id="suppliersList" items={{itemsSuppliers}} selection-mode="multi">
                 </vaadin-grid>
-            </div>
-            <div class="botoneraSupplier">
-                <paper-button raised submit id="deleteSupplier">Eliminar Seleccionados</paper-button>
-                <paper-button raised id="resetSupplier">Deseleccionar todos</paper-button>
+                <div class="botoneraSupplier">
+                    <paper-button raised submit id="deleteSupplier">Eliminar Seleccionados</paper-button>
+                </div>
             </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
@@ -133,6 +133,9 @@
                 },
                 itemsSuppliers: {
                     type: Array
+                },
+                selectedSupplier:{
+                    type: Array
                 }
             },
             observers: [
@@ -149,7 +152,8 @@
                 'apply_changes.tap': '_updateBrand',
                 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deleteBrand',
-                'addSupplier.tap': '_addSupplier'
+                'addSupplier.tap': '_addSupplier',
+                'deleteSupplier.tap':'_deleteSuppliers'
             },
             _deleteBrand: function () {
                 console.log("entro aceptar");
@@ -185,7 +189,8 @@
                 this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
                 //
                 this.$.addSupplierAjax.reallythis = this;
-                this.$.addSupplierAjax.addEventListener('response', this._handleResponsAddSupplier.bind(this));
+                this.$.addSupplierAjax.addEventListener('response', this._handleResponsAddSupplier.bind(
+                    this));
                 this.$.addSupplierAjax.addEventListener('error', this._handleError.bind(this));
                 //
                 var supplierCol = [{
@@ -338,8 +343,6 @@
                 this.$.description.disabled = null;
                 this.$.description.style.display = 'inline-block';
                 //
-                this._getSuppliers();
-                //
                 if (key != '' && key != 'undefined') {
                     this.$.status.selected = '';
                     this.$.name.disabled = 'disabled';
@@ -347,8 +350,12 @@
                     this.$.description.style.display = 'none';
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
+                    this._getSuppliers();
                     this._getBrand();
+                    this.$.supplier.style.display = 'block';
+
                 } else {
+                    this.$.supplier.style.display = 'none';
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';
                 }
@@ -386,7 +393,7 @@
                 };
                 req.send(params);
             },
-            _addSupplier: function(){
+            _addSupplier: function () {
                 this.$.addSupplierAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -395,20 +402,66 @@
                 this.$.addSupplierAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.addSupplierAjax.body = {
                     "supplierId": this.$.selectSupplier.value
-                };                
+                };
                 this.$.selectSupplier.text = '';
                 this.$.addSupplierAjax.generateRequest();
             },
-            _handleResponsAddSupplier: function(response){
+            _handleResponsAddSupplier: function (response) {
                 var addSupplier = response.detail.response;
                 this.itemsSuppliers = addSupplier.data;
                 this.showMessage(addSupplier.message);
                 // window.location.reload();
             },
-            _getSupplierList:function(){
+            _getSupplierList: function () {
                 return this.$.suppliersList;
             },
-            _selectedSupplierChanged: function(){
+            _selectedSupplierChanged: function () {
+                var reallythis = this.reallythis;
+                reallythis.selectedSupplier = this.selection.selected();
+                var select = reallythis.selectedSupplier;
+                // console.log("select", select)
+                if (select.length > 0 && select) {
+                    reallythis.$.deleteSupplier.style.display = 'inline-block';
+                    // reallythis.$.resetRole.style.display = 'inline-block';
+                } else {
+                    reallythis.$.deleteSupplier.style.display = 'none';
+                    // reallythis.$.resetRole.style.display = 'none';
+                }
+            },
+            _deleteSuppliers: function(){
+                var selected = this.selectedSupplier;
+                console.log("supplieres", selected);
+                var reallythis = this;
+                var suppliersArray = [];
+
+                selected.forEach(function (element, index, array) {
+                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
+                    var supplierId = reallythis.itemsSuppliers[index]._id;
+                    console.log('indice' + index, reallythis.itemsSuppliers[index]);
+                    suppliersArray.push(supplierId);
+
+                });
+                console.log(suppliersArray);
+                reallythis.$.deleteSuppliersAjax.headers = {
+                    'x-access-token': reallythis.token
+                };
+                //debugger
+                // reallythis.$.deleteSuppliersAjax.params = suppliersArray;
+                reallythis.$.deleteSuppliersAjax.contentType = "application/x-www-form-urlencoded";
+                reallythis.$.deleteSuppliersAjax.body = { "suppliers": JSON.stringify(suppliersArray) };
+                // reallythis.$.deleteSuppliersAjax.body = suppliersArray;
+                console.log(reallythis.$.deleteSuppliersAjax.body);
+                reallythis.$.deleteSuppliersAjax.method = 'DELETE';
+                reallythis.$.deleteSuppliersAjax.url = reallythis.url + '/' + reallythis.key + '/suppliers';
+                reallythis.$.deleteSuppliersAjax.contentType = 'application/x-www-form-urlencoded';
+                console.log("llega a request")
+                reallythis.$.deleteSuppliersAjax.body = {
+                    "suppliers": JSON.stringify(suppliersArray)
+                };
+                console.log(reallythis.$.deleteSuppliersAjax.body);
+                reallythis.$.deleteSuppliersAjax.generateRequest();
+
+                // reallythis._viewChanged(reallythis.key);
 
             }
         });
