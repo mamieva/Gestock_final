@@ -58,6 +58,10 @@
             <iron-ajax id="productAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
+            <iron-ajax id="addBrandAjax"></iron-ajax>
+            <iron-ajax id="deleteBrandsAjax"></iron-ajax>
+            <iron-ajax id="addComponentAjax"></iron-ajax>
+            <iron-ajax id="deleteComponentsAjax"></iron-ajax>
         </div>
         <div class="container">
             <h3>Producto</h3>
@@ -69,10 +73,16 @@
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
                 </paper-input>
-                <div id="roles" class="roles">
+                <div id="brands" class="brands">
                     <paper-autocomplete label="Seleccionar Marca" id="selectBrand" min-length="2"></paper-autocomplete>
-                    <paper-button raised submit id="addRole">Agregar</paper-button>
-                    <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="single">
+                    <paper-button raised submit id="addBrand">Agregar</paper-button>
+                    <vaadin-grid id="brandsList" items={{itemsBrands}} selection-mode="single">
+                    </vaadin-grid>
+                </div>
+                <div id="components" class="components">
+                    <paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>
+                    <paper-button raised submit id="addComponent">Agregar</paper-button>
+                    <vaadin-grid id="componentsList" items={{itemsComponents}} selection-mode="single">
                     </vaadin-grid>
                 </div>
                 <paper-dropdown-menu label="Estado" name="status" required>
@@ -115,7 +125,7 @@
                 },
                 url: {
                     type: String,
-                    value: 'http://localhost:3000/product'
+                    value: 'http://localhost:3000/product/'
                 },
                 url_base: {
                     type: String,
@@ -126,6 +136,12 @@
                 },
                 product: {
                     type: Object
+                },
+                itemsBrands: {
+                    type: Array
+                },
+                itemsComponents: {
+                    type: Array
                 }
             },
             observers: [
@@ -141,7 +157,8 @@
                 'reset.tap': '_reset',
                 'apply_changes.tap': '_updateProduct',
                 'delete.tap': '_deleteDialog',
-                'deleteAceptar.tap': '_deleteProduct'
+                'deleteAceptar.tap': '_deleteProduct',
+                'addBrand.tap': '_addBrand'
             },
             _deleteProduct: function () {
                 console.log("entro aceptar");
@@ -149,7 +166,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url + '/' + this.key;
+                this.$.deleteAjax.url = this.url +  this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -175,8 +192,47 @@
                 this.$.deleteAjax.reallythis = this;
                 this.$.deleteAjax.addEventListener('response', this._handleResponseDelete.bind(this));
                 this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.addBrandAjax.reallythis = this;
+                this.$.addBrandAjax.addEventListener('response', this._handleResponsAddBrand.bind(this));
+                this.$.addBrandAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.deleteBrandsAjax.reallythis = this;
+                this.$.deleteBrandsAjax.addEventListener('response', this._handleResponsDeleteBrand.bind(this));
+                this.$.deleteBrandsAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.addComponentAjax.reallythis = this;
+                this.$.addComponentAjax.addEventListener('response', this._handleResponsAddComponent.bind(this));
+                this.$.addComponentAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.deleteComponentsAjax.reallythis = this;
+                this.$.deleteComponentsAjax.addEventListener('response', this._handleResponseDeleteComponents.bind(this));
+                this.$.deleteComponentsAjax.addEventListener('error', this._handleError.bind(this));
                 //
                 // this.$.myId.source = ["viejo","nuevo"];
+                var brandCol = [{
+                    "name": "name",
+                    "sortable": "true"
+                }, {
+                    "name": "description",
+                    "sortable": "true"
+                }];
+                this._getBrandList().columns = brandCol;
+                // Gestionar grilla de marcas
+                this._getBrandList().reallythis = this;
+                this._getBrandList().addEventListener('selected-items-changed', (this)._selectedSupplierChanged);
+                //
+                var componentCol = [{
+                    "name": "name",
+                    "sortable": "true"
+                }, {
+                    "name": "code",
+                    "sortable": "true"
+                }];
+                this._getComponentList().columns = componentCol;
+                // Gestionar grilla de direcciones
+                this._getComponentList().reallythis = this;
+                this._getComponentList().addEventListener('selected-items-changed', (this)._selectedComponentChanged);
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
@@ -213,7 +269,7 @@
                 this.$.productAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.productAjax.url = this.url + '/' + this.key;
+                this.$.productAjax.url = this.url +  this.key;
                 this.$.productAjax.generateRequest();
             },
             _updateProduct: function (event) {
@@ -221,7 +277,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url + '/' + this.key;
+                this.$.updateAjax.url = this.url +  this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -252,7 +308,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url + '/' + this.key;
+                this._getForm().action = this.url +  this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var product = this._getForm().serialize();
                 //product.token = JSON.parse(window.localStorage.session).token;
@@ -330,17 +386,17 @@
                 }
             },
             _getBrands: function () {
-                //obtener todos los roles para poder Agregar
+                //obtener todos los marcas para poder Agregar
                 var input = this.$.selectBrand;
                 //var search = event.detail.option.text;
                 var url = this.url_base + 'brands';
                 var req = new XMLHttpRequest();
                 req.open('GET', encodeURI(url));
                 req.setRequestHeader('x-access-token', this.token);
-                console.log('entra brand',this.token);
+                console.log('entra brand', this.token);
                 req.responseType = 'json';
                 req.onload = function () {
-                    //console.log('roles input',req.status);
+                    //console.log('marcas input',req.status);
                     if (req.status === 200) {
                         //console.log(req.response)
                         //var data = JSON.parse(req.response.data);
@@ -357,6 +413,164 @@
                     }
                 };
                 req.send();
+            },
+            _addBrand: function () {
+                this.$.addBrandAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.addBrandAjax.method = 'POST';
+                this.$.addBrandAjax.url = this.url + this.key + '/brand';
+                this.$.addBrandAjax.contentType = 'application/x-www-form-urlencoded';
+                this.$.addBrandAjax.body = {
+                    "brandId": this.$.selectBrand.value
+                };
+                this.$.selectBrand.text = '';
+                this.$.addBrandAjax.generateRequest();
+            },
+            _handleResponsAddBrand: function (response) {
+                var addBrand = response.detail.response;
+                this.itemsBrands = addBrand.data;
+                this.showMessage(addBrand.message);
+                // window.location.reload();
+            },
+            _getBrandList: function () {
+                return this.$.brandsList;
+            },
+            _selectedBrandChanged: function () {
+                var reallythis = this.reallythis;
+                reallythis.selectedBrand = this.selection.selected();
+                var select = reallythis.selectedBrand;
+                // console.log("select", select)
+                if (select.length > 0 && select) {
+                    reallythis.$.deleteBrand.style.display = 'inline-block';
+                    // reallythis.$.resetBrand.style.display = 'inline-block';
+                } else {
+                    reallythis.$.deleteBrand.style.display = 'none';
+                    // reallythis.$.resetBrand.style.display = 'none';
+                }
+            },
+            _deleteBrands: function () {
+                var selected = this.selectedBrand;
+                console.log("brandes", selected);
+                var reallythis = this;
+                var brandsArray = [];
+
+                selected.forEach(function (element, index, array) {
+                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
+                    var brandId = reallythis.itemsBrands[index]._id;
+                    console.log('indice' + index, reallythis.itemsBrands[index]);
+                    brandsArray.push(brandId);
+
+                });
+                console.log(brandsArray);
+                reallythis.$.deleteBrandsAjax.headers = {
+                    'x-access-token': reallythis.token
+                };
+                //debugger
+                // reallythis.$.deleteBrandsAjax.params = brandsArray;
+                reallythis.$.deleteBrandsAjax.contentType = "application/x-www-form-urlencoded";
+                reallythis.$.deleteBrandsAjax.body = {
+                    "brands": JSON.stringify(brandsArray)
+                };
+                // reallythis.$.deleteBrandsAjax.body = brandsArray;
+                console.log(reallythis.$.deleteBrandsAjax.body);
+                reallythis.$.deleteBrandsAjax.method = 'DELETE';
+                reallythis.$.deleteBrandsAjax.url = reallythis.url + reallythis.key + '/brands';
+                reallythis.$.deleteBrandsAjax.contentType = 'application/x-www-form-urlencoded';
+                console.log("llega a request")
+                reallythis.$.deleteBrandsAjax.body = {
+                    "brands": JSON.stringify(brandsArray)
+                };
+                console.log(reallythis.$.deleteBrandsAjax.body);
+                reallythis.$.deleteBrandsAjax.generateRequest();
+
+                // reallythis._viewChanged(reallythis.key);
+
+            },
+            _handleResponsDeleteBrand: function (response) {
+                var message = response.detail.response.message;
+                var data = response.detail.response.data;
+                this.itemsBrands = data;
+                this.showMessage(message);
+            },
+            _addComponent: function () {
+                this.$.addComponentAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.addComponentAjax.method = 'POST';
+                this.$.addComponentAjax.url = this.url + this.key + '/component';
+                this.$.addComponentAjax.contentType = 'application/x-www-form-urlencoded';
+                this.$.addComponentAjax.body = {
+                    "componentId": this.$.selectComponent.value
+                };
+                this.$.selectComponent.text = '';
+                this.$.addComponentAjax.generateRequest();
+            },
+            _handleResponsAddComponent: function (response) {
+                var addComponent = response.detail.response;
+                this.itemsComponents = addComponent.data;
+                this.showMessage(addComponent.message);
+                // window.location.reload();
+            },
+            _getComponentList: function () {
+                return this.$.componentsList;
+            },
+            _selectedComponentChanged: function () {
+                var reallythis = this.reallythis;
+                reallythis.selectedComponent = this.selection.selected();
+                var select = reallythis.selectedComponent;
+                // console.log("select", select)
+                if (select.length > 0 && select) {
+                    reallythis.$.deleteComponent.style.display = 'inline-block';
+                    // reallythis.$.resetComponent.style.display = 'inline-block';
+                } else {
+                    reallythis.$.deleteComponent.style.display = 'none';
+                    // reallythis.$.resetComponent.style.display = 'none';
+                }
+            },
+            _deleteComponents: function () {
+                var selected = this.selectedComponent;
+                console.log("componentes", selected);
+                var reallythis = this;
+                var componentsArray = [];
+
+                selected.forEach(function (element, index, array) {
+                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
+                    var componentId = reallythis.itemsComponents[index]._id;
+                    console.log('indice' + index, reallythis.itemsComponents[index]);
+                    componentsArray.push(componentId);
+
+                });
+                console.log(componentsArray);
+                reallythis.$.deleteComponentsAjax.headers = {
+                    'x-access-token': reallythis.token
+                };
+                //debugger
+                // reallythis.$.deleteComponentsAjax.params = componentsArray;
+                reallythis.$.deleteComponentsAjax.contentType = "application/x-www-form-urlencoded";
+                reallythis.$.deleteComponentsAjax.body = {
+                    "components": JSON.stringify(componentsArray)
+                };
+                // reallythis.$.deleteComponentsAjax.body = componentsArray;
+                console.log(reallythis.$.deleteComponentsAjax.body);
+                reallythis.$.deleteComponentsAjax.method = 'DELETE';
+                reallythis.$.deleteComponentsAjax.url = reallythis.url + reallythis.key + '/components';
+                reallythis.$.deleteComponentsAjax.contentType = 'application/x-www-form-urlencoded';
+                console.log("llega a request")
+                reallythis.$.deleteComponentsAjax.body = {
+                    "components": JSON.stringify(componentsArray)
+                };
+                console.log(reallythis.$.deleteComponentsAjax.body);
+                reallythis.$.deleteComponentsAjax.generateRequest();
+
+                // reallythis._viewChanged(reallythis.key);
+
+            },
+            _handleResponseDeleteComponents: function (response) {
+                var message = response.detail.response.message;
+                var data = response.detail.response.data;
+                this.itemsComponents = data;
+                this.showMessage(message);
             }
         });
     </script>
