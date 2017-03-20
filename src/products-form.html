@@ -1,24 +1,24 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
-<link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
-<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="./simple-dialog.html">
 <dom-module id="products-form">
     <template>
@@ -52,6 +52,15 @@
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
+            
+            paper-dialog {
+                width: 50%;
+                height: 50%
+            }
+            
+            #componentDialog>paper-input {
+                width: 70%;
+            }
         </style>
         <app-route route="{{route}}" pattern="/:product" data="{{productData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
@@ -71,22 +80,11 @@
                 </paper-input>
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
-                    <!--<div suffix>@email.com</div>-->
                 </paper-input>
-                <div id="brands" class="brands">
-                    <paper-autocomplete label="Seleccionar Marca" id="selectBrand" min-length="2"></paper-autocomplete>
-                    <paper-button raised submit id="addBrand">Agregar</paper-button>
-                    <vaadin-grid id="brandsList" items={{itemsBrands}} selection-mode="single">
-                    </vaadin-grid>
-                </div>
-                <div id="components" class="components">
-                    <paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>
-                    <paper-button raised submit id="addComponent">Agregar</paper-button>
-                    <vaadin-grid id="componentsList" items={{itemsComponents}} selection-mode="single">
-                    </vaadin-grid>
-                </div>
+                <paper-autocomplete id="brand" name="brand" label="Seleccionar Marca" required>
+                </paper-autocomplete>
                 <paper-dropdown-menu label="Estado" name="status" required>
-                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="">
+                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="ACTIVO">ACTIVO</paper-item>
                         <paper-item name="INACTIVO">INACTIVO</paper-item>
                     </paper-listbox>
@@ -98,6 +96,21 @@
                     <paper-button raised id="reset">Limpiar</paper-button>
                 </div>
             </form>
+            <div id="components" class="components">
+                <!--<paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>-->
+                <paper-button raised submit id="openComponentDialog">Agregar Componente</paper-button>
+                <vaadin-grid id="componentsList" items={{itemsComponents}} selection-mode="single">
+                </vaadin-grid>
+            </div>
+            <paper-dialog id="componentDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+                <paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>
+                <paper-input id="quantity" name="quantity" label="Cantidad" required></paper-input>
+                <paper-input id="unit" name="unit" label="Unidad" required></paper-input>
+                <div class="buttons">
+                    <paper-button dialog-dismiss>Cancelar</paper-button>
+                    <paper-button dialog-confirm autofocus id="addComponent">Aceptar</paper-button>
+                </div>
+            </paper-dialog>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
@@ -158,7 +171,9 @@
                 'apply_changes.tap': '_updateProduct',
                 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deleteProduct',
-                'addBrand.tap': '_addBrand'
+                // 'addBrand.tap': '_addBrand',
+                'openComponentDialog.tap': '_openComponentDialog',
+                'addComponent.tap': '_addComponent'
             },
             _deleteProduct: function () {
                 console.log("entro aceptar");
@@ -166,7 +181,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url +  this.key;
+                this.$.deleteAjax.url = this.url + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -198,35 +213,38 @@
                 this.$.addBrandAjax.addEventListener('error', this._handleError.bind(this));
                 ///
                 this.$.deleteBrandsAjax.reallythis = this;
-                this.$.deleteBrandsAjax.addEventListener('response', this._handleResponsDeleteBrand.bind(this));
+                this.$.deleteBrandsAjax.addEventListener('response', this._handleResponsDeleteBrand.bind(
+                    this));
                 this.$.deleteBrandsAjax.addEventListener('error', this._handleError.bind(this));
                 ///
                 this.$.addComponentAjax.reallythis = this;
-                this.$.addComponentAjax.addEventListener('response', this._handleResponsAddComponent.bind(this));
+                this.$.addComponentAjax.addEventListener('response', this._handleResponsAddComponent.bind(
+                    this));
                 this.$.addComponentAjax.addEventListener('error', this._handleError.bind(this));
                 ///
                 this.$.deleteComponentsAjax.reallythis = this;
-                this.$.deleteComponentsAjax.addEventListener('response', this._handleResponseDeleteComponents.bind(this));
+                this.$.deleteComponentsAjax.addEventListener('response', this._handleResponseDeleteComponents
+                    .bind(this));
                 this.$.deleteComponentsAjax.addEventListener('error', this._handleError.bind(this));
                 //
                 // this.$.myId.source = ["viejo","nuevo"];
-                var brandCol = [{
-                    "name": "name",
-                    "sortable": "true"
-                }, {
-                    "name": "description",
-                    "sortable": "true"
-                }];
-                this._getBrandList().columns = brandCol;
-                // Gestionar grilla de marcas
-                this._getBrandList().reallythis = this;
-                this._getBrandList().addEventListener('selected-items-changed', (this)._selectedSupplierChanged);
+                // var brandCol = [{
+                //     "name": "name",
+                //     "sortable": "true"
+                // }, {
+                //     "name": "description",
+                //     "sortable": "true"
+                // }];
+                // this._getBrandList().columns = brandCol;
+                // // Gestionar grilla de marcas
+                // this._getBrandList().reallythis = this;
+                // this._getBrandList().addEventListener('selected-items-changed', (this)._selectedSupplierChanged);
                 //
                 var componentCol = [{
                     "name": "name",
                     "sortable": "true"
                 }, {
-                    "name": "code",
+                    "name": "quantity",
                     "sortable": "true"
                 }];
                 this._getComponentList().columns = componentCol;
@@ -269,7 +287,7 @@
                 this.$.productAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.productAjax.url = this.url +  this.key;
+                this.$.productAjax.url = this.url + this.key;
                 this.$.productAjax.generateRequest();
             },
             _updateProduct: function (event) {
@@ -277,7 +295,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url +  this.key;
+                this.$.updateAjax.url = this.url + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -296,10 +314,12 @@
                 };
                 this._getForm().method = 'POST';
                 this._getForm().action = this.url;
+                
                 var product = this._getForm().serialize();
-                product.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = product;
-                //console.log(product);
+                // product.token = JSON.parse(window.localStorage.session).token;
+                // this._getForm().params = product;
+                console.log('productoo',product);
+                console.log('marca',this.$.brand.value);
                 this.$.productForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -308,7 +328,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url +  this.key;
+                this._getForm().action = this.url + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var product = this._getForm().serialize();
                 //product.token = JSON.parse(window.localStorage.session).token;
@@ -355,45 +375,15 @@
                 this.set('route.path', id);
                 this.showMessage(message);
             },
-            _viewChanged: function (key) {
-                //Cargar token cuando se ingrese a la pantalla de formulario
-                if (typeof window.localStorage.session !== "undefined") {
-                    this.token = JSON.parse(window.localStorage.session).token;
-                }
-                // Limpiar formulario
-                this.$.productForm.reset();
-                //Prendemos los botones
-                this.$.create.style.display = 'inline-block';
-                this.$.reset.style.display = 'inline-block';
-                this.$.delete.style.display = 'inline-block';
-                this.$.apply_changes.style.display = 'inline-block';
-                this.$.name.disabled = null;
-                // this.$.description.disabled = null;
-                // this.$.description.style.display = 'inline-block';
-                //
-                if (key != '' && key != 'undefined') {
-                    this.$.status.selected = '';
-                    this.$.name.disabled = 'disabled';
-                    // this.$.description.disabled = 'disabled';
-                    // this.$.description.style.display = 'none';
-                    this.$.create.style.display = 'none';
-                    this.$.reset.style.display = 'none';
-                    this._getProduct();
-                } else {
-                    this._getBrands();
-                    this.$.delete.style.display = 'none';
-                    this.$.apply_changes.style.display = 'none';
-                }
-            },
             _getBrands: function () {
                 //obtener todos los marcas para poder Agregar
-                var input = this.$.selectBrand;
+                var input = this.$.brand;
                 //var search = event.detail.option.text;
                 var url = this.url_base + 'brands';
                 var req = new XMLHttpRequest();
                 req.open('GET', encodeURI(url));
                 req.setRequestHeader('x-access-token', this.token);
-                console.log('entra brand', this.token);
+                // console.log('entra brand', this.token);
                 req.responseType = 'json';
                 req.onload = function () {
                     //console.log('marcas input',req.status);
@@ -409,10 +399,44 @@
                             };
                         });
                         input.source = arr;
-                        console.log('a', input.source);
+                        // console.log('a', input.source);
                     }
                 };
                 req.send();
+            },
+            _viewChanged: function (key) {
+                //Cargar token cuando se ingrese a la pantalla de formulario
+                if (typeof window.localStorage.session !== "undefined") {
+                    this.token = JSON.parse(window.localStorage.session).token;
+                }
+                // Limpiar formulario
+                this.$.productForm.reset();
+                //Prendemos los botones
+                this.$.create.style.display = 'inline-block';
+                this.$.reset.style.display = 'inline-block';
+                this.$.delete.style.display = 'inline-block';
+                this.$.apply_changes.style.display = 'inline-block';
+                this.$.name.disabled = null;
+                this.$.components.style.display = "none";
+                // this.$.description.disabled = null;
+                // this.$.description.style.display = 'inline-block';
+                //
+                if (key != '' && key != 'undefined') {
+                    this.$.status.selected = '';
+                    this.$.name.disabled = 'disabled';
+                    // this.$.description.disabled = 'disabled';
+                    // this.$.description.style.display = 'none';
+                    this.$.create.style.display = 'none';
+                    this.$.reset.style.display = 'none';
+                    this.$.components.style.display = "block";
+                    this._getProduct();
+                    this._getComponents();
+                } else {
+                    this._getBrands();
+                    this._getComponents();
+                    this.$.delete.style.display = 'none';
+                    this.$.apply_changes.style.display = 'none';
+                }
             },
             _addBrand: function () {
                 this.$.addBrandAjax.headers = {
@@ -422,9 +446,9 @@
                 this.$.addBrandAjax.url = this.url + this.key + '/brand';
                 this.$.addBrandAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.addBrandAjax.body = {
-                    "brandId": this.$.selectBrand.value
+                    "brandId": this.$.brand.value
                 };
-                this.$.selectBrand.text = '';
+                this.$.brand.text = '';
                 this.$.addBrandAjax.generateRequest();
             },
             _handleResponsAddBrand: function (response) {
@@ -501,7 +525,9 @@
                 this.$.addComponentAjax.url = this.url + this.key + '/component';
                 this.$.addComponentAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.addComponentAjax.body = {
-                    "componentId": this.$.selectComponent.value
+                    "componentId": this.$.selectComponent.value,
+                    "quantity": this.$.quantity.value,
+                    "unit": this.$.unit.value
                 };
                 this.$.selectComponent.text = '';
                 this.$.addComponentAjax.generateRequest();
@@ -571,6 +597,38 @@
                 var data = response.detail.response.data;
                 this.itemsComponents = data;
                 this.showMessage(message);
+            },
+            _getComponents: function () {
+                //obtener todos los marcas para poder Agregar
+                var input = this.$.selectComponent;
+                //var search = event.detail.option.text;
+                var url = this.url_base + 'products';
+                var req = new XMLHttpRequest();
+                req.open('GET', encodeURI(url));
+                req.setRequestHeader('x-access-token', this.token);
+                // console.log('entra product', this.token);
+                req.responseType = 'json';
+                req.onload = function () {
+                    //console.log('marcas input',req.status);
+                    if (req.status === 200) {
+                        //console.log(req.response)
+                        //var data = JSON.parse(req.response.data);
+                        var data = req.response.data;
+                        // console.log('data', data);
+                        var arr = data.map(function (obj) {
+                            return {
+                                text: obj.name,
+                                value: obj._id
+                            };
+                        });
+                        input.source = arr;
+                        console.log('a', input.source);
+                    }
+                };
+                req.send();
+            },
+            _openComponentDialog: function () {
+                this.$.componentDialog.open();
             }
         });
     </script>
