@@ -81,8 +81,8 @@
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                 </paper-input>
-                <paper-autocomplete id="brand" name="brand" label="Seleccionar Marca" required>
-                </paper-autocomplete>
+                <paper-autocomplete id="brand_autocomplete" label="Seleccionar Marca" required></paper-autocomplete>
+                <input type="hidden" id="brand" name="brand">
                 <paper-dropdown-menu label="Estado" name="status" required>
                     <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="ACTIVO">ACTIVO</paper-item>
@@ -173,7 +173,13 @@
                 'deleteAceptar.tap': '_deleteProduct',
                 // 'addBrand.tap': '_addBrand',
                 'openComponentDialog.tap': '_openComponentDialog',
-                'addComponent.tap': '_addComponent'
+                'addComponent.tap': '_addComponent',
+                'brand.autocomplete-selected': '_prueba'
+            },
+            _prueba: function (event) {
+                console.log("hola", event.detail.option.value);
+                this.$.brand.value = event.detail.option.value;
+
             },
             _deleteProduct: function () {
                 console.log("entro aceptar");
@@ -256,9 +262,11 @@
                 console.log(response.detail.response.data);
                 var product = response.detail.response.data;
                 this.product = product;
+                this.$.code.value = product.code;
                 this.$.name.value = product.name;
+                this.$.brand_autocomplete.value = product.brand._id;
                 this.$.status.selected = product.status;
-                console.log(this.$.status.selected);
+                console.log("autocomplete",this.$.brand_autocomplete.value);
                 if (product.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
@@ -314,12 +322,14 @@
                 };
                 this._getForm().method = 'POST';
                 this._getForm().action = this.url;
-                
+
+                this.$.brand.value = this.$.brand_autocomplete.value;
+
                 var product = this._getForm().serialize();
                 // product.token = JSON.parse(window.localStorage.session).token;
                 // this._getForm().params = product;
-                console.log('productoo',product);
-                console.log('marca',this.$.brand.value);
+                console.log('productoo', product);
+                console.log('marca', this.$.brand.value);
                 this.$.productForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -377,7 +387,7 @@
             },
             _getBrands: function () {
                 //obtener todos los marcas para poder Agregar
-                var input = this.$.brand;
+                var input = this.$.brand_autocomplete;
                 //var search = event.detail.option.text;
                 var url = this.url_base + 'brands';
                 var req = new XMLHttpRequest();
@@ -421,6 +431,7 @@
                 // this.$.description.disabled = null;
                 // this.$.description.style.display = 'inline-block';
                 //
+                this._getBrands();
                 if (key != '' && key != 'undefined') {
                     this.$.status.selected = '';
                     this.$.name.disabled = 'disabled';
@@ -432,7 +443,6 @@
                     this._getProduct();
                     this._getComponents();
                 } else {
-                    this._getBrands();
                     this._getComponents();
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';
@@ -448,7 +458,7 @@
                 this.$.addBrandAjax.body = {
                     "brandId": this.$.brand.value
                 };
-                this.$.brand.text = '';
+                this.$.brand_autocomplete.text = '';
                 this.$.addBrandAjax.generateRequest();
             },
             _handleResponsAddBrand: function (response) {
