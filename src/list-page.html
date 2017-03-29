@@ -16,6 +16,7 @@
 <link rel="import" href="./persons-form.html">
 <link rel="import" href="./user-filter.html">
 <link rel="import" href="./priceLists-form.html">
+<link rel="import" href="./category-form.html">
 <dom-module id="list-page">
     <template>
         <style>
@@ -62,6 +63,7 @@
                     <brands-form name="brands" route="{{route}}" key="{{routeData.key}}"></brands-form>
                     <persons-form name="proveedor" route="{{route}}" key="{{routeData.key}}" type-person="persons"></persons-form>
                     <priceLists-form name="pricelists" route="{{route}}" key="{{routeData.key}}"></priceLists-form>
+                    <categories-form name="categories" route="{{route}}" key="{{routeData.key}}"></categories-form>
                 </iron-pages>
             </div>
         </neon-animated-pages>
