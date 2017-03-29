@@ -15,6 +15,7 @@
 <link rel="import" href="./brands-form.html">
 <link rel="import" href="./persons-form.html">
 <link rel="import" href="./user-filter.html">
+<link rel="import" href="./priceLists-form.html">
 <dom-module id="list-page">
     <template>
         <style>
@@ -59,12 +60,12 @@
                     <roles-form name="roles" route="{{route}}" key="{{routeData.key}}"></roles-form>
                     <products-form name="products" route="{{route}}" key="{{routeData.key}}"></products-form>
                     <brands-form name="brands" route="{{route}}" key="{{routeData.key}}"></brands-form>
-                    <persons-form name="suppliers" route="{{route}}" key="{{routeData.key}}"></persons-form>
+                    <persons-form name="proveedor" route="{{route}}" key="{{routeData.key}}" type-person="persons"></persons-form>
+                    <priceLists-form name="pricelists" route="{{route}}" key="{{routeData.key}}"></priceLists-form>
                 </iron-pages>
             </div>
         </neon-animated-pages>
         <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-            <!--<h2>Eliminar Usuario</h2>-->
             <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
                 <user-filter id="userfilter" name="users"></user-filter>
                 <user-filter name="roles"></user-filter>
@@ -101,6 +102,9 @@
                 filter: {
                     type: String,
                     observer: "_filterList"
+                },
+                token: {
+                    type: String
                 }
 
             },
@@ -117,6 +121,7 @@
                 // 'filter.keydown': '_filterList'
             },
             _routeChanged: function (newRoute) {
+                // debugger
                 if (newRoute == "") {
                     //console.log('entro', this.data);
                     //va a ejecutar el ajax dos veces
@@ -124,10 +129,11 @@
                     this.$.pages.entryAnimation = "slide-from-right-animation";
                     this.$.pages.exitAnimation = "slide-left-animation";
                     this.$.pages.selected = 0;
-                    //     this.set('routeData.key', '');
-                    //     if (this.key !== undefined && this.key != "") {
-                    //         this._viewChanged('');
-                    //     }
+                    this.set('routeData.key', '');
+                    // if (this.key !== undefined && this.key != "") {
+                    //     console.log("entra al route change");
+                    //     this._viewChanged('');
+                    // }
                 } else {
                     //   console.log('entro');
                     this.$.pages.entryAnimation = "slide-from-right-animation";
@@ -138,15 +144,28 @@
                 //this.$.editor.load(this.key);
             },
             _viewChanged: function (data) {
-                //console.log("entra viewchang de lista");
+                console.log("entra viewchang de lista", data);
+                this.ajaxlist.headers = '';
+                this.ajaxlist.params = '';
+                this.ajaxlist.url = '';
+
+                if (typeof window.localStorage.session !== "undefined") {
+                    this.token = JSON.parse(window.localStorage.session).token;
+                }
                 var type = data;
                 var notList = ["home"];
-                var inList = ["suppliers"];
+                var inList = ["proveedor"];
                 if (type != 'undefined') {
                     if (notList.indexOf(type) === -1) {
-                        if(inList.indexOf(type) >= 0 ){
+                        if (inList.indexOf(type) >= 0) {
+                            this.ajaxlist.params = {
+                                type: type.toUpperCase()
+                            };
                             type = "persons";
                         }
+                        this.ajaxlist.headers = {
+                            'x-access-token': this.token
+                        };
                         this.ajaxlist.url = this.url + type;
                         this.$.divAjax.appendChild(this.ajaxlist);
                         this.ajaxlist.generateRequest();
@@ -178,7 +197,7 @@
                 this.$.pages.entryAnimation = "slide-from-left-animation";
                 this.$.pages.exitAnimation = "slide-right-animation";
                 this.set('route.path', '');
-                this.set('routeData.key', '');
+                // this.set('routeData.key', '');
                 this.$.pages.selected = 0;
             },
             _editorSetTitle: function (event) {
@@ -195,7 +214,7 @@
             _prueba: function (e) {
                 console.log(e);
                 this.$.animated.close();
-                
+
             }
         });
     </script>

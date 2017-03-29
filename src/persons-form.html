@@ -57,18 +57,26 @@
             <iron-ajax id="personAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
+            <iron-ajax id="addContactAjax"></iron-ajax>
+            <iron-ajax id="addAddressAjax"></iron-ajax>
+            <iron-ajax id="deleteAddressAjax"></iron-ajax>
+            <iron-ajax id="deleteContactsAjax"></iron-ajax>
         </div>
         <div class="container">
             <h3>Persona</h3>
             <form is="iron-form" method="POST" id="personForm">
                 <paper-dropdown-menu label="Tipo Persona" name="type" required>
-                    <paper-listbox id="type" class="dropdown-content" attr-for-selected="name" selected="">
+                    <paper-listbox id="type" class="dropdown-content" attr-for-selected="name" selected="{{type}}">
                         <paper-item name="CLIENTE">CLIENTE</paper-item>
                         <paper-item name="PROVEEDOR">PROVEEDOR</paper-item>
                         <paper-item name="VENDEDOR">VENDEDOR</paper-item>
                         <paper-item name="CAJERO">CAJERO</paper-item>
                     </paper-listbox>
                 </paper-dropdown-menu>
+                <paper-input id="businessName" name="businessName" label="Razón Social" required>
+                    <iron-icon icon="mail" prefix></iron-icon>
+                    <!--<div suffix>@email.com</div>-->
+                </paper-input>
                 <paper-input id="firstName" name="firstName" label="Nombres" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
@@ -80,7 +88,7 @@
                     <iron-icon icon="icons:description" prefix></iron-icon>
                 </paper-input>
                 <paper-dropdown-menu label="Tipo Contribuyente" name="taxStatus" required>
-                    <paper-listbox id="taxStatus" class="dropdown-content" attr-for-selected="name" selected="">
+                    <paper-listbox id="taxStatus" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="RESPONSABLE INSCRIPTO">RESPONSABLE INSCRIPTO</paper-item>
                         <paper-item name="RESPONSABLE NO INSCRIPTO">RESPONSABLE NO INSCRIPTO</paper-item>
                         <paper-item name="MONOTRIBUTO">MONOTRIBUTO</paper-item>
@@ -172,6 +180,16 @@
                 },
                 selectedContacts: {
                     type: Array
+                },
+                typePerson: {
+                    type: String
+                },
+                type: {
+                    type: String,
+                    observer: "prueba"
+                },
+                name: {
+                    type: String
                 }
             },
             observers: [
@@ -192,6 +210,23 @@
                 'deleteAddress.tap': '_deleteAddress',
                 'addContact.tap': '_addContact',
                 'deleteContact.tap': '_deleteContact'
+            },
+            prueba: function (value) {
+                if (value === "PROVEEDOR") {
+                    this.$.businessName.disabled = null;
+                    this.$.businessName.style.display = "inline";
+                    this.$.firstName.style.display = "none";
+                    this.$.firstName.disabled = "disabled";
+                    this.$.lastName.style.display = "none";
+                    this.$.lastName.disabled = "disabled";
+                } else {
+                    this.$.businessName.disabled = "disabled";
+                    this.$.businessName.style.display = "none";
+                    this.$.firstName.disabled = null;
+                    this.$.firstName.style.display = "inline";
+                    this.$.lastName.disabled = null;
+                    this.$.lastName.style.display = "inline";
+                }
             },
             _deletePerson: function () {
                 console.log("entro aceptar");
@@ -216,15 +251,33 @@
                 // cargar eventos del ajax
                 this.$.personAjax.reallythis = this;
                 this.$.personAjax.addEventListener('response', this._handleResponse.bind(this));
-                this.$.personAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.personAjax.addEventListener('error', this._handleErrorMessage.bind(this));
                 ///
                 this.$.updateAjax.reallythis = this;
                 this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
-                this.$.updateAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.updateAjax.addEventListener('error', this._handleErrorMessage.bind(this));
                 ///
                 this.$.deleteAjax.reallythis = this;
                 this.$.deleteAjax.addEventListener('response', this._handleResponseDelete.bind(this));
-                this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.deleteAjax.addEventListener('error', this._handleErrorMessage.bind(this));
+                ///
+                this.$.addContactAjax.reallythis = this;
+                this.$.addContactAjax.addEventListener('response', this._handleResponseContacts.bind(this));
+                this.$.addContactAjax.addEventListener('error', this._handleErrorMessage.bind(this));
+                ///
+                this.$.deleteContactsAjax.reallythis = this;
+                this.$.deleteContactsAjax.addEventListener('response', this._handleResponseContacts.bind(
+                    this));
+                this.$.deleteContactsAjax.addEventListener('error', this._handleErrorMessage.bind(this));
+                ///
+                ///
+                this.$.addAddressAjax.reallythis = this;
+                this.$.addAddressAjax.addEventListener('response', this._handleResponseAddress.bind(this));
+                this.$.addAddressAjax.addEventListener('error', this._handleErrorMessage.bind(this));
+                ///
+                this.$.deleteAddressAjax.reallythis = this;
+                this.$.deleteAddressAjax.addEventListener('response', this._handleResponseAddress.bind(this));
+                this.$.deleteAddressAjax.addEventListener('error', this._handleErrorMessage.bind(this));
                 //
                 // this.$.myId.source = ["viejo","nuevo"];
                 // cargar columna de grilla de direcciones
@@ -255,17 +308,28 @@
                 console.log(response.detail.response.data);
                 var person = response.detail.response.data;
                 this.person = person;
-                this.$.name.value = person.name;
+                this.$.type.selected = person.type;
+                this.$.businessName.value = person.businessName;
+                this.$.firstName.value = person.firstName;
+                this.$.lastName.value = person.lastName;
+                this.$.tributaryCode.value = person.tributaryCode;
+                this.$.grossIncomeCode.value = person.grossIncomeCode;
+                this.$.taxStatus.selected = person.taxStatus;
                 this.$.status.selected = person.status;
+                this.itemsContacts = person.contacts;
+                this.itemsAddress = person.addresses;
                 console.log(this.$.status.selected);
                 if (person.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
 
             },
-            _handleError: function (error) {
-                console.log(error);
-                this.showError('Se produjo un error al obtener la persona');
+            _handleErrorMessage: function (response) {
+                var message = response.detail.request.response.message
+                // console.log(response);
+                this.showError(message);
+                // this.set('route.path', '');
+                // this.showError('Se produjo un error al obtener la persona');
             },
             _handleResponseUpdate: function (response) {
                 console.log(response.detail.response);
@@ -375,37 +439,48 @@
                 this.showMessage(message);
             },
             _viewChanged: function (key) {
-                //Cargar token cuando se ingrese a la pantalla de formulario
-                if (typeof window.localStorage.session !== "undefined") {
-                    this.token = JSON.parse(window.localStorage.session).token;
-                }
-                // Limpiar formulario
-                this.$.personForm.reset();
-                //Prendemos los botones
-                this.$.create.style.display = 'inline-block';
-                this.$.reset.style.display = 'inline-block';
-                this.$.delete.style.display = 'inline-block';
-                this.$.apply_changes.style.display = 'inline-block';
-                this.$.addresses.style.display = 'block';
-                this.$.contacts.style.display = 'block';
-                // this.$.name.disabled = null;
-                // this.$.description.disabled = null;
-                // this.$.description.style.display = 'inline-block';
-                this.$.deleteAddress.style.display = 'none';
-                //
-                if (key != '' && key != 'undefined') {
-                    this.$.status.selected = '';
-                    // this.$.name.disabled = 'disabled';
-                    // this.$.description.disabled = 'disabled';
-                    // this.$.description.style.display = 'none';
-                    this.$.create.style.display = 'none';
-                    this.$.reset.style.display = 'none';
-                    this._getPerson();
-                } else {
-                    this.$.addresses.style.display = 'none';
-                    this.$.contacts.style.display = 'none';
-                    this.$.delete.style.display = 'none';
-                    this.$.apply_changes.style.display = 'none';
+                // debugger
+                console.log("type", this.typePerson)
+                console.log("name", this.name)
+                if (this.typePerson === 'persons') {
+                    //Cargar token cuando se ingrese a la pantalla de formulario
+                    if (typeof window.localStorage.session !== "undefined") {
+                        this.token = JSON.parse(window.localStorage.session).token;
+                    }
+                    // Limpiar formulario
+                    this.$.personForm.reset();
+                    //Prendemos los botones
+                    this.$.create.style.display = 'inline-block';
+                    this.$.reset.style.display = 'inline-block';
+                    this.$.delete.style.display = 'inline-block';
+                    this.$.apply_changes.style.display = 'inline-block';
+                    this.$.addresses.style.display = 'block';
+                    this.$.contacts.style.display = 'block';
+                    // this.$.name.disabled = null;
+                    // this.$.description.disabled = null;
+                    // this.$.description.style.display = 'inline-block';                    
+                    this.$.deleteAddress.style.display = 'none';
+                    //
+                    if (key != '' && key != 'undefined') {
+                        var type = this.name.toUpperCase();
+                        this.type = type;
+                        console.log("if");
+                        this.$.status.selected = '';
+                        // this.$.name.disabled = 'disabled';
+                        // this.$.description.disabled = 'disabled';
+                        // this.$.description.style.display = 'none';
+                        this.$.create.style.display = 'none';
+                        this.$.reset.style.display = 'none';
+                        this._getPerson();
+                    } else {
+                        console.log("else");
+                        var type = this.name.toUpperCase();
+                        this.type = type;
+                        this.$.addresses.style.display = 'none';
+                        this.$.contacts.style.display = 'none';
+                        this.$.delete.style.display = 'none';
+                        this.$.apply_changes.style.display = 'none';
+                    }
                 }
             },
             _getAddressList: function () {
@@ -415,18 +490,34 @@
                 return this.$.contactsList;
             },
             _addAddress: function () {
-                debugger
-                var address = {
+                // debugger
+                this.$.addAddressAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.addAddressAjax.method = 'POST';
+                this.$.addAddressAjax.url = this.url + '/' + this.key + '/address';
+                this.$.addAddressAjax.contentType = "application/x-www-form-urlencoded";
+                this.$.addAddressAjax.debounceDuration = "300";
+                var serialize = {
                     "address": this.$.address.value
                 };
-                this.push("itemsAddress", address)
+                this.$.addAddressAjax.body = serialize;
+                this.$.addAddressAjax.generateRequest();
+                // window.location.reload();
+                //
+                this.$.address.value = '';
+                //
+                // var address = {
+                //     "address": this.$.address.value
+                // };
+                // this.push("itemsAddress", serialize);
                 // console.log(this.itemsAddress);                
             },
             _selectedAddressChanged: function (event) {
                 var reallythis = this.reallythis;
                 reallythis.selectedAddress = this.selection.selected();
                 var select = reallythis.selectedAddress;
-                console.log("select", select)
+                // console.log("select", select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteAddress.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
@@ -437,28 +528,70 @@
             },
             _deleteAddress: function () {
                 var selected = this.selectedAddress;
+                console.log("addresses", selected);
                 var reallythis = this;
+                var addressesArray = [];
+
                 selected.forEach(function (element, index, array) {
-                    // console.log('indice' + index, reallythis.itemsAddress[index]);
-                    // reallythis.itemsAddress.splice(index,1);
-                    reallythis.splice("itemsAddress", element, 1);
+                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
+                    var addressId = reallythis.itemsAddress[index]._id;
+                    console.log('indice' + index, reallythis.itemsAddress[index]);
+                    addressesArray.push(addressId);
 
                 });
+                console.log(addressesArray);
+                reallythis.$.deleteAddressAjax.headers = {
+                    'x-access-token': reallythis.token
+                };
+                //debugger
+                // reallythis.$.deleteAddressAjax.params = addressesArray;
+                // reallythis.$.deleteAddressAjax.contentType = "application/x-www-form-urlencoded";
+                // reallythis.$.deleteAddressAjax.body = { "addresses": JSON.stringify(addressesArray) };
+                // // reallythis.$.deleteAddressAjax.body = addressesArray;
+                // console.log(reallythis.$.deleteAddressAjax.body);
+                reallythis.$.deleteAddressAjax.method = 'DELETE';
+                reallythis.$.deleteAddressAjax.url = reallythis.url + '/' + reallythis.key + '/addresses';
+                reallythis.$.deleteAddressAjax.contentType = 'application/x-www-form-urlencoded';
+                console.log("llega a request")
+                reallythis.$.deleteAddressAjax.body = {
+                    "addresses": JSON.stringify(addressesArray)
+                };
+                console.log(reallythis.$.deleteAddressAjax.body);
+                reallythis.$.deleteAddressAjax.generateRequest();
+
                 // reallythis._viewChanged(reallythis.key);
             },
             _addContact: function () {
-                var contact = {
+                this.$.addContactAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.addContactAjax.method = 'POST';
+                this.$.addContactAjax.url = this.url + '/' + this.key + '/contact';
+                this.$.addContactAjax.contentType = "application/x-www-form-urlencoded";
+                this.$.addContactAjax.debounceDuration = "300";
+                var serialize = {
                     "name": this.$.contactName.value,
                     "phone": this.$.contactPhone.value
                 };
-                this.push("itemsContacts", contact)
+                this.$.addContactAjax.body = serialize;
+                this.$.addContactAjax.generateRequest();
+                // window.location.reload();
+                //
+                this.$.contactName.value = '';
+                this.$.contactPhone.value = '';
+                // //
+                // var contact = {
+                //     "name": this.$.contactName.value,
+                //     "phone": this.$.contactPhone.value
+                // };
+                // this.push("itemsContacts", contact)
                 // console.log(this.itemsAddress);                
             },
             _selectedContactChanged: function (event) {
                 var reallythis = this.reallythis;
                 reallythis.selectedContacts = this.selection.selected();
                 var select = reallythis.selectedContacts;
-                console.log("select", select)
+                // console.log("select", select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteContact.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
@@ -470,13 +603,49 @@
             _deleteContact: function () {
                 var selected = this.selectedContacts;
                 var reallythis = this;
+                var contactsArray = [];
+
                 selected.forEach(function (element, index, array) {
-                    // console.log('indice' + index, reallythis.itemsAddress[index]);
-                    // reallythis.itemsAddress.splice(index,1);
-                    reallythis.splice("itemsContacts", element, 1);
+                    //Obtener id dentro de la lista de contactos, a traves de los seleccionados
+                    console.log('indice' + index, reallythis.itemsContacts[index]);
+                    var contactId = reallythis.itemsContacts[index]._id;
+                    contactsArray.push(contactId);
 
                 });
+                console.log(contactsArray);
+                reallythis.$.deleteContactsAjax.headers = {
+                    'x-access-token': reallythis.token
+                };
+                //debugger
+                // reallythis.$.deleteAddressAjax.params = addressesArray;
+                reallythis.$.deleteContactsAjax.contentType = "application/x-www-form-urlencoded";
+                reallythis.$.deleteContactsAjax.method = 'DELETE';
+                reallythis.$.deleteContactsAjax.url = reallythis.url + '/' + reallythis.key + '/contacts';
+                //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
+                console.log("llega a request")
+                reallythis.$.deleteContactsAjax.body = {
+                    "contacts": JSON.stringify(contactsArray)
+                };
+                console.log(reallythis.$.deleteContactsAjax.body);
+                reallythis.$.deleteContactsAjax.generateRequest();
+
                 // reallythis._viewChanged(reallythis.key);
+            },
+            _handleResponseMessage: function (response) {
+                var message = response.detail.response.message;
+                this.showMessage(message);
+            },
+            _handleResponseAddress: function (response) {
+                var message = response.detail.response.message;
+                var data = response.detail.response.data;
+                this.itemsAddress = data;
+                this.showMessage(message);
+            },
+            _handleResponseContacts: function (response) {
+                var message = response.detail.response.message;
+                var data = response.detail.response.data;
+                this.itemsContacts = data;
+                this.showMessage(message);
             },
         });
     </script>

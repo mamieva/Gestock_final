@@ -19,7 +19,7 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
-<dom-module id="roles-form">
+<dom-module id="priceLists-form">
     <template>
         <style>
              :host {
@@ -52,15 +52,15 @@
                 margin-right: 12px;
             }
         </style>
-        <app-route route="{{route}}" pattern="/:role" data="{{roleData}}" tail="{{routeTail}}" id="routeManager"></app-route>
+        <app-route route="{{route}}" pattern="/:priceList" data="{{priceListData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
-            <iron-ajax id="roleAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+            <iron-ajax id="priceListAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
         </div>
         <div class="container">
-            <h3>Rol</h3>
-            <form is="iron-form" method="POST" id="roleForm">
+            <h3>Lista de Precio</h3>
+            <form is="iron-form" method="POST" id="priceListForm">
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
@@ -84,8 +84,8 @@
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-                <!--<h2>Eliminar rol</h2>-->
-                <p>¿Desea eliminar el rol <strong>[[role.name]]</strong> ?</p>
+                <!--<h2>Eliminar Lista de Precio</h2>-->
+                <p>¿Desea eliminar la Lista de Precio <strong>[[priceList.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -95,7 +95,7 @@
     </template>
     <script>
         Polymer({
-            is: 'roles-form',
+            is: 'priceLists-form',
             properties: {
                 route: {
                     type: Object
@@ -108,12 +108,12 @@
                 },
                 url: {
                     type: String,
-                    value: 'http://localhost:3000/role'
+                    value: 'http://localhost:3000/pricelist'
                 },
                 token: {
                     type: String
                 },
-                role: {
+                priceList: {
                     type: Object
                 },
                 name: {
@@ -129,13 +129,13 @@
                 'iron-form-error': '_formError',
                 'iron-form-presubmit': '_formPresubmit',
                 'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createRole',
+                'create.tap': '_createPriceList',
                 'reset.tap': '_reset',
-                'apply_changes.tap': '_updateRole',
+                'apply_changes.tap': '_updatePriceList',
                 'delete.tap': '_deleteDialog',
-                'deleteAceptar.tap': '_deleteRole'
+                'deleteAceptar.tap': '_deletePriceList'
             },
-            _deleteRole: function () {
+            _deletePriceList: function () {
                 console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
@@ -156,9 +156,9 @@
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
-                this.$.roleAjax.reallythis = this;
-                this.$.roleAjax.addEventListener('response', this._handleResponse.bind(this));
-                this.$.roleAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.priceListAjax.reallythis = this;
+                this.$.priceListAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.priceListAjax.addEventListener('error', this._handleError.bind(this));
                 ///
                 this.$.updateAjax.reallythis = this;
                 this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
@@ -172,24 +172,24 @@
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
-                var role = response.detail.response.data;
-                this.role = role;
-                this.$.name.value = role.name;
-                this.$.status.selected = role.status;
+                var priceList = response.detail.response.data;
+                this.priceList = priceList;
+                this.$.name.value = priceList.name;
+                this.$.status.selected = priceList.status;
                 console.log(this.$.status.selected);
-                if (role.status == 'ACTIVO') {
+                if (priceList.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
 
             },
             _handleError: function (error) {
                 console.log(error);
-                this.showError('Se produjo un error al obtener el rol');
+                this.showError('Se produjo un error al obtener la Lista de Precio');
             },
             _handleResponseUpdate: function (response) {
                 console.log(response.detail.response);
                 var update = response.detail.response;
-                this.showMessage('El rol ha sido actualizado con exito');
+                this.showMessage('La Lista de Precio ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
@@ -201,14 +201,14 @@
                 //this._viewChanged('');
                 this.set('route.path', '');
             },
-            _getRole: function () {
-                this.$.roleAjax.headers = {
+            _getPriceList: function () {
+                this.$.priceListAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.roleAjax.url = this.url + '/' + this.key;
-                this.$.roleAjax.generateRequest();
+                this.$.priceListAjax.url = this.url + '/' + this.key;
+                this.$.priceListAjax.generateRequest();
             },
-            _updateRole: function (event) {
+            _updatePriceList: function (event) {
                 this.$.updateAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -217,7 +217,7 @@
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                if (this.role.status == serialize.status) {
+                if (this.priceList.status == serialize.status) {
                     this.showError('No se registraron cambios');
                 } else {
                     this.$.updateAjax.body = serialize;
@@ -225,18 +225,18 @@
                     // window.location.reload();
                 }
             },
-            _createRole: function (event) {
+            _createPriceList: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
                 this._getForm().headers = {
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
                 this._getForm().action = this.url;
-                var role = this._getForm().serialize();
-                role.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = role;
-                //console.log(role);
-                this.$.roleForm.submit();
+                var priceList = this._getForm().serialize();
+                priceList.token = JSON.parse(window.localStorage.session).token;
+                // this._getForm().params = priceList;
+                //console.log(priceList);
+                this.$.priceListForm.submit();
             },
             _applychangesSubmit: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
@@ -246,20 +246,20 @@
                 this._getForm().method = 'PUT';
                 this._getForm().action = this.url + '/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var role = this._getForm().serialize();
-                //role.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = role;
+                //var priceList = this._getForm().serialize();
+                //priceList.token = JSON.parse(window.localStorage.session).token;
+                //this._getForm().params = priceList;
                 console.log(this._getForm());
-                this.$.roleForm.submit();
+                this.$.priceListForm.submit();
             },
             _reset: function (e) {
-                this.$.roleForm.reset();
+                this.$.priceListForm.reset();
             },
             _formSubmit: function () {
                 //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
             },
             _getForm: function () {
-                return this.$.roleForm;
+                return this.$.priceListForm;
             },
             _formPresubmit: function () {
                 console.log("presubmit");
@@ -276,13 +276,13 @@
             showError: function (errorMessage) {
                 //console.log("error msg");
                 this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.roleForm;
+                //this.$.toastError.fitInto = this.$.priceListForm;
                 //console.log(this.$.toastError.open());
                 this.$.toastError.open();
             },
             showMessage: function (message) {
                 this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.roleForm;
+                //this.$.toastOk.fitInto = this.$.priceListForm;
                 this.$.toastOk.open();
             },
             _formResponse: function (response) {
@@ -293,13 +293,13 @@
             },
             _viewChanged: function (key) {
                 debugger
-                if (this.name === 'roles') {
+                if (this.name === 'pricelists') {
                     //Cargar token cuando se ingrese a la pantalla de formulario
                     if (typeof window.localStorage.session !== "undefined") {
                         this.token = JSON.parse(window.localStorage.session).token;
                     }
                     // Limpiar formulario
-                    this.$.roleForm.reset();
+                    this.$.priceListForm.reset();
                     //Prendemos los botones
                     this.$.create.style.display = 'inline-block';
                     this.$.reset.style.display = 'inline-block';
@@ -316,7 +316,7 @@
                         this.$.description.style.display = 'none';
                         this.$.create.style.display = 'none';
                         this.$.reset.style.display = 'none';
-                        this._getRole();
+                        this._getPriceList();
                     } else {
                         this.$.delete.style.display = 'none';
                         this.$.apply_changes.style.display = 'none';
