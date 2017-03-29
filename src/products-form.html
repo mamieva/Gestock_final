@@ -1,24 +1,24 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
-<link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
-<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="./simple-dialog.html">
 <dom-module id="products-form">
     <template>
@@ -52,12 +52,31 @@
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
+            
+            paper-dialog {
+                width: 50%;
+                height: 50%
+            }
+            
+            #componentDialog>paper-input {
+                width: 70%;
+            }
+            
+            #priceListDialog>paper-input {
+                width: 70%;
+            }
         </style>
         <app-route route="{{route}}" pattern="/:product" data="{{productData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
             <iron-ajax id="productAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
+            <iron-ajax id="addBrandAjax"></iron-ajax>
+            <iron-ajax id="deleteBrandsAjax"></iron-ajax>
+            <iron-ajax id="addComponentAjax"></iron-ajax>
+            <iron-ajax id="deleteComponentsAjax"></iron-ajax>
+            <iron-ajax id="addPriceListAjax"></iron-ajax>
+            <iron-ajax id="deletePriceListsAjax"></iron-ajax>
         </div>
         <div class="container">
             <h3>Producto</h3>
@@ -67,16 +86,11 @@
                 </paper-input>
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
-                    <!--<div suffix>@email.com</div>-->
                 </paper-input>
-                <div id="roles" class="roles">
-                    <paper-autocomplete label="Seleccionar Marca" id="selectBrand" min-length="2"></paper-autocomplete>
-                    <paper-button raised submit id="addRole">Agregar</paper-button>
-                    <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="single">
-                    </vaadin-grid>
-                </div>
+                <paper-autocomplete id="brand_autocomplete" label="Seleccionar Marca" required></paper-autocomplete>
+                <input type="hidden" id="brand" name="brand">
                 <paper-dropdown-menu label="Estado" name="status" required>
-                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="">
+                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="ACTIVO">ACTIVO</paper-item>
                         <paper-item name="INACTIVO">INACTIVO</paper-item>
                     </paper-listbox>
@@ -88,6 +102,44 @@
                     <paper-button raised id="reset">Limpiar</paper-button>
                 </div>
             </form>
+            <div id="components" class="components">
+                <!--<paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>-->
+                <paper-button raised submit id="openComponentDialog">Agregar Componente</paper-button>
+                <paper-button raised submit id="deleteComponent">Eliminar Componente</paper-button>
+                <vaadin-grid id="componentsList" items={{itemsComponents}} selection-mode="multi">
+                </vaadin-grid>
+            </div>
+            <paper-dialog id="componentDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+                <paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>
+                <paper-input id="quantity" name="quantity" label="Cantidad" required></paper-input>
+                <paper-input id="unit" name="unit" label="Unidad" required></paper-input>
+                <div class="buttons">
+                    <paper-button dialog-dismiss>Cancelar</paper-button>
+                    <paper-button dialog-confirm autofocus id="addComponent">Aceptar</paper-button>
+                </div>
+            </paper-dialog>
+            <div id="priceList" class="priceList">
+                <!--<paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>-->
+                <paper-button raised submit id="openPriceListDialog">Agregar Lista de Precio</paper-button>
+                <paper-button raised submit id="deletePriceList">Eliminar Lista</paper-button>
+                <vaadin-grid id="priceListList" items={{itemsPriceList}} selection-mode="multi">
+                </vaadin-grid>
+            </div>
+            <paper-dialog id="priceListDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+                <paper-autocomplete label="Seleccionar Lista" id="selectPriceList" min-length="2"></paper-autocomplete>
+                <paper-input id="cost" name="cost" label="Costo" required></paper-input>
+                <paper-input id="profit" name="profit" label="Ganancia" required></paper-input>
+                <paper-dropdown-menu label="Estado" name="pricelist_status" required>
+                    <paper-listbox id="pricelist_status" class="dropdown-content" attr-for-selected="name">
+                        <paper-item name="ACTIVO">ACTIVO</paper-item>
+                        <paper-item name="INACTIVO">INACTIVO</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+                <div class="buttons">
+                    <paper-button dialog-dismiss>Cancelar</paper-button>
+                    <paper-button dialog-confirm autofocus id="addPriceList">Aceptar</paper-button>
+                </div>
+            </paper-dialog>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
@@ -115,7 +167,7 @@
                 },
                 url: {
                     type: String,
-                    value: 'http://localhost:3000/product'
+                    value: 'http://localhost:3000/product/'
                 },
                 url_base: {
                     type: String,
@@ -126,6 +178,15 @@
                 },
                 product: {
                     type: Object
+                },
+                itemsBrands: {
+                    type: Array
+                },
+                itemsComponents: {
+                    type: Array
+                },
+                itemsPriceList: {
+                    type: Array
                 }
             },
             observers: [
@@ -141,7 +202,19 @@
                 'reset.tap': '_reset',
                 'apply_changes.tap': '_updateProduct',
                 'delete.tap': '_deleteDialog',
-                'deleteAceptar.tap': '_deleteProduct'
+                'deleteAceptar.tap': '_deleteProduct',
+                // 'addBrand.tap': '_addBrand',
+                'openComponentDialog.tap': '_openComponentDialog',
+                'openPriceListDialog.tap': '_openPriceListDialog',
+                'addComponent.tap': '_addComponent',
+                'addPriceList.tap': '_addPriceList',
+                'brand.autocomplete-selected': '_selectBrand',
+                'deleteComponent.tap': '_deleteComponents'
+            },
+            _selectBrand: function (event) {
+                console.log("hola", event.detail.option.value);
+                this.$.brand.value = event.detail.option.value;
+
             },
             _deleteProduct: function () {
                 console.log("entro aceptar");
@@ -149,7 +222,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url + '/' + this.key;
+                this.$.deleteAjax.url = this.url + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -175,16 +248,82 @@
                 this.$.deleteAjax.reallythis = this;
                 this.$.deleteAjax.addEventListener('response', this._handleResponseDelete.bind(this));
                 this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.addBrandAjax.reallythis = this;
+                this.$.addBrandAjax.addEventListener('response', this._handleResponsAddBrand.bind(this));
+                this.$.addBrandAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.deleteBrandsAjax.reallythis = this;
+                this.$.deleteBrandsAjax.addEventListener('response', this._handleResponsDeleteBrand.bind(
+                    this));
+                this.$.deleteBrandsAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.addComponentAjax.reallythis = this;
+                this.$.addComponentAjax.addEventListener('response', this._handleResponsAddComponent.bind(
+                    this));
+                this.$.addComponentAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.deleteComponentsAjax.reallythis = this;
+                this.$.deleteComponentsAjax.addEventListener('response', this._handleResponseDeleteComponents
+                    .bind(this));
+                this.$.deleteComponentsAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.addPriceListAjax.reallythis = this;
+                this.$.addPriceListAjax.addEventListener('response', this._handleResponseAddPriceList
+                    .bind(this));
+                this.$.addPriceListAjax.addEventListener('error', this._handleError.bind(this));
                 //
                 // this.$.myId.source = ["viejo","nuevo"];
+                // var brandCol = [{
+                //     "name": "name",
+                //     "sortable": "true"
+                // }, {
+                //     "name": "description",
+                //     "sortable": "true"
+                // }];
+                // this._getBrandList().columns = brandCol;
+                // // Gestionar grilla de marcas
+                // this._getBrandList().reallythis = this;
+                // this._getBrandList().addEventListener('selected-items-changed', (this)._selectedSupplierChanged);
+                //
+                //Agregar columnas a las grilla e componentes
+                var componentCol = [{
+                    "name": "name",
+                    "sortable": "true"
+                }, {
+                    "name": "quantity",
+                    "sortable": "true"
+                }];
+                this._getComponentList().columns = componentCol;
+                //Agregar columnas a las grilla e lista de precios
+                var pricelistCol = [{
+                    "name": "name",
+                    "sortable": "true"
+                }, {
+                    "name": "description",
+                    "sortable": "true"
+                }, {
+                    "name": "status",
+                    "sortable": "true"
+                }];
+                this._getPriceListList().columns = pricelistCol;
+                // Gestionar grilla de direcciones
+                this._getComponentList().reallythis = this;
+                this._getComponentList().addEventListener('selected-items-changed', (this)._selectedComponentChanged);
             },
             _handleResponse: function (response) {
                 console.log(response.detail.response.data);
                 var product = response.detail.response.data;
                 this.product = product;
+                this.$.code.value = product.code;
                 this.$.name.value = product.name;
+                this.$.brand_autocomplete.value = product.brand._id;
+                this.$.brand_autocomplete.text = product.brand.name;
+                this.$.brand.value = product.brand._id;
+                this.itemsComponents = product.components;
+                this.itemsPriceList = product.priceLists; 
                 this.$.status.selected = product.status;
-                console.log(this.$.status.selected);
+                console.log("autocomplete", this.$.brand_autocomplete.value);
                 if (product.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
@@ -213,7 +352,7 @@
                 this.$.productAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.productAjax.url = this.url + '/' + this.key;
+                this.$.productAjax.url = this.url + this.key;
                 this.$.productAjax.generateRequest();
             },
             _updateProduct: function (event) {
@@ -221,13 +360,14 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url + '/' + this.key;
+                this.$.updateAjax.url = this.url + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
                 if (this.product.status == serialize.status) {
                     this.showError('No se registraron cambios');
                 } else {
+                    this.$.brand.value = this.$.brand_autocomplete.value;
                     this.$.updateAjax.body = serialize;
                     this.$.updateAjax.generateRequest();
                     // window.location.reload();
@@ -240,10 +380,14 @@
                 };
                 this._getForm().method = 'POST';
                 this._getForm().action = this.url;
+
+                this.$.brand.value = this.$.brand_autocomplete.value;
+
                 var product = this._getForm().serialize();
-                product.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = product;
-                //console.log(product);
+                // product.token = JSON.parse(window.localStorage.session).token;
+                // this._getForm().params = product;
+                console.log('productoo', product);
+                console.log('marca', this.$.brand.value);
                 this.$.productForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -252,7 +396,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url + '/' + this.key;
+                this._getForm().action = this.url + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var product = this._getForm().serialize();
                 //product.token = JSON.parse(window.localStorage.session).token;
@@ -299,6 +443,35 @@
                 this.set('route.path', id);
                 this.showMessage(message);
             },
+            _getBrands: function () {
+                //obtener todos los marcas para poder Agregar
+                var input = this.$.brand_autocomplete;
+                //var search = event.detail.option.text;
+                var url = this.url_base + 'brands';
+                var req = new XMLHttpRequest();
+                req.open('GET', encodeURI(url));
+                req.setRequestHeader('x-access-token', this.token);
+                // console.log('entra brand', this.token);
+                req.responseType = 'json';
+                req.onload = function () {
+                    //console.log('marcas input',req.status);
+                    if (req.status === 200) {
+                        //console.log(req.response)
+                        //var data = JSON.parse(req.response.data);
+                        var data = req.response.data;
+                        // console.log('data', data);
+                        var arr = data.map(function (obj) {
+                            return {
+                                text: obj.name,
+                                value: obj._id
+                            };
+                        });
+                        input.source = arr;
+                        // console.log('a', input.source);
+                    }
+                };
+                req.send();
+            },
             _viewChanged: function (key) {
                 //Cargar token cuando se ingrese a la pantalla de formulario
                 if (typeof window.localStorage.session !== "undefined") {
@@ -312,9 +485,13 @@
                 this.$.delete.style.display = 'inline-block';
                 this.$.apply_changes.style.display = 'inline-block';
                 this.$.name.disabled = null;
+                this.$.components.style.display = "none";
+                this.$.priceList.style.display = "none";
                 // this.$.description.disabled = null;
                 // this.$.description.style.display = 'inline-block';
                 //
+                this._getBrands();
+                this._getPriceLists();
                 if (key != '' && key != 'undefined') {
                     this.$.status.selected = '';
                     this.$.name.disabled = 'disabled';
@@ -322,25 +499,306 @@
                     // this.$.description.style.display = 'none';
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
+                    this.$.components.style.display = "block";
+                    this.$.priceList.style.display = "block";
                     this._getProduct();
+                    this._getComponents();
                 } else {
-                    this._getBrands();
+                    this._getComponents();
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';
                 }
             },
-            _getBrands: function () {
-                //obtener todos los roles para poder Agregar
-                var input = this.$.selectBrand;
+            _addBrand: function () {
+                this.$.addBrandAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.addBrandAjax.method = 'POST';
+                this.$.addBrandAjax.url = this.url + this.key + '/brand';
+                this.$.addBrandAjax.contentType = 'application/x-www-form-urlencoded';
+                this.$.addBrandAjax.body = {
+                    "brandId": this.$.brand.value
+                };
+                this.$.brand_autocomplete.text = '';
+                this.$.addBrandAjax.generateRequest();
+            },
+            _handleResponsAddBrand: function (response) {
+                var addBrand = response.detail.response;
+                this.itemsBrands = addBrand.data;
+                this.showMessage(addBrand.message);
+                // window.location.reload();
+            },
+            _getBrandList: function () {
+                return this.$.brandsList;
+            },
+            _selectedBrandChanged: function () {
+                var reallythis = this.reallythis;
+                reallythis.selectedBrand = this.selection.selected();
+                var select = reallythis.selectedBrand;
+                // console.log("select", select)
+                if (select.length > 0 && select) {
+                    reallythis.$.deleteBrand.style.display = 'inline-block';
+                    // reallythis.$.resetBrand.style.display = 'inline-block';
+                } else {
+                    reallythis.$.deleteBrand.style.display = 'none';
+                    // reallythis.$.resetBrand.style.display = 'none';
+                }
+            },
+            _deleteBrands: function () {
+                var selected = this.selectedBrand;
+                console.log("brandes", selected);
+                var reallythis = this;
+                var brandsArray = [];
+
+                selected.forEach(function (element, index, array) {
+                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
+                    var brandId = reallythis.itemsBrands[index]._id;
+                    console.log('indice' + index, reallythis.itemsBrands[index]);
+                    brandsArray.push(brandId);
+
+                });
+                console.log(brandsArray);
+                reallythis.$.deleteBrandsAjax.headers = {
+                    'x-access-token': reallythis.token
+                };
+                //debugger
+                // reallythis.$.deleteBrandsAjax.params = brandsArray;
+                reallythis.$.deleteBrandsAjax.contentType = "application/x-www-form-urlencoded";
+                reallythis.$.deleteBrandsAjax.body = {
+                    "brands": JSON.stringify(brandsArray)
+                };
+                // reallythis.$.deleteBrandsAjax.body = brandsArray;
+                console.log(reallythis.$.deleteBrandsAjax.body);
+                reallythis.$.deleteBrandsAjax.method = 'DELETE';
+                reallythis.$.deleteBrandsAjax.url = reallythis.url + reallythis.key + '/brands';
+                reallythis.$.deleteBrandsAjax.contentType = 'application/x-www-form-urlencoded';
+                console.log("llega a request")
+                reallythis.$.deleteBrandsAjax.body = {
+                    "brands": JSON.stringify(brandsArray)
+                };
+                console.log(reallythis.$.deleteBrandsAjax.body);
+                reallythis.$.deleteBrandsAjax.generateRequest();
+
+                // reallythis._viewChanged(reallythis.key);
+
+            },
+            _handleResponsDeleteBrand: function (response) {
+                var message = response.detail.response.message;
+                var data = response.detail.response.data;
+                this.itemsBrands = data;
+                this.showMessage(message);
+            },
+            _addComponent: function () {
+                alert("awea")
+                this.$.addComponentAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.addComponentAjax.method = 'POST';
+                this.$.addComponentAjax.url = this.url + this.key + '/component';
+                this.$.addComponentAjax.contentType = 'application/x-www-form-urlencoded';
+                this.$.addComponentAjax.body = {
+                    "componentId": this.$.selectComponent.value,
+                    "quantity": this.$.quantity.value,
+                    "unit": this.$.unit.value
+                };
+                this.$.selectComponent.text = '';
+                this.$.addComponentAjax.generateRequest();
+            },
+            _handleResponsAddComponent: function (response) {
+                var addComponent = response.detail.response;
+                this.itemsComponents = addComponent.data;
+                this.showMessage(addComponent.message);
+                // window.location.reload();
+            },
+            _getComponentList: function () {
+                return this.$.componentsList;
+            },
+            _selectedComponentChanged: function () {
+                var reallythis = this.reallythis;
+                reallythis.selectedComponent = this.selection.selected();
+                var select = reallythis.selectedComponent;
+                // console.log("select", select)
+                if (select.length > 0 && select) {
+                    reallythis.$.deleteComponent.style.display = 'inline-block';
+                    // reallythis.$.resetComponent.style.display = 'inline-block';
+                } else {
+                    reallythis.$.deleteComponent.style.display = 'none';
+                    // reallythis.$.resetComponent.style.display = 'none';
+                }
+            },
+            _deleteComponents: function () {
+                var selected = this.selectedComponent;
+                console.log("componentes", selected);
+                var reallythis = this;
+                var componentsArray = [];
+
+                selected.forEach(function (element, index, array) {
+                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
+                    var componentId = reallythis.itemsComponents[index]._id;
+                    console.log('indice' + index, reallythis.itemsComponents[index]);
+                    componentsArray.push(componentId);
+
+                });
+                console.log(componentsArray);
+                reallythis.$.deleteComponentsAjax.headers = {
+                    'x-access-token': reallythis.token
+                };
+                //debugger
+                // reallythis.$.deleteComponentsAjax.params = componentsArray;
+                // reallythis.$.deleteComponentsAjax.contentType = "application/x-www-form-urlencoded";
+                // reallythis.$.deleteComponentsAjax.body = {
+                //     "components": JSON.stringify(componentsArray)
+                // };
+                // // reallythis.$.deleteComponentsAjax.body = componentsArray;
+                // console.log(reallythis.$.deleteComponentsAjax.body);
+                reallythis.$.deleteComponentsAjax.method = 'DELETE';
+                reallythis.$.deleteComponentsAjax.url = reallythis.url + reallythis.key + '/components';
+                reallythis.$.deleteComponentsAjax.contentType = 'application/x-www-form-urlencoded';
+                console.log("llega a request")
+                reallythis.$.deleteComponentsAjax.body = {
+                    "components": JSON.stringify(componentsArray)
+                };
+                console.log(reallythis.$.deleteComponentsAjax.body);
+                reallythis.$.deleteComponentsAjax.generateRequest();
+
+                // reallythis._viewChanged(reallythis.key);
+
+            },
+            _handleResponseDeleteComponents: function (response) {
+                var message = response.detail.response.message;
+                var data = response.detail.response.data;
+                this.itemsComponents = data;
+                this.showMessage(message);
+            },
+            _getComponents: function () {
+                //obtener todos los marcas para poder Agregar
+                var input = this.$.selectComponent;
                 //var search = event.detail.option.text;
-                var url = this.url_base + 'brands';
+                var url = this.url_base + 'products';
                 var req = new XMLHttpRequest();
                 req.open('GET', encodeURI(url));
                 req.setRequestHeader('x-access-token', this.token);
-                console.log('entra brand',this.token);
+                // console.log('entra product', this.token);
                 req.responseType = 'json';
                 req.onload = function () {
-                    //console.log('roles input',req.status);
+                    //console.log('marcas input',req.status);
+                    if (req.status === 200) {
+                        //console.log(req.response)
+                        //var data = JSON.parse(req.response.data);
+                        var data = req.response.data;
+                        // console.log('data', data);
+                        var arr = data.map(function (obj) {
+                            return {
+                                text: obj.name,
+                                value: obj._id
+                            };
+                        });
+                        input.source = arr;
+                        console.log('a', input.source);
+                    }
+                };
+                req.send();
+            },
+            _openComponentDialog: function () {
+                this.$.componentDialog.open();
+            },
+            _openPriceListDialog: function () {
+                this.$.priceListDialog.open();
+            },
+            _addPriceList: function () {
+                this.$.addPriceListAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.addPriceListAjax.method = 'POST';
+                this.$.addPriceListAjax.url = this.url + this.key + '/pricelist';
+                this.$.addPriceListAjax.contentType = 'application/x-www-form-urlencoded';
+                this.$.addPriceListAjax.body = {
+                    "priceListId": this.$.selectPriceList.value,
+                    "cost": this.$.cost.value,
+                    "profit": this.$.profit.value,
+                    "status": this.$.pricelist_status.selected
+                };
+                this.$.selectPriceList.text = '';
+                this.$.addPriceListAjax.generateRequest();
+            },
+            _handleResponseAddPriceList: function (response) {
+                var addPriceList = response.detail.response;
+                this.itemsPriceLists = addPriceList.data;
+                this.showMessage(addPriceList.message);
+                // window.location.reload();
+            },
+            _getPriceListList: function () {
+                return this.$.priceListList;
+            },
+            _selectedPriceListChanged: function () {
+                var reallythis = this.reallythis;
+                reallythis.selectedPriceList = this.selection.selected();
+                var select = reallythis.selectedPriceList;
+                // console.log("select", select)
+                if (select.length > 0 && select) {
+                    reallythis.$.deletePriceList.style.display = 'inline-block';
+                    // reallythis.$.resetPriceList.style.display = 'inline-block';
+                } else {
+                    reallythis.$.deletePriceList.style.display = 'none';
+                    // reallythis.$.resetPriceList.style.display = 'none';
+                }
+            },
+            // _deletePriceLists: function () {
+            //     var selected = this.selectedPriceList;
+            //     console.log("pricelist", selected);
+            //     var reallythis = this;
+            //     var priceListArray = [];
+
+            //     selected.forEach(function (element, index, array) {
+            //         //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
+            //         var pricelistId = reallythis.itemsPriceLists[index]._id;
+            //         console.log('indice' + index, reallythis.itemsPriceLists[index]);
+            //         priceListArray.push(pricelistId);
+
+            //     });
+            //     console.log(priceListArray);
+            //     reallythis.$.deletePriceListsAjax.headers = {
+            //         'x-access-token': reallythis.token
+            //     };
+            //     //debugger
+            //     // reallythis.$.deletePriceListsAjax.params = componentsArray;
+            //     // reallythis.$.deletePriceListsAjax.contentType = "application/x-www-form-urlencoded";
+            //     // reallythis.$.deletePriceListsAjax.body = {
+            //     //     "components": JSON.stringify(componentsArray)
+            //     // };
+            //     // // reallythis.$.deletePriceListsAjax.body = componentsArray;
+            //     // console.log(reallythis.$.deletePriceListsAjax.body);
+            //     reallythis.$.deletePriceListsAjax.method = 'DELETE';
+            //     reallythis.$.deletePriceListsAjax.url = reallythis.url + reallythis.key + '/pricelists';
+            //     reallythis.$.deletePriceListsAjax.contentType = 'application/x-www-form-urlencoded';
+            //     console.log("llega a request")
+            //     reallythis.$.deletePriceListsAjax.body = {
+            //         "components": JSON.stringify(priceListArray)
+            //     };
+            //     console.log(reallythis.$.deletePriceListsAjax.body);
+            //     reallythis.$.deletePriceListsAjax.generateRequest();
+
+            //     // reallythis._viewChanged(reallythis.key);
+
+            // },
+            // _handleResponseDeletePriceLists: function (response) {
+            //     var message = response.detail.response.message;
+            //     var data = response.detail.response.data;
+            //     this.itemsPriceLists = data;
+            //     this.showMessage(message);
+            // },
+            _getPriceLists: function () {
+                //obtener todos los marcas para poder Agregar
+                var input = this.$.selectPriceList;
+                //var search = event.detail.option.text;
+                var url = this.url_base + 'pricelists';
+                var req = new XMLHttpRequest();
+                req.open('GET', encodeURI(url));
+                req.setRequestHeader('x-access-token', this.token);
+                // console.log('entra product', this.token);
+                req.responseType = 'json';
+                req.onload = function () {
+                    //console.log('marcas input',req.status);
                     if (req.status === 200) {
                         //console.log(req.response)
                         //var data = JSON.parse(req.response.data);

@@ -501,20 +501,16 @@
                 var serialize = {
                     "address": this.$.address.value
                 };
-                if (this.person.status == serialize.status) {
-                    this.showError('No se registraron cambios');
-                } else {
-                    this.$.addAddressAjax.body = serialize;
-                    this.$.addAddressAjax.generateRequest();
-                    // window.location.reload();
-                }
+                this.$.addAddressAjax.body = serialize;
+                this.$.addAddressAjax.generateRequest();
+                // window.location.reload();
                 //
                 this.$.address.value = '';
                 //
-                var address = {
-                    "address": this.$.address.value
-                };
-                this.push("itemsAddress", serialize);
+                // var address = {
+                //     "address": this.$.address.value
+                // };
+                // this.push("itemsAddress", serialize);
                 // console.log(this.itemsAddress);                
             },
             _selectedAddressChanged: function (event) {
@@ -549,10 +545,10 @@
                 };
                 //debugger
                 // reallythis.$.deleteAddressAjax.params = addressesArray;
-                reallythis.$.deleteAddressAjax.contentType = "application/x-www-form-urlencoded";
-                reallythis.$.deleteAddressAjax.body = {"addresses": JSON.stringify(addressesArray)};
-                // reallythis.$.deleteAddressAjax.body = addressesArray;
-                console.log(reallythis.$.deleteAddressAjax.body);
+                // reallythis.$.deleteAddressAjax.contentType = "application/x-www-form-urlencoded";
+                // reallythis.$.deleteAddressAjax.body = { "addresses": JSON.stringify(addressesArray) };
+                // // reallythis.$.deleteAddressAjax.body = addressesArray;
+                // console.log(reallythis.$.deleteAddressAjax.body);
                 reallythis.$.deleteAddressAjax.method = 'DELETE';
                 reallythis.$.deleteAddressAjax.url = reallythis.url + '/' + reallythis.key + '/addresses';
                 reallythis.$.deleteAddressAjax.contentType = 'application/x-www-form-urlencoded';
@@ -577,22 +573,18 @@
                     "name": this.$.contactName.value,
                     "phone": this.$.contactPhone.value
                 };
-                if (this.person.status == serialize.status) {
-                    this.showError('No se registraron cambios');
-                } else {
-                    this.$.addContactAjax.body = serialize;
-                    this.$.addContactAjax.generateRequest();
-                    // window.location.reload();
-                }
+                this.$.addContactAjax.body = serialize;
+                this.$.addContactAjax.generateRequest();
+                // window.location.reload();
                 //
                 this.$.contactName.value = '';
                 this.$.contactPhone.value = '';
-                //
-                var contact = {
-                    "name": this.$.contactName.value,
-                    "phone": this.$.contactPhone.value
-                };
-                this.push("itemsContacts", contact)
+                // //
+                // var contact = {
+                //     "name": this.$.contactName.value,
+                //     "phone": this.$.contactPhone.value
+                // };
+                // this.push("itemsContacts", contact)
                 // console.log(this.itemsAddress);                
             },
             _selectedContactChanged: function (event) {
