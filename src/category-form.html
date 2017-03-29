@@ -61,7 +61,7 @@
             <iron-ajax id="deleteCategoriesAjax"></iron-ajax>
         </div>
         <div class="container">
-            <h3>Marca</h3>
+            <h3>Categoria</h3>
             <form is="iron-form" method="POST" id="categoryForm">
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
@@ -83,10 +83,10 @@
                     <paper-button raised id="reset">Limpiar</paper-button>
                 </div>
             </form>
-            <div id="supplier" class="supplier">
-                <paper-autocomplete label="Seleccionar Proveedor" id="selectCategory" min-length="1"></paper-autocomplete>
+            <div id="category" class="category">
+                <paper-autocomplete label="Seleccionar Sub-Categoria" id="selectCategory" min-length="1"></paper-autocomplete>
                 <paper-button raised submit id="addCategory">Agregar</paper-button>
-                <vaadin-grid id="suppliersList" items={{itemsCategories}} selection-mode="multi">
+                <vaadin-grid id="categoriesList" items={{itemsCategories}} selection-mode="multi">
                 </vaadin-grid>
                 <div class="botoneraCategory">
                     <paper-button raised submit id="deleteCategory">Eliminar Seleccionados</paper-button>
@@ -95,8 +95,8 @@
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-                <!--<h2>Eliminar marca</h2>-->
-                <p>¿Desea eliminar la marca <strong>[[category.name]]</strong> ?</p>
+                <!--<h2>Eliminar categoria</h2>-->
+                <p>¿Desea eliminar la categoria <strong>[[category.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -197,14 +197,14 @@
                 this.$.deleteCategoriesAjax.addEventListener('response', this._handleResponsDeleteCategory.bind(this));
                 this.$.deleteCategoriesAjax.addEventListener('error', this._handleError.bind(this));
                 //
-                var supplierCol = [{
-                    "name": "businessName",
+                var categoryCol = [{
+                    "name": "name",
                     "sortable": "true"
                 }, {
                     "name": "status",
                     "sortable": "true"
                 }];
-                this._getCategoryList().columns = supplierCol;
+                this._getCategoryList().columns = categoryCol;
                 // Gestionar grilla de direcciones
                 this._getCategoryList().reallythis = this;
                 this._getCategoryList().addEventListener('selected-items-changed', (this)._selectedCategoryChanged);
@@ -216,7 +216,7 @@
                 this.category = category;
                 this.$.name.value = category.name;
                 this.$.status.selected = category.status;
-                this.itemsCategories = category.suppliers
+                this.itemsCategories = category.categories
                 console.log(this.$.status.selected);
                 if (category.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
@@ -224,12 +224,12 @@
             },
             _handleError: function (error) {
                 console.log(error);
-                this.showError('Se produjo un error al obtener la marca');
+                this.showError('Se produjo un error al obtener la categoria');
             },
             _handleResponseUpdate: function (response) {
                 console.log(response.detail.response);
                 var update = response.detail.response;
-                this.showMessage('La marca ha sido actualizado con exito');
+                this.showMessage('La categoria ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
@@ -356,10 +356,10 @@
                     this.$.reset.style.display = 'none';
                     this._getCategories();
                     this._getCategory();
-                    this.$.supplier.style.display = 'block';
+                    this.$.category.style.display = 'block';
 
                 } else {
-                    this.$.supplier.style.display = 'none';
+                    this.$.category.style.display = 'none';
                     this.$.delete.style.display = 'none';
                     this.$.apply_changes.style.display = 'none';
                 }
@@ -368,11 +368,11 @@
                 //obtener todos los roles para poder Agregar
                 var input = this.$.selectCategory;
                 //var search = event.detail.option.text;
-                var url = this.url_base + 'persons';
+                var url = this.url_base + 'categories';
                 var req = new XMLHttpRequest();
-                var params = {
-                    type: "PROVEEDOR"
-                };
+                // var params = {
+                //     type: "PROVEEDOR"
+                // };
                 req.open('GET', encodeURI(url));
                 req.setRequestHeader('x-access-token', this.token);
                 req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -387,7 +387,7 @@
                         // console.log('data', data);
                         var arr = data.map(function (obj) {
                             return {
-                                text: obj.businessName,
+                                text: obj.name,
                                 value: obj._id
                             };
                         });
@@ -395,17 +395,17 @@
                         // console.log('a', input.source);
                     }
                 };
-                req.send(params);
+                req.send();
             },
             _addCategory: function () {
                 this.$.addCategoryAjax.headers = {
                     'x-access-token': this.token
                 };
                 this.$.addCategoryAjax.method = 'POST';
-                this.$.addCategoryAjax.url = this.url + this.key + '/supplier';
+                this.$.addCategoryAjax.url = this.url + this.key + '/category';
                 this.$.addCategoryAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.addCategoryAjax.body = {
-                    "supplierId": this.$.selectCategory.value
+                    "categoryId": this.$.selectCategory.value
                 };
                 this.$.selectCategory.text = '';
                 this.$.addCategoryAjax.generateRequest();
@@ -417,7 +417,7 @@
                 // window.location.reload();
             },
             _getCategoryList: function () {
-                return this.$.suppliersList;
+                return this.$.categoriesList;
             },
             _selectedCategoryChanged: function () {
                 var reallythis = this.reallythis;
@@ -434,33 +434,33 @@
             },
             _deleteCategories: function(){
                 var selected = this.selectedCategory;
-                console.log("supplieres", selected);
+                console.log("categoryes", selected);
                 var reallythis = this;
-                var suppliersArray = [];
+                var categoriesArray = [];
 
                 selected.forEach(function (element, index, array) {
                     //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
-                    var supplierId = reallythis.itemsCategories[index]._id;
+                    var categoryId = reallythis.itemsCategories[index]._id;
                     console.log('indice' + index, reallythis.itemsCategories[index]);
-                    suppliersArray.push(supplierId);
+                    categoriesArray.push(categoryId);
 
                 });
-                console.log(suppliersArray);
+                console.log(categoriesArray);
                 reallythis.$.deleteCategoriesAjax.headers = {
                     'x-access-token': reallythis.token
                 };
                 //debugger
-                // reallythis.$.deleteCategoriesAjax.params = suppliersArray;
+                // reallythis.$.deleteCategoriesAjax.params = categoriesArray;
                 reallythis.$.deleteCategoriesAjax.contentType = "application/x-www-form-urlencoded";
-                reallythis.$.deleteCategoriesAjax.body = { "suppliers": JSON.stringify(suppliersArray) };
-                // reallythis.$.deleteCategoriesAjax.body = suppliersArray;
+                reallythis.$.deleteCategoriesAjax.body = { "categories": JSON.stringify(categoriesArray) };
+                // reallythis.$.deleteCategoriesAjax.body = categoriesArray;
                 console.log(reallythis.$.deleteCategoriesAjax.body);
                 reallythis.$.deleteCategoriesAjax.method = 'DELETE';
-                reallythis.$.deleteCategoriesAjax.url = reallythis.url + reallythis.key + '/suppliers';
+                reallythis.$.deleteCategoriesAjax.url = reallythis.url + reallythis.key + '/categories';
                 reallythis.$.deleteCategoriesAjax.contentType = 'application/x-www-form-urlencoded';
                 console.log("llega a request")
                 reallythis.$.deleteCategoriesAjax.body = {
-                    "suppliers": JSON.stringify(suppliersArray)
+                    "categories": JSON.stringify(categoriesArray)
                 };
                 console.log(reallythis.$.deleteCategoriesAjax.body);
                 reallythis.$.deleteCategoriesAjax.generateRequest();
