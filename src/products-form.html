@@ -37,7 +37,7 @@
                 width: 900px;
             }
             
-            paper-input {
+            paper-input{
                 display: block;
                 width: 100%;
                 margin: auto;
@@ -58,12 +58,15 @@
                 height: 50%
             }
             
-            #componentDialog>paper-input {
-                width: 70%;
+            #componentDialog>paper-input, #priceListDialog>paper-input {
+                width: 50%;
+                float: left;
             }
             
-            #priceListDialog>paper-input {
-                width: 70%;
+            .paper-dropdown-menu {
+                width: 30%;
+                /*display: block;
+                margin: auto;*/
             }
         </style>
         <app-route route="{{route}}" pattern="/:product" data="{{productData}}" tail="{{routeTail}}" id="routeManager"></app-route>
@@ -112,7 +115,16 @@
             <paper-dialog id="componentDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
                 <paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>
                 <paper-input id="quantity" name="quantity" label="Cantidad" required></paper-input>
-                <paper-input id="unit" name="unit" label="Unidad" required></paper-input>
+                <paper-dropdown-menu class="paper-dropdown-menu" label="Tipo de Unidad" name="unit" id="" required>
+                    <paper-listbox id="unit" class="dropdown-content" attr-for-selected="name">
+                        <paper-item name="UNIDAD">Unidades</paper-item>
+                        <paper-item name="Kg">Kilogramos</paper-item>
+                        <paper-item name="g">gramos</paper-item>
+                        <paper-item name="l">litros</paper-item>
+                        <paper-item name="ml">mililitros</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+                <!--<paper-input id="unit" name="unit" label="Unidad" required></paper-input>-->
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="addComponent">Aceptar</paper-button>
@@ -127,14 +139,18 @@
             </div>
             <paper-dialog id="priceListDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
                 <paper-autocomplete label="Seleccionar Lista" id="selectPriceList" min-length="2"></paper-autocomplete>
-                <paper-input id="cost" name="cost" label="Costo" required></paper-input>
-                <paper-input id="profit" name="profit" label="Ganancia" required></paper-input>
-                <paper-dropdown-menu label="Estado" name="pricelist_status" required>
+                <paper-input id="cost" name="cost" label="Costo" type="number" step="0.01" placeholder='0.00' required>
+                    <div prefix>$</div>
+                </paper-input>
+                <paper-input id="profit" name="profit" label="Ganancia" type="number" required>
+                    <div suffix>%</div>
+                </paper-input>
+                <!--<paper-dropdown-menu label="Estado" name="pricelist_status" required>
                     <paper-listbox id="pricelist_status" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="ACTIVO">ACTIVO</paper-item>
                         <paper-item name="INACTIVO">INACTIVO</paper-item>
                     </paper-listbox>
-                </paper-dropdown-menu>
+                </paper-dropdown-menu>-->
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="addPriceList">Aceptar</paper-button>
@@ -321,7 +337,7 @@
                 this.$.brand_autocomplete.text = product.brand.name;
                 this.$.brand.value = product.brand._id;
                 this.itemsComponents = product.components;
-                this.itemsPriceList = product.priceLists; 
+                this.itemsPriceList = product.priceLists;
                 this.$.status.selected = product.status;
                 console.log("autocomplete", this.$.brand_autocomplete.value);
                 if (product.status == 'ACTIVO') {
@@ -589,7 +605,6 @@
                 this.showMessage(message);
             },
             _addComponent: function () {
-                alert("awea")
                 this.$.addComponentAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -599,7 +614,7 @@
                 this.$.addComponentAjax.body = {
                     "componentId": this.$.selectComponent.value,
                     "quantity": this.$.quantity.value,
-                    "unit": this.$.unit.value
+                    "unit": this.$.unit.selected
                 };
                 this.$.selectComponent.text = '';
                 this.$.addComponentAjax.generateRequest();
