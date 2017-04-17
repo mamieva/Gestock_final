@@ -156,7 +156,7 @@
                 'deleteCategory.tap':'_deleteCategories'
             },
             _deleteCategory: function () {
-                console.log("entro aceptar");
+                // console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -211,30 +211,30 @@
                 // this.$.myId.source = ["viejo","nuevo"];
             },
             _handleResponse: function (response) {
-                console.log(response.detail.response.data);
+                // console.log(response.detail.response.data);
                 var category = response.detail.response.data;
                 this.category = category;
                 this.$.name.value = category.name;
                 this.$.status.selected = category.status;
                 this.itemsCategories = category.categories
-                console.log(this.$.status.selected);
+                // console.log(this.$.status.selected);
                 if (category.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
             },
             _handleError: function (error) {
-                console.log(error);
+                // console.log(error);
                 this.showError('Se produjo un error al obtener la categoria');
             },
             _handleResponseUpdate: function (response) {
-                console.log(response.detail.response);
+                // console.log(response.detail.response);
                 var update = response.detail.response;
                 this.showMessage('La categoria ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
             _handleResponseDelete: function (response) {
-                console.log(response.detail.response);
+                // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
@@ -275,7 +275,7 @@
                 var category = this._getForm().serialize();
                 category.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = category;
-                //console.log(category);
+                //// console.log(category);
                 this.$.categoryForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -289,7 +289,7 @@
                 //var category = this._getForm().serialize();
                 //category.token = JSON.parse(window.localStorage.session).token;
                 //this._getForm().params = category;
-                console.log(this._getForm());
+                // console.log(this._getForm());
                 this.$.categoryForm.submit();
             },
             _reset: function (e) {
@@ -302,22 +302,22 @@
                 return this.$.categoryForm;
             },
             _formPresubmit: function () {
-                console.log("presubmit");
+                // console.log("presubmit");
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
                 this.showMessage(msg);
             },
             _formError: function (error) {
-                //console.log('a',error.detail.request.response);
+                //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
                 this.showMessage(msg);
             },
             showError: function (errorMessage) {
-                //console.log("error msg");
+                //// console.log("error msg");
                 this.$.toastError.text = errorMessage;
                 //this.$.toastError.fitInto = this.$.categoryForm;
-                //console.log(this.$.toastError.open());
+                //// console.log(this.$.toastError.open());
                 this.$.toastError.open();
             },
             showMessage: function (message) {
@@ -376,15 +376,15 @@
                 req.open('GET', encodeURI(url));
                 req.setRequestHeader('x-access-token', this.token);
                 req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                //console.log('token',this.token);
+                //// console.log('token',this.token);
                 req.responseType = 'json';
                 req.onload = function () {
-                    //console.log('roles input',req.status);
+                    //// console.log('roles input',req.status);
                     if (req.status === 200) {
-                        //console.log(req.response)
+                        //// console.log(req.response)
                         //var data = JSON.parse(req.response.data);
                         var data = req.response.data;
-                        // console.log('data', data);
+                        // // console.log('data', data);
                         var arr = data.map(function (obj) {
                             return {
                                 text: obj.name,
@@ -392,7 +392,7 @@
                             };
                         });
                         input.source = arr;
-                        // console.log('a', input.source);
+                        // // console.log('a', input.source);
                     }
                 };
                 req.send();
@@ -423,7 +423,7 @@
                 var reallythis = this.reallythis;
                 reallythis.selectedCategory = this.selection.selected();
                 var select = reallythis.selectedCategory;
-                // console.log("select", select)
+                // // console.log("select", select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteCategory.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
@@ -434,18 +434,18 @@
             },
             _deleteCategories: function(){
                 var selected = this.selectedCategory;
-                console.log("categoryes", selected);
+                // console.log("categoryes", selected);
                 var reallythis = this;
                 var categoriesArray = [];
 
                 selected.forEach(function (element, index, array) {
                     //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
                     var categoryId = reallythis.itemsCategories[index]._id;
-                    console.log('indice' + index, reallythis.itemsCategories[index]);
+                    // console.log('indice' + index, reallythis.itemsCategories[index]);
                     categoriesArray.push(categoryId);
 
                 });
-                console.log(categoriesArray);
+                // console.log(categoriesArray);
                 reallythis.$.deleteCategoriesAjax.headers = {
                     'x-access-token': reallythis.token
                 };
@@ -454,15 +454,15 @@
                 reallythis.$.deleteCategoriesAjax.contentType = "application/x-www-form-urlencoded";
                 reallythis.$.deleteCategoriesAjax.body = { "categories": JSON.stringify(categoriesArray) };
                 // reallythis.$.deleteCategoriesAjax.body = categoriesArray;
-                console.log(reallythis.$.deleteCategoriesAjax.body);
+                // console.log(reallythis.$.deleteCategoriesAjax.body);
                 reallythis.$.deleteCategoriesAjax.method = 'DELETE';
                 reallythis.$.deleteCategoriesAjax.url = reallythis.url + reallythis.key + '/categories';
                 reallythis.$.deleteCategoriesAjax.contentType = 'application/x-www-form-urlencoded';
-                console.log("llega a request")
+                // console.log("llega a request")
                 reallythis.$.deleteCategoriesAjax.body = {
                     "categories": JSON.stringify(categoriesArray)
                 };
-                console.log(reallythis.$.deleteCategoriesAjax.body);
+                // console.log(reallythis.$.deleteCategoriesAjax.body);
                 reallythis.$.deleteCategoriesAjax.generateRequest();
 
                 // reallythis._viewChanged(reallythis.key);

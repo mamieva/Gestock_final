@@ -136,7 +136,7 @@
                 'deleteAceptar.tap': '_deleteRole'
             },
             _deleteRole: function () {
-                console.log("entro aceptar");
+                // console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -171,30 +171,30 @@
                 // this.$.myId.source = ["viejo","nuevo"];
             },
             _handleResponse: function (response) {
-                console.log(response.detail.response.data);
+                // console.log(response.detail.response.data);
                 var role = response.detail.response.data;
                 this.role = role;
                 this.$.name.value = role.name;
                 this.$.status.selected = role.status;
-                console.log(this.$.status.selected);
+                // console.log(this.$.status.selected);
                 if (role.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
 
             },
             _handleError: function (error) {
-                console.log(error);
+                // console.log(error);
                 this.showError('Se produjo un error al obtener el rol');
             },
             _handleResponseUpdate: function (response) {
-                console.log(response.detail.response);
+                // console.log(response.detail.response);
                 var update = response.detail.response;
                 this.showMessage('El rol ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
             _handleResponseDelete: function (response) {
-                console.log(response.detail.response);
+                // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
@@ -235,7 +235,7 @@
                 var role = this._getForm().serialize();
                 role.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = role;
-                //console.log(role);
+                //// console.log(role);
                 this.$.roleForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -249,7 +249,7 @@
                 //var role = this._getForm().serialize();
                 //role.token = JSON.parse(window.localStorage.session).token;
                 //this._getForm().params = role;
-                console.log(this._getForm());
+                // console.log(this._getForm());
                 this.$.roleForm.submit();
             },
             _reset: function (e) {
@@ -262,22 +262,22 @@
                 return this.$.roleForm;
             },
             _formPresubmit: function () {
-                console.log("presubmit");
+                // console.log("presubmit");
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
                 this.showMessage(msg);
             },
             _formError: function (error) {
-                //console.log('a',error.detail.request.response);
+                //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
                 this.showMessage(msg);
             },
             showError: function (errorMessage) {
-                //console.log("error msg");
+                //// console.log("error msg");
                 this.$.toastError.text = errorMessage;
                 //this.$.toastError.fitInto = this.$.roleForm;
-                //console.log(this.$.toastError.open());
+                //// console.log(this.$.toastError.open());
                 this.$.toastError.open();
             },
             showMessage: function (message) {
@@ -292,13 +292,14 @@
                 this.showMessage(message);
             },
             _viewChanged: function (key) {
-                debugger
+                // debugger
                 if (this.name === 'roles') {
                     //Cargar token cuando se ingrese a la pantalla de formulario
                     if (typeof window.localStorage.session !== "undefined") {
                         this.token = JSON.parse(window.localStorage.session).token;
                     }
                     // Limpiar formulario
+                    // console.log("reset");
                     this.$.roleForm.reset();
                     //Prendemos los botones
                     this.$.create.style.display = 'inline-block';

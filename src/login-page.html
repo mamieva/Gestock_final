@@ -93,10 +93,10 @@
         }
       },
       showError: function(errorMessage) {
-          //console.log("error msg");
+          //// console.log("error msg");
           this.$.toastError.text = errorMessage;
           this.$.toastError.fitInto = this.$.main;
-          //console.log(this.$.toastError.open());
+          //// console.log(this.$.toastError.open());
           this.$.toastError.open();
       },
       showMessage: function (message) {
@@ -116,11 +116,11 @@
       },
       onLogin: function ()
       {
-          //console.log(this.session);
+          //// console.log(this.session);
           var request;
           if (!this.$.loginForm.validate())
           {
-              console.log("no valida");
+              // console.log("no valida");
               this.showError("Debe indicar un usuario y contraseña");
               this.$.email.focus();
               return;
@@ -131,31 +131,31 @@
           };
           this.$.loginService.url = "http://localhost:3000/login";
           request = this.$.loginService.generateRequest();
-          //console.log(request.completes);
+          //// console.log(request.completes);
           request.completes.then(function (response) {
 
-               //console.log(response.response);
+               //// console.log(response.response);
                me.session = response.response.data;
-               //console.log(me.session.token);
+               //// console.log(me.session.token);
                //me.$.session.destroy();
                //me.session = {};
                //me.$.session.setStoredValue('session', {"token":response.response.token});
               if (response.response) {
-                 console.log('a full');
-                 //console.log(localStorage.getItem('session'));// = response.response.token;
+                 // console.log('a full');
+                 //// console.log(localStorage.getItem('session'));// = response.response.token;
                   //window.location.reload();
                   me.fire('login', me.session);
               }
               else
               { 
-                  //console.log(response.response);
+                  //// console.log(response.response);
                   me.showError("Usuario o Contraseña incorrectos");
                   me.$.password.value = "";
                   me.$.password.focus();
               }
           })
           .catch(function (error,response) {
-              //console.log(error);              
+              //// console.log(error);              
               me.showError("Verifique los datos ingresados");
           });
       }

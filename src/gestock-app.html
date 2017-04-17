@@ -77,23 +77,23 @@
         'notAuthorized': '_notAuthorized'
       },
       ready: function () {
-        console.log(this.pageData.page);
+        // console.log(this.pageData.page);
 
       },
       attached: function () {
-        //console.log('sss',this.session.length);
-        //console.log(JSON.parse(window.localStorage.session).token);
+        //// console.log('sss',this.session.length);
+        //// console.log(JSON.parse(window.localStorage.session).token);
         //
         // if(this.session.length != 0 && this.pageData.page != 'login' ){
-        //   console.log("entro menu");
+        //   // console.log("entro menu");
         //   this.set('route.path','/menu');
         // }
         // else{
         //   //this.$.session.destroy();
-        //   console.log("entro login");
+        //   // console.log("entro login");
         //   this.set('route.path','/login');
         // }
-        //console.log(this.session.isAuthenticated);
+        //// console.log(this.session.isAuthenticated);
         // if(!this.session.token){
         //    if (!this.pageData.page) {
         //    this.set('route.path', '/login');
@@ -111,12 +111,12 @@
 
       },
       _loginUser: function (event) {
-        //console.log('events disparado');
+        //// console.log('events disparado');
         //this.isAuthenticated = true;
         this.session = event.detail;
         this.set('route.path', '/menu');
         window.location.reload();
-        //console.log(this.session);
+        //// console.log(this.session);
 
       },
       _notAuthorized: function (response) {
@@ -125,23 +125,23 @@
         this.$.toastError.text = response.detail.message;
         //this.$.toastError.alwaysOnTop = true;
         //this.$.toastError.fitInto = this.$.login;
-        //console.log(this.$.toastError.open());
+        //// console.log(this.$.toastError.open());
         this.$.toastError.open();
       },
       _updateScroll: function () {
         window.scroll(0, 0);
       },
       _routeChanged: function (newRoute) {
-        //console.log(newRoute);
-        //console.log(this.route);
+        //// console.log(newRoute);
+        //// console.log(this.route);
         if (this.session.length != 0 && (newRoute == '/menu' || newRoute == '')) {
-          console.log("entro menu");
+          // console.log("entro menu");
           this.set('route.path', '/menu');
         }
 
         if (this.session.length == 0) {
           //this.$.session.destroy();
-          console.log("entro login");
+          // console.log("entro login");
           this.set('route.path', '/login');
         }
       }
