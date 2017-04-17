@@ -73,8 +73,8 @@
             },
             ready: function () {
                 //
-                //console.log('attached');
-                //console.log(this.route);
+                //// console.log('attached');
+                //// console.log(this.route);
                 this.ajaxlist = document.createElement('iron-ajax');
 
                 this.ajaxlist.method = 'GET';
@@ -93,7 +93,7 @@
                 // this.ajaxlist.headers = {
                 //     'x-access-token': this.token
                 // };
-                //console.log(JSON.parse(window.localStorage.session).token);
+                //// console.log(JSON.parse(window.localStorage.session).token);
 
                 this.ajaxlist.addEventListener('response', this._handleResponse.bind(this));
                 this.ajaxlist.addEventListener('error', this._handleError.bind(this));
@@ -112,7 +112,7 @@
             },
             _handleResponse: function (response) {
                 //debugger;
-                // console.log('aaaaaaaaa',response.detail.response.data);
+                // // console.log('aaaaaaaaa',response.detail.response.data);
                 var data = response.detail.response.data;
                 let keys = [];
                 if (data.length > 0) {
@@ -122,7 +122,7 @@
                 grid.columns = [];
                 grid.style.display = "block";
                 keys.forEach(function (element) {
-                    //console.log(element);
+                    //// console.log(element);
                     //if(element === 'id'){
                     var col = {
                         "name": element,
@@ -137,19 +137,19 @@
 
                 // for( var name in keys){
                 //   //var col = {"name" : name.1};
-                //   console.log(name.value);
+                //   // console.log(name.value);
                 //   //this.getItemsList().addColumn(name);
                 // }
                 this.items = response.detail.response.data;
-                // console.log(Object.keys(this.ajaxlist.lastResponse.data[0]));
-                console.log(response.detail.response.data);
-                // console.log(this.items);
+                // // console.log(Object.keys(this.ajaxlist.lastResponse.data[0]));
+                // console.log(response.detail.response.data);
+                // // console.log(this.items);
                 //  return null;
             },
             _handleError: function (err) {
                 let grid = this.getItemsList();
                 grid.columns = [];
-                //console.log(this.getItemsList());
+                //// console.log(this.getItemsList());
                 this.items = [];
                 //grid.style.display = "none";
                 //debugger
@@ -162,10 +162,10 @@
                     alert('404');
                 }
                 response = null;
-                console.log('response', err.detail.request.status); //detail.request.response
+                // console.log('response', err.detail.request.status); //detail.request.response
             },
             _selectedItemChangedNotify: function (key, select) {
-                console.log("click");
+                // console.log("click");
             },
             getItemsList: function () {
                 return null;
@@ -182,20 +182,20 @@
             },
             _selectedItemChanged: function (event) {
                 var select = this.selection.selected();
-                //console.log(select[0]);
+                //// console.log(select[0]);
                 var reallythis = this.reallythis;
                 if (select.length > 0) {
-                    //console.log(this.items[this.selection.selected()[0]].id);
+                    //// console.log(this.items[this.selection.selected()[0]].id);
                     var key = reallythis.items[select[0]]._id;
                     //window.location.href = '/users/hla';
                     //var reallythis = this.reallythis;
                     // reallythis.set('routeData.key', key);
                     reallythis.set('route.path', '/' + key);
-                    // console.log(reallythis.route);
+                    // // console.log(reallythis.route);
                 }
             },
             _filterList: function (filter) {
-                // console.log("cambiiaaa");
+                // // console.log("cambiiaaa");
                 // debugger
                 var reallythis = this;
                 if (reallythis.$.filter.value != '') {

@@ -125,7 +125,7 @@
             _routeChanged: function (newRoute) {
                 // debugger
                 if (newRoute == "") {
-                    //console.log('entro', this.data);
+                    //// console.log('entro', this.data);
                     //va a ejecutar el ajax dos veces
                     this._viewChanged(this.data);
                     this.$.pages.entryAnimation = "slide-from-right-animation";
@@ -133,11 +133,11 @@
                     this.$.pages.selected = 0;
                     this.set('routeData.key', '');
                     // if (this.key !== undefined && this.key != "") {
-                    //     console.log("entra al route change");
+                    //     // console.log("entra al route change");
                     //     this._viewChanged('');
                     // }
                 } else {
-                    //   console.log('entro');
+                    //   // console.log('entro');
                     this.$.pages.entryAnimation = "slide-from-right-animation";
                     this.$.pages.exitAnimation = "slide-left-animation";
                     this.$.pages.selected = 1;
@@ -146,7 +146,7 @@
                 //this.$.editor.load(this.key);
             },
             _viewChanged: function (data) {
-                console.log("entra viewchang de lista", data);
+                // console.log("entra viewchang de lista", data);
                 this.ajaxlist.headers = '';
                 this.ajaxlist.params = '';
                 this.ajaxlist.url = '';
@@ -176,7 +176,7 @@
 
             },
             getItemsList: function () {
-                // console.log(this.$.itemsList);
+                // // console.log(this.$.itemsList);
                 return this.$.itemsList;
             },
             getFilter: function () {
@@ -214,7 +214,7 @@
                 this.set('route.path', '/');
             },
             _prueba: function (e) {
-                console.log(e);
+                // console.log(e);
                 this.$.animated.close();
 
             }

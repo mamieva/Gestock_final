@@ -134,7 +134,7 @@
                 itemsSuppliers: {
                     type: Array
                 },
-                selectedSupplier:{
+                selectedSupplier: {
                     type: Array
                 }
             },
@@ -153,10 +153,10 @@
                 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deleteBrand',
                 'addSupplier.tap': '_addSupplier',
-                'deleteSupplier.tap':'_deleteSuppliers'
+                'deleteSupplier.tap': '_deleteSuppliers'
             },
             _deleteBrand: function () {
-                console.log("entro aceptar");
+                // console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -194,7 +194,8 @@
                 this.$.addSupplierAjax.addEventListener('error', this._handleError.bind(this));
                 //
                 this.$.deleteSuppliersAjax.reallythis = this;
-                this.$.deleteSuppliersAjax.addEventListener('response', this._handleResponsDeleteSupplier.bind(this));
+                this.$.deleteSuppliersAjax.addEventListener('response', this._handleResponsDeleteSupplier.bind(
+                    this));
                 this.$.deleteSuppliersAjax.addEventListener('error', this._handleError.bind(this));
                 //
                 var supplierCol = [{
@@ -211,30 +212,30 @@
                 // this.$.myId.source = ["viejo","nuevo"];
             },
             _handleResponse: function (response) {
-                console.log(response.detail.response.data);
+                // console.log(response.detail.response.data);
                 var brand = response.detail.response.data;
                 this.brand = brand;
                 this.$.name.value = brand.name;
                 this.$.status.selected = brand.status;
                 this.itemsSuppliers = brand.suppliers
-                console.log(this.$.status.selected);
+                // console.log(this.$.status.selected);
                 if (brand.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
             },
             _handleError: function (error) {
-                console.log(error);
-                this.showError('Se produjo un error al obtener la marca');
+                // console.log(error);
+                this.showError(error.detail.request.response.message);
             },
             _handleResponseUpdate: function (response) {
-                console.log(response.detail.response);
+                // console.log(response.detail.response);
                 var update = response.detail.response;
                 this.showMessage('La marca ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
             _handleResponseDelete: function (response) {
-                console.log(response.detail.response);
+                // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
@@ -257,13 +258,13 @@
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                if (this.brand.status == serialize.status) {
-                    this.showError('No se registraron cambios');
-                } else {
+                // if (this.brand.status == serialize.status) {
+                //     this.showError('No se registraron cambios');
+                // } else {
                     this.$.updateAjax.body = serialize;
                     this.$.updateAjax.generateRequest();
                     // window.location.reload();
-                }
+                // }
             },
             _createBrand: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
@@ -275,7 +276,7 @@
                 var brand = this._getForm().serialize();
                 brand.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = brand;
-                //console.log(brand);
+                //// console.log(brand);
                 this.$.brandForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -289,7 +290,7 @@
                 //var brand = this._getForm().serialize();
                 //brand.token = JSON.parse(window.localStorage.session).token;
                 //this._getForm().params = brand;
-                console.log(this._getForm());
+                // console.log(this._getForm());
                 this.$.brandForm.submit();
             },
             _reset: function (e) {
@@ -302,22 +303,22 @@
                 return this.$.brandForm;
             },
             _formPresubmit: function () {
-                console.log("presubmit");
+                // console.log("presubmit");
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
                 this.showMessage(msg);
             },
             _formError: function (error) {
-                //console.log('a',error.detail.request.response);
+                //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
                 this.showMessage(msg);
             },
             showError: function (errorMessage) {
-                //console.log("error msg");
+                //// console.log("error msg");
                 this.$.toastError.text = errorMessage;
                 //this.$.toastError.fitInto = this.$.brandForm;
-                //console.log(this.$.toastError.open());
+                //// console.log(this.$.toastError.open());
                 this.$.toastError.open();
             },
             showMessage: function (message) {
@@ -349,9 +350,9 @@
                 //
                 if (key != '' && key != 'undefined') {
                     this.$.status.selected = '';
-                    this.$.name.disabled = 'disabled';
-                    this.$.description.disabled = 'disabled';
-                    this.$.description.style.display = 'none';
+                    // this.$.name.disabled = 'disabled';
+                    // this.$.description.disabled = 'disabled';
+                    // this.$.description.style.display = 'none';
                     this.$.create.style.display = 'none';
                     this.$.reset.style.display = 'none';
                     this._getSuppliers();
@@ -376,15 +377,15 @@
                 req.open('GET', encodeURI(url));
                 req.setRequestHeader('x-access-token', this.token);
                 req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                //console.log('token',this.token);
+                //// console.log('token',this.token);
                 req.responseType = 'json';
                 req.onload = function () {
-                    //console.log('roles input',req.status);
+                    //// console.log('roles input',req.status);
                     if (req.status === 200) {
-                        //console.log(req.response)
+                        //// console.log(req.response)
                         //var data = JSON.parse(req.response.data);
                         var data = req.response.data;
-                        // console.log('data', data);
+                        // // console.log('data', data);
                         var arr = data.map(function (obj) {
                             return {
                                 text: obj.businessName,
@@ -392,7 +393,7 @@
                             };
                         });
                         input.source = arr;
-                        // console.log('a', input.source);
+                        // // console.log('a', input.source);
                     }
                 };
                 req.send(params);
@@ -401,14 +402,21 @@
                 this.$.addSupplierAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.addSupplierAjax.method = 'POST';
-                this.$.addSupplierAjax.url = this.url + this.key + '/suppliers';
-                this.$.addSupplierAjax.contentType = 'application/x-www-form-urlencoded';
-                this.$.addSupplierAjax.body = {
-                    "supplierId": this.$.selectSupplier.value
-                };
-                this.$.selectSupplier.text = '';
-                this.$.addSupplierAjax.generateRequest();
+                if (this.$.selectSupplier.value) {
+
+                    this.$.addSupplierAjax.method = 'POST';
+                    this.$.addSupplierAjax.url = this.url + this.key + '/supplier';
+                    this.$.addSupplierAjax.contentType = 'application/x-www-form-urlencoded';
+                    this.$.addSupplierAjax.body = {
+                        "supplierId": this.$.selectSupplier.value
+                    };
+                    this.$.selectSupplier.text = '';
+                    this.$.selectSupplier.value = '';
+                    this.$.addSupplierAjax.generateRequest();
+                }
+                else{
+                    this.showMessage("Ingrese un valor para el Proveedor");
+                }
             },
             _handleResponsAddSupplier: function (response) {
                 var addSupplier = response.detail.response;
@@ -423,7 +431,7 @@
                 var reallythis = this.reallythis;
                 reallythis.selectedSupplier = this.selection.selected();
                 var select = reallythis.selectedSupplier;
-                // console.log("select", select)
+                // // console.log("select", select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteSupplier.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
@@ -432,43 +440,45 @@
                     // reallythis.$.resetRole.style.display = 'none';
                 }
             },
-            _deleteSuppliers: function(){
+            _deleteSuppliers: function () {
                 var selected = this.selectedSupplier;
-                console.log("supplieres", selected);
+                // console.log("supplieres", selected);
                 var reallythis = this;
                 var suppliersArray = [];
 
                 selected.forEach(function (element, index, array) {
                     //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
                     var supplierId = reallythis.itemsSuppliers[index]._id;
-                    console.log('indice' + index, reallythis.itemsSuppliers[index]);
+                    // console.log('indice' + index, reallythis.itemsSuppliers[index]);
                     suppliersArray.push(supplierId);
 
                 });
-                console.log(suppliersArray);
+                // console.log(suppliersArray);
                 reallythis.$.deleteSuppliersAjax.headers = {
                     'x-access-token': reallythis.token
                 };
                 //debugger
                 // reallythis.$.deleteSuppliersAjax.params = suppliersArray;
                 reallythis.$.deleteSuppliersAjax.contentType = "application/x-www-form-urlencoded";
-                reallythis.$.deleteSuppliersAjax.body = { "suppliers": JSON.stringify(suppliersArray) };
-                // reallythis.$.deleteSuppliersAjax.body = suppliersArray;
-                console.log(reallythis.$.deleteSuppliersAjax.body);
-                reallythis.$.deleteSuppliersAjax.method = 'DELETE';
-                reallythis.$.deleteSuppliersAjax.url = reallythis.url + reallythis.key + '/suppliers';
-                reallythis.$.deleteSuppliersAjax.contentType = 'application/x-www-form-urlencoded';
-                console.log("llega a request")
                 reallythis.$.deleteSuppliersAjax.body = {
                     "suppliers": JSON.stringify(suppliersArray)
                 };
-                console.log(reallythis.$.deleteSuppliersAjax.body);
+                // reallythis.$.deleteSuppliersAjax.body = suppliersArray;
+                // console.log(reallythis.$.deleteSuppliersAjax.body);
+                reallythis.$.deleteSuppliersAjax.method = 'DELETE';
+                reallythis.$.deleteSuppliersAjax.url = reallythis.url + reallythis.key + '/suppliers';
+                reallythis.$.deleteSuppliersAjax.contentType = 'application/x-www-form-urlencoded';
+                // console.log("llega a request")
+                reallythis.$.deleteSuppliersAjax.body = {
+                    "suppliers": JSON.stringify(suppliersArray)
+                };
+                // console.log(reallythis.$.deleteSuppliersAjax.body);
                 reallythis.$.deleteSuppliersAjax.generateRequest();
 
                 // reallythis._viewChanged(reallythis.key);
 
             },
-            _handleResponsDeleteSupplier: function(response){
+            _handleResponsDeleteSupplier: function (response) {
                 var message = response.detail.response.message;
                 var data = response.detail.response.data;
                 this.itemsSuppliers = data;
