@@ -136,7 +136,7 @@
                 'deleteAceptar.tap': '_deletePriceList'
             },
             _deletePriceList: function () {
-                console.log("entro aceptar");
+                // console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -171,30 +171,30 @@
                 // this.$.myId.source = ["viejo","nuevo"];
             },
             _handleResponse: function (response) {
-                console.log(response.detail.response.data);
+                // console.log(response.detail.response.data);
                 var priceList = response.detail.response.data;
                 this.priceList = priceList;
                 this.$.name.value = priceList.name;
                 this.$.status.selected = priceList.status;
-                console.log(this.$.status.selected);
+                // console.log(this.$.status.selected);
                 if (priceList.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
 
             },
             _handleError: function (error) {
-                console.log(error);
+                // console.log(error);
                 this.showError('Se produjo un error al obtener la Lista de Precio');
             },
             _handleResponseUpdate: function (response) {
-                console.log(response.detail.response);
+                // console.log(response.detail.response);
                 var update = response.detail.response;
                 this.showMessage('La Lista de Precio ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
             _handleResponseDelete: function (response) {
-                console.log(response.detail.response);
+                // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
@@ -235,7 +235,7 @@
                 var priceList = this._getForm().serialize();
                 priceList.token = JSON.parse(window.localStorage.session).token;
                 // this._getForm().params = priceList;
-                //console.log(priceList);
+                //// console.log(priceList);
                 this.$.priceListForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -249,7 +249,7 @@
                 //var priceList = this._getForm().serialize();
                 //priceList.token = JSON.parse(window.localStorage.session).token;
                 //this._getForm().params = priceList;
-                console.log(this._getForm());
+                // console.log(this._getForm());
                 this.$.priceListForm.submit();
             },
             _reset: function (e) {
@@ -262,22 +262,22 @@
                 return this.$.priceListForm;
             },
             _formPresubmit: function () {
-                console.log("presubmit");
+                // console.log("presubmit");
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
                 this.showMessage(msg);
             },
             _formError: function (error) {
-                //console.log('a',error.detail.request.response);
+                //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
                 this.showMessage(msg);
             },
             showError: function (errorMessage) {
-                //console.log("error msg");
+                //// console.log("error msg");
                 this.$.toastError.text = errorMessage;
                 //this.$.toastError.fitInto = this.$.priceListForm;
-                //console.log(this.$.toastError.open());
+                //// console.log(this.$.toastError.open());
                 this.$.toastError.open();
             },
             showMessage: function (message) {

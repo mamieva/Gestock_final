@@ -229,7 +229,7 @@
                 }
             },
             _deletePerson: function () {
-                console.log("entro aceptar");
+                // console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -305,10 +305,10 @@
 
             },
             _handleResponse: function (response) {
-                console.log(response.detail.response.data);
+                // console.log(response.detail.response.data);
                 var person = response.detail.response.data;
                 this.person = person;
-                this.$.type.selected = person.type;
+                this.type = person.type;
                 this.$.businessName.value = person.businessName;
                 this.$.firstName.value = person.firstName;
                 this.$.lastName.value = person.lastName;
@@ -318,7 +318,7 @@
                 this.$.status.selected = person.status;
                 this.itemsContacts = person.contacts;
                 this.itemsAddress = person.addresses;
-                console.log(this.$.status.selected);
+                // console.log(this.$.status.selected);
                 if (person.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
@@ -326,20 +326,20 @@
             },
             _handleErrorMessage: function (response) {
                 var message = response.detail.request.response.message
-                // console.log(response);
+                // // console.log(response);
                 this.showError(message);
                 // this.set('route.path', '');
                 // this.showError('Se produjo un error al obtener la persona');
             },
             _handleResponseUpdate: function (response) {
-                console.log(response.detail.response);
+                // console.log(response.detail.response);
                 var update = response.detail.response;
                 this.showMessage('La persona ha sido actualizado con exito');
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
             _handleResponseDelete: function (response) {
-                console.log(response.detail.response);
+                // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
@@ -380,7 +380,7 @@
                 var person = this._getForm().serialize();
                 person.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = person;
-                //console.log(person);
+                //// console.log(person);
                 this.$.personForm.submit();
             },
             _applychangesSubmit: function (event) {
@@ -394,7 +394,7 @@
                 //var person = this._getForm().serialize();
                 //person.token = JSON.parse(window.localStorage.session).token;
                 //this._getForm().params = person;
-                console.log(this._getForm());
+                // console.log(this._getForm());
                 this.$.personForm.submit();
             },
             _reset: function (e) {
@@ -407,24 +407,24 @@
                 return this.$.personForm;
             },
             _formPresubmit: function (event) {
-                console.log(event);
+                // console.log(event);
                 // this.request.params = {"status": "ACTIVO"};
-                console.log("presubmit");
+                // console.log("presubmit");
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
                 this.showMessage(msg);
             },
             _formError: function (error) {
-                //console.log('a',error.detail.request.response);
+                //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
                 this.showMessage(msg);
             },
             showError: function (errorMessage) {
-                //console.log("error msg");
+                //// console.log("error msg");
                 this.$.toastError.text = errorMessage;
                 //this.$.toastError.fitInto = this.$.personForm;
-                //console.log(this.$.toastError.open());
+                //// console.log(this.$.toastError.open());
                 this.$.toastError.open();
             },
             showMessage: function (message) {
@@ -440,8 +440,9 @@
             },
             _viewChanged: function (key) {
                 // debugger
-                console.log("type", this.typePerson)
-                console.log("name", this.name)
+                this.$.type.forceSynchronousItemUpdate();
+                // console.log("type", this.typePerson)
+                // console.log("name", this.name)
                 if (this.typePerson === 'persons') {
                     //Cargar token cuando se ingrese a la pantalla de formulario
                     if (typeof window.localStorage.session !== "undefined") {
@@ -464,7 +465,7 @@
                     if (key != '' && key != 'undefined') {
                         var type = this.name.toUpperCase();
                         this.type = type;
-                        console.log("if");
+                        // console.log("if");
                         this.$.status.selected = '';
                         // this.$.name.disabled = 'disabled';
                         // this.$.description.disabled = 'disabled';
@@ -473,7 +474,7 @@
                         this.$.reset.style.display = 'none';
                         this._getPerson();
                     } else {
-                        console.log("else");
+                        // console.log("else");
                         var type = this.name.toUpperCase();
                         this.type = type;
                         this.$.addresses.style.display = 'none';
@@ -511,13 +512,13 @@
                 //     "address": this.$.address.value
                 // };
                 // this.push("itemsAddress", serialize);
-                // console.log(this.itemsAddress);                
+                // // console.log(this.itemsAddress);                
             },
             _selectedAddressChanged: function (event) {
                 var reallythis = this.reallythis;
                 reallythis.selectedAddress = this.selection.selected();
                 var select = reallythis.selectedAddress;
-                // console.log("select", select)
+                // // console.log("select", select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteAddress.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
@@ -528,18 +529,18 @@
             },
             _deleteAddress: function () {
                 var selected = this.selectedAddress;
-                console.log("addresses", selected);
+                // console.log("addresses", selected);
                 var reallythis = this;
                 var addressesArray = [];
 
                 selected.forEach(function (element, index, array) {
                     //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
                     var addressId = reallythis.itemsAddress[index]._id;
-                    console.log('indice' + index, reallythis.itemsAddress[index]);
+                    // console.log('indice' + index, reallythis.itemsAddress[index]);
                     addressesArray.push(addressId);
 
                 });
-                console.log(addressesArray);
+                // console.log(addressesArray);
                 reallythis.$.deleteAddressAjax.headers = {
                     'x-access-token': reallythis.token
                 };
@@ -548,15 +549,15 @@
                 // reallythis.$.deleteAddressAjax.contentType = "application/x-www-form-urlencoded";
                 // reallythis.$.deleteAddressAjax.body = { "addresses": JSON.stringify(addressesArray) };
                 // // reallythis.$.deleteAddressAjax.body = addressesArray;
-                // console.log(reallythis.$.deleteAddressAjax.body);
+                // // console.log(reallythis.$.deleteAddressAjax.body);
                 reallythis.$.deleteAddressAjax.method = 'DELETE';
                 reallythis.$.deleteAddressAjax.url = reallythis.url + '/' + reallythis.key + '/addresses';
                 reallythis.$.deleteAddressAjax.contentType = 'application/x-www-form-urlencoded';
-                console.log("llega a request")
+                // console.log("llega a request")
                 reallythis.$.deleteAddressAjax.body = {
                     "addresses": JSON.stringify(addressesArray)
                 };
-                console.log(reallythis.$.deleteAddressAjax.body);
+                // console.log(reallythis.$.deleteAddressAjax.body);
                 reallythis.$.deleteAddressAjax.generateRequest();
 
                 // reallythis._viewChanged(reallythis.key);
@@ -585,13 +586,13 @@
                 //     "phone": this.$.contactPhone.value
                 // };
                 // this.push("itemsContacts", contact)
-                // console.log(this.itemsAddress);                
+                // // console.log(this.itemsAddress);                
             },
             _selectedContactChanged: function (event) {
                 var reallythis = this.reallythis;
                 reallythis.selectedContacts = this.selection.selected();
                 var select = reallythis.selectedContacts;
-                // console.log("select", select)
+                // // console.log("select", select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteContact.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
@@ -607,12 +608,12 @@
 
                 selected.forEach(function (element, index, array) {
                     //Obtener id dentro de la lista de contactos, a traves de los seleccionados
-                    console.log('indice' + index, reallythis.itemsContacts[index]);
+                    // console.log('indice' + index, reallythis.itemsContacts[index]);
                     var contactId = reallythis.itemsContacts[index]._id;
                     contactsArray.push(contactId);
 
                 });
-                console.log(contactsArray);
+                // console.log(contactsArray);
                 reallythis.$.deleteContactsAjax.headers = {
                     'x-access-token': reallythis.token
                 };
@@ -622,11 +623,11 @@
                 reallythis.$.deleteContactsAjax.method = 'DELETE';
                 reallythis.$.deleteContactsAjax.url = reallythis.url + '/' + reallythis.key + '/contacts';
                 //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
-                console.log("llega a request")
+                // console.log("llega a request")
                 reallythis.$.deleteContactsAjax.body = {
                     "contacts": JSON.stringify(contactsArray)
                 };
-                console.log(reallythis.$.deleteContactsAjax.body);
+                // console.log(reallythis.$.deleteContactsAjax.body);
                 reallythis.$.deleteContactsAjax.generateRequest();
 
                 // reallythis._viewChanged(reallythis.key);
