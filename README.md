@@ -32,8 +32,8 @@ Install [polymer-cli](https://github.com/Polymer/polymer-cli):
 
 ##### Initialize project from template
 
-    mkdir my-app
-    cd my-app
+    mkdir gestock-app
+    cd gestock-app
     polymer init starter-kit
 
 ### Start the development server
