@@ -20,10 +20,8 @@
 <link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="./simple-dialog.html">
-<link rel="import" href="./shared-style.html">
 <dom-module id="products-form">
     <template>
-    <style include="shared-style"></style>
         <style>
              :host {
                 display: block;
@@ -55,24 +53,20 @@
                 margin-right: 12px;
             }
             
-            /*paper-dialog {
+            paper-dialog {
                 width: 50%;
                 height: 50%
-            }*/
-            
-            #componentDialog>paper-input{
-                display: inline-block;
-                width: 40%;
-                /*float: left;*/
             }
             
+            #componentDialog>paper-input,
             #priceListDialog>paper-input {
                 display: inline-block;
-                width: 30%;
+                width: 50%;
                 /*float: left;*/
             }
+            
             .paper-dropdown-menu {
-                width: 35%;
+                width: 30%;
                 /*display: block;
                 margin: auto;*/
             }
@@ -92,7 +86,7 @@
         <div class="container">
             <h3>Producto</h3>
             <form is="iron-form" method="POST" id="productForm">
-                <paper-input id="code" name="code" label="Código" >
+                <paper-input id="code" name="code" label="Código" required>
                     <iron-icon icon="icons:fingerprint" prefix></iron-icon>
                 </paper-input>
                 <paper-input id="name" name="name" label="Nombre" required>
@@ -336,13 +330,10 @@
                 this._getComponentList().columns = componentCol;
                 //Agregar columnas a las grilla e lista de precios
                 var pricelistCol = [{
-                    "name": "priceLists",
+                    "name": "name",
                     "sortable": "true"
                 }, {
-                    "name": "cost",
-                    "sortable": "true"
-                }, {
-                    "name": "profit",
+                    "name": "description",
                     "sortable": "true"
                 }, {
                     "name": "status",
@@ -362,9 +353,9 @@
                 this.$.brand_autocomplete.value = product.brand._id;
                 this.$.brand_autocomplete.text = product.brand.name;
                 this.$.brand.value = product.brand._id;
-                this.$.category_autocomplete.value = product.category._id;
-                this.$.category_autocomplete.text = product.category.name;
-                this.$.category.value = product.category._id;
+                // this.$.category_autocomplete.value = product.category._id;
+                // this.$.category_autocomplete.text = product.category.name;
+                // this.$.category.value = product.category._id;
                 this.itemsComponents = product.components;
                 this.itemsPriceList = product.priceLists;
                 this.$.status.selected = product.status;
@@ -409,14 +400,14 @@
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                // if (this.product.status == serialize.status) {
-                //     this.showError('No se registraron cambios');
-                // } else {
+                if (this.product.status == serialize.status) {
+                    this.showError('No se registraron cambios');
+                } else {
                     // this.$.brand.value = this.$.brand_autocomplete.value;
                     this.$.updateAjax.body = serialize;
                     this.$.updateAjax.generateRequest();
                     // window.location.reload();
-                // }
+                }
             },
             _createProduct: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
@@ -558,7 +549,7 @@
                 this.$.reset.style.display = 'inline-block';
                 this.$.delete.style.display = 'inline-block';
                 this.$.apply_changes.style.display = 'inline-block';
-                // this.$.name.disabled = null;
+                this.$.name.disabled = null;
                 this.$.components.style.display = "none";
                 this.$.priceList.style.display = "none";
                 // this.$.description.disabled = null;
@@ -569,7 +560,7 @@
                 this._getPriceLists();
                 if (key != '' && key != 'undefined') {
                     this.$.status.selected = '';
-                    // this.$.name.disabled = 'disabled';
+                    this.$.name.disabled = 'disabled';
                     // this.$.description.disabled = 'disabled';
                     // this.$.description.style.display = 'none';
                     this.$.create.style.display = 'none';
@@ -792,18 +783,15 @@
                 this.$.addPriceListAjax.body = {
                     "priceListId": this.$.selectPriceList.value,
                     "cost": this.$.cost.value,
-                    "profit": this.$.profit.value
-                    // "status": this.$.pricelist_status.selected
+                    "profit": this.$.profit.value,
+                    "status": this.$.pricelist_status.selected
                 };
                 this.$.selectPriceList.text = '';
-                this.$.selectPriceList.value = '';
-                this.$.cost.value = '';
-                this.$.profit.value = '';
                 this.$.addPriceListAjax.generateRequest();
             },
             _handleResponseAddPriceList: function (response) {
                 var addPriceList = response.detail.response;
-                this.itemsPriceList = addPriceList.data;
+                this.itemsPriceLists = addPriceList.data;
                 this.showMessage(addPriceList.message);
                 // window.location.reload();
             },
@@ -831,8 +819,8 @@
 
             //     selected.forEach(function (element, index, array) {
             //         //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
-            //         var pricelistId = reallythis.itemsPriceList[index]._id;
-            //         // console.log('indice' + index, reallythis.itemsPriceList[index]);
+            //         var pricelistId = reallythis.itemsPriceLists[index]._id;
+            //         // console.log('indice' + index, reallythis.itemsPriceLists[index]);
             //         priceListArray.push(pricelistId);
 
             //     });
@@ -864,7 +852,7 @@
             // _handleResponseDeletePriceLists: function (response) {
             //     var message = response.detail.response.message;
             //     var data = response.detail.response.data;
-            //     this.itemsPriceList = data;
+            //     this.itemsPriceLists = data;
             //     this.showMessage(message);
             // },
             _getPriceLists: function () {

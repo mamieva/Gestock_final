@@ -7,19 +7,17 @@
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
-<link rel="import" href="./shared-style.html">
 <dom-module id="login-page">
-    <style include="shared-style"></style>
     <style>
         a {
             color: #FF8A80;
             cursor: pointer;
         }
         
-        /*#toastError {
+        #toastError {
             --paper-toast-background-color: #f63d33;
             --paper-toast-color: white;
-        }*/
+        }
         
         paper-toolbar {
             background-color: #4285f4;
@@ -58,104 +56,109 @@
         <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
     </template>
     <script>
-        Polymer({
-            is: "login-page",
-            properties: {
-                item: {
-                    type: Object,
-                },
-                title: {
-                    type: String,
-                    value: "Login"
-                },
-                lastLogin: {
-                    type: String,
-                    value: ""
-                },
-                session: {
-                    type: Object
-                }
-            },
-            listeners: {
-                'loginButton.tap': 'onLogin',
-            },
-            attached: function () {
-                if (!this.session) {
-                    if (this.lastLogin != "") {
-                        this.$.email.value = this.lastLogin;
-                        this.$.password.focus();
-                    } else {
-                        this.$.email.focus();
-                    }
-                } else {
-                    //this.$.session.destroy();
-                    //window.location.href = 'aaa';
-                }
-            },
-            showError: function (errorMessage) {
-                //// console.log("error msg");
-                this.$.toastError.text = errorMessage;
-                this.$.toastError.fitInto = this.$.main;
-                //// console.log(this.$.toastError.open());
-                this.$.toastError.open();
-            },
-            showMessage: function (message) {
-                this.$.toastOk.text = message;
-                this.$.toastOk.fitInto = this.$.main;
-                this.$.toastOk.open();
-            },
-            checkForEnterA: function (e) {
-                if (e.keyCode === 13) {
-                    this.$.password.focus();
-                }
-            },
-            checkForEnter: function (e) {
-                if (e.keyCode === 13) {
-                    this.onLogin();
-                }
-            },
-            onLogin: function () {
-                //// console.log(this.session);
-                var request;
-                if (!this.$.loginForm.validate()) {
-                    // console.log("no valida");
-                    this.showError("Debe indicar un usuario y contraseña");
-                    this.$.email.focus();
-                    return;
-                }
-                var me = this;
-                this.$.loginService.body = {
-                    username: this.$.email.value,
-                    password: this.$.password.value
-                };
-                this.$.loginService.url = "http://localhost:3000/login";
-                request = this.$.loginService.generateRequest();
-                //// console.log(request.completes);
-                request.completes.then(function (response) {
+    Polymer({
+      is: "login-page",
+      properties: {
+          item: {
+              type: Object,
+          },
+          title: {
+              type: String,
+              value: "Login"
+          },
+          lastLogin: {
+              type: String,
+              value: ""
+          },
+          session:{
+            type: Object
+          }
+      },
+      listeners: {
+          'loginButton.tap': 'onLogin',
+      },
+      attached: function () {
+        if (!this.session){
+          if (this.lastLogin != "") {
+              this.$.email.value = this.lastLogin;
+              this.$.password.focus();
+          }
+          else {
+              this.$.email.focus();
+          }
+        }
+        else {
+          //this.$.session.destroy();
+          //window.location.href = 'aaa';
+        }
+      },
+      showError: function(errorMessage) {
+          //// console.log("error msg");
+          this.$.toastError.text = errorMessage;
+          this.$.toastError.fitInto = this.$.main;
+          //// console.log(this.$.toastError.open());
+          this.$.toastError.open();
+      },
+      showMessage: function (message) {
+          this.$.toastOk.text = message;
+          this.$.toastOk.fitInto = this.$.main;
+          this.$.toastOk.open();
+      },
+      checkForEnterA: function (e) {
+          if (e.keyCode === 13) {
+              this.$.password.focus();
+          }
+      },
+      checkForEnter: function (e) {
+          if (e.keyCode === 13) {
+              this.onLogin();
+          }
+      },
+      onLogin: function ()
+      {
+          //// console.log(this.session);
+          var request;
+          if (!this.$.loginForm.validate())
+          {
+              // console.log("no valida");
+              this.showError("Debe indicar un usuario y contraseña");
+              this.$.email.focus();
+              return;
+          }
+          var me = this;
+          this.$.loginService.body = {
+              username: this.$.email.value, password: this.$.password.value
+          };
+          this.$.loginService.url = "http://localhost:3000/login";
+          request = this.$.loginService.generateRequest();
+          //// console.log(request.completes);
+          request.completes.then(function (response) {
 
-                        //// console.log(response.response);
-                        me.session = response.response.data;
-                        //// console.log(me.session.token);
-                        //me.$.session.destroy();
-                        //me.session = {};
-                        //me.$.session.setStoredValue('session', {"token":response.response.token});
-                        if (response.response) {
-                            // console.log('a full');
-                            //// console.log(localStorage.getItem('session'));// = response.response.token;
-                            //window.location.reload();
-                            me.fire('login', me.session);
-                        } else {
-                            //// console.log(response.response);
-                            me.showError("Usuario o Contraseña incorrectos");
-                            me.$.password.value = "";
-                            me.$.password.focus();
-                        }
-                    })
-                    .catch(function (error, response) {
-                        //// console.log(error);              
-                        me.showError("Verifique los datos ingresados");
-                    });
-            }
-        });
+               //// console.log(response.response);
+               me.session = response.response.data;
+               //// console.log(me.session.token);
+               //me.$.session.destroy();
+               //me.session = {};
+               //me.$.session.setStoredValue('session', {"token":response.response.token});
+              if (response.response) {
+                 // console.log('a full');
+                 //// console.log(localStorage.getItem('session'));// = response.response.token;
+                  //window.location.reload();
+                  me.fire('login', me.session);
+              }
+              else
+              { 
+                  //// console.log(response.response);
+                  me.showError("Usuario o Contraseña incorrectos");
+                  me.$.password.value = "";
+                  me.$.password.focus();
+              }
+          })
+          .catch(function (error,response) {
+              //// console.log(error);              
+              me.showError("Verifique los datos ingresados");
+          });
+      }
+    });
     </script>
 </dom-module>
