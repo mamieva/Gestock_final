@@ -19,8 +19,10 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
+<link rel="import" href="./shared-style.html">
 <dom-module id="persons-form">
     <template>
+    <style include="shared-style"></style>
         <style>
              :host {
                 display: block;
@@ -362,13 +364,13 @@
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                if (this.person.status == serialize.status) {
-                    this.showError('No se registraron cambios');
-                } else {
+                // if (this.person.status == serialize.status) {
+                //     this.showError('No se registraron cambios');
+                // } else {
                     this.$.updateAjax.body = serialize;
                     this.$.updateAjax.generateRequest();
                     // window.location.reload();
-                }
+                // }
             },
             _createPerson: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
