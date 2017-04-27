@@ -23,7 +23,7 @@
 <link rel="import" href="./shared-style.html">
 <dom-module id="users-form">
     <template>
-    <style include="shared-style"></style>
+        <style include="shared-style"></style>
         <style>
              :host {
                 display: block;
@@ -97,6 +97,14 @@
                 <paper-autocomplete label="Seleccionar Rol" id="selectRole" min-length="2"></paper-autocomplete>
                 <paper-button raised submit id="addRole">Agregar</paper-button>
                 <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="multi">
+                    <vaadin-grid-column>
+                        <template class="header">Nombre</template>
+                        <template>[[item.name]]</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">Descripción</template>
+                        <template>[[item.description]]</template>
+                    </vaadin-grid-column>
                 </vaadin-grid>
             </div>
             <div class="botoneraRoles">
@@ -147,10 +155,14 @@
                 },
                 name: {
                     type: String
+                },
+                selected: {
+                    type: Boolean,
+                    reflectToAttribute: true
                 }
             },
             observers: [
-                "_viewChanged(key)"
+                "_viewChanged(key,selected)"
             ],
             listeners: {
                 'iron-form-response': '_formResponse',
@@ -244,7 +256,7 @@
                 var update = response.detail.response;
                 this.showMessage('El usuario ha sido actualizado con exito');
                 // window.location.reload();
-                this._viewChanged(this.key);
+                // this._viewChanged(this.key);
             },
             _handleResponseDelete: function (response) {
                 // console.log(response.detail.response);
@@ -273,9 +285,9 @@
                 // if (this.user.status == serialize.status) {
                 //     this.showError('No se registraron cambios');
                 // } else {
-                    this.$.updateAjax.body = serialize;
-                    this.$.updateAjax.generateRequest();
-                    // window.location.reload();
+                this.$.updateAjax.body = serialize;
+                this.$.updateAjax.generateRequest();
+                // window.location.reload();
                 // }
             },
             _createUser: function (event) {
@@ -344,9 +356,13 @@
                 this.set('route.path', id);
                 this.showMessage(message);
             },
-            _viewChanged: function (key) {
+            _viewChanged: function () {
                 // debugger
-                if (this.name === 'users') {
+                if (!this.selected) {
+                    this.key = '';
+                    return;
+                } else {
+                    // if (this.name === 'users') {
                     //Cargar token cuando se ingrese a la pantalla de formulario
                     if (typeof window.localStorage.session !== "undefined") {
                         this.token = JSON.parse(window.localStorage.session).token;
@@ -365,7 +381,7 @@
                     this.$.deleteRole.style.display = 'none';
                     this.$.resetRole.style.display = 'none';
                     //
-                    if (key != '' && key != 'undefined') {
+                    if (this.key != '' && this.key != 'undefined') {
                         this.$.status.selected = '';
                         // this.$.username.disabled = 'disabled';
                         // this.$.password.disabled = 'disabled';
@@ -380,6 +396,7 @@
                         this.$.delete.style.display = 'none';
                         this.$.apply_changes.style.display = 'none';
                     }
+                    // }
                 }
             },
 
@@ -461,7 +478,7 @@
                     //else {
                     //var col = {"name" : element};
                     //}
-                    grid.addColumn(col);
+                    // grid.addColumn(col);
                 });
 
                 // for( var name in keys){
@@ -500,14 +517,17 @@
                 this.$.createUserRoleAjax.body = {
                     "roleId": this.$.selectRole.value
                 };
+                this.$.selectRole.clear();
                 this.$.createUserRoleAjax.generateRequest();
             },
             _handleResponseCreateUserRole: function (response) {
                 // console.log(response.detail.response);
                 var addRole = response.detail.response;
-                this.showMessage('El rol ha sido agregado con exito');
+                console.log("addrole", addRole);
+                // this.itemsRoles = addRole.data.roles;
+                this.showMessage(addRole.message);
                 // window.location.reload();
-                this._viewChanged(this.key);
+                // this._viewChanged(this.key);
             },
             _selectedItemChanged: function (event) {
                 var reallythis = this.reallythis;
@@ -522,27 +542,52 @@
                 }
             },
             _deleteRoles: function () {
-                // debugger
                 var selected = this.selectedRoles;
                 var reallythis = this;
+                var rolesArray = [];
+
                 selected.forEach(function (element, index, array) {
-                    // console.log('indice' + index, reallythis.itemsRoles[index]);
+                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
                     var roleId = reallythis.itemsRoles[index]._id;
-                    reallythis.$.deleteUserRoleAjax.headers = {
-                        'x-access-token': reallythis.token
-                    };
-                    //debugger
-                    reallythis.$.deleteUserRoleAjax.method = 'DELETE';
-                    reallythis.$.deleteUserRoleAjax.url = reallythis.url + 'user/' +
-                        reallythis.key +
-                        '/role/' + roleId;
-                    //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
-                    reallythis.$.deleteUserRoleAjax.generateRequest();
+                    // console.log('indice' + index, reallythis.itemsBrands[index]);
+                    rolesArray.push(roleId);
+
                 });
-                // reallythis._viewChanged(reallythis.key);
+                reallythis.$.deleteUserRoleAjax.headers = {
+                    'x-access-token': reallythis.token
+                };
+                reallythis.$.deleteUserRoleAjax.method = 'DELETE';
+                reallythis.$.deleteUserRoleAjax.url = reallythis.url + reallythis.key + '/roles';
+                reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
+                // console.log("llega a request")
+                reallythis.$.deleteUserRoleAjax.body = {
+                    "roles": JSON.stringify(rolesArray)
+                };
+                reallythis.$.deleteUserRoleAjax.generateRequest();
+
+                // ///////////////////////////////////////////////////
+                // // debugger
+                // var selected = this.selectedRoles;
+                // var reallythis = this;
+                // selected.forEach(function (element, index, array) {
+                //     // console.log('indice' + index, reallythis.itemsRoles[index]);
+                //     var roleId = reallythis.itemsRoles[index]._id;
+                //     reallythis.$.deleteUserRoleAjax.headers = {
+                //         'x-access-token': reallythis.token
+                //     };
+                //     //debugger
+                //     reallythis.$.deleteUserRoleAjax.method = 'DELETE';
+                //     reallythis.$.deleteUserRoleAjax.url = reallythis.url + 'user/' +
+                //         reallythis.key +
+                //         '/role/' + roleId;
+                //     //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
+                //     reallythis.$.deleteUserRoleAjax.generateRequest();
+                // });
+                // // reallythis._viewChanged(reallythis.key);
             },
             _handleResponseDeleteUserRole: function (response) {
                 this.itemsRoles = response.detail.response.data.roles;
+                this.showMessage(response.detail.response.message);
                 // console.log('deleterole', response);
                 // this._viewChanged(this.key);
             },

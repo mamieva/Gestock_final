@@ -138,10 +138,14 @@
                 },
                 selectedSupplier: {
                     type: Array
+                },
+                selected: {
+                    type: Boolean,
+                    reflectToAttribute: true
                 }
             },
             observers: [
-                "_viewChanged(key)"
+                "_viewChanged(key,selected)"
             ],
             listeners: {
                 'iron-form-response': '_formResponse',
@@ -218,6 +222,7 @@
                 var brand = response.detail.response.data;
                 this.brand = brand;
                 this.$.name.value = brand.name;
+                this.$.description.value = brand.description;
                 this.$.status.selected = brand.status;
                 this.itemsSuppliers = brand.suppliers
                 // console.log(this.$.status.selected);
@@ -263,9 +268,9 @@
                 // if (this.brand.status == serialize.status) {
                 //     this.showError('No se registraron cambios');
                 // } else {
-                    this.$.updateAjax.body = serialize;
-                    this.$.updateAjax.generateRequest();
-                    // window.location.reload();
+                this.$.updateAjax.body = serialize;
+                this.$.updateAjax.generateRequest();
+                // window.location.reload();
                 // }
             },
             _createBrand: function (event) {
@@ -334,37 +339,46 @@
                 this.set('route.path', id);
                 this.showMessage(message);
             },
-            _viewChanged: function (key) {
-                //Cargar token cuando se ingrese a la pantalla de formulario
-                if (typeof window.localStorage.session !== "undefined") {
-                    this.token = JSON.parse(window.localStorage.session).token;
-                }
-                // Limpiar formulario
-                this.$.brandForm.reset();
-                //Prendemos los botones
-                this.$.create.style.display = 'inline-block';
-                this.$.reset.style.display = 'inline-block';
-                this.$.delete.style.display = 'inline-block';
-                this.$.apply_changes.style.display = 'inline-block';
-                // this.$.name.disabled = null;
-                // this.$.description.disabled = null;
-                this.$.description.style.display = 'inline-block';
-                //
-                if (key != '' && key != 'undefined') {
-                    this.$.status.selected = '';
-                    // this.$.name.disabled = 'disabled';
-                    // this.$.description.disabled = 'disabled';
-                    // this.$.description.style.display = 'none';
-                    this.$.create.style.display = 'none';
-                    this.$.reset.style.display = 'none';
-                    this._getSuppliers();
-                    this._getBrand();
-                    this.$.supplier.style.display = 'block';
-
+            _viewChanged: function () {
+                // console.log(this.selected)
+                if (!this.selected) {
+                    this.key = '';
+                    return;
                 } else {
-                    this.$.supplier.style.display = 'none';
-                    this.$.delete.style.display = 'none';
-                    this.$.apply_changes.style.display = 'none';
+                    // if (this.key) {
+                    // console.log("key con valor", this.key);
+                    //Cargar token cuando se ingrese a la pantalla de formulario
+                    if (typeof window.localStorage.session !== "undefined") {
+                        this.token = JSON.parse(window.localStorage.session).token;
+                    }
+                    // Limpiar formulario
+                    this.$.brandForm.reset();
+                    //Prendemos los botones
+                    this.$.create.style.display = 'inline-block';
+                    this.$.reset.style.display = 'inline-block';
+                    this.$.delete.style.display = 'inline-block';
+                    this.$.apply_changes.style.display = 'inline-block';
+                    // this.$.name.disabled = null;
+                    // this.$.description.disabled = null;
+                    this.$.description.style.display = 'inline-block';
+                    //
+                    if (this.key != '' && this.key != 'undefined') {
+                        this.$.status.selected = '';
+                        // this.$.name.disabled = 'disabled';
+                        // this.$.description.disabled = 'disabled';
+                        // this.$.description.style.display = 'none';
+                        this.$.create.style.display = 'none';
+                        this.$.reset.style.display = 'none';
+                        this._getSuppliers();
+                        this._getBrand();
+                        this.$.supplier.style.display = 'block';
+
+                    } else {
+                        this.$.supplier.style.display = 'none';
+                        this.$.delete.style.display = 'none';
+                        this.$.apply_changes.style.display = 'none';
+                    }
+                    // }
                 }
             },
             _getSuppliers: function () {
@@ -415,8 +429,7 @@
                     this.$.selectSupplier.text = '';
                     this.$.selectSupplier.value = '';
                     this.$.addSupplierAjax.generateRequest();
-                }
-                else{
+                } else {
                     this.showMessage("Ingrese un valor para el Proveedor");
                 }
             },

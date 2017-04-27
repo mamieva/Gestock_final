@@ -8,6 +8,7 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="./list-page-behavior.html">
 <link rel="import" href="./users-form.html">
 <link rel="import" href="./roles-form.html">
@@ -52,7 +53,13 @@
                 <paper-button id="addUser" class="pink">Agregar nuevo </paper-button>
                 <paper-button id="newFilter" class="pink">filtro </paper-button>
                 <paper-input id="filter" label="Filter by first name" value={{filter}}></paper-input>
-                <vaadin-grid id="itemsList" items=[[items]]>
+                <vaadin-grid id="itemsList" items=[[items]] active-item="{{selectedItems}}">
+                    <template is="dom-repeat" items="[[columns]]" as="column">
+                        <vaadin-grid-column>
+                            <template class="header">[[column]]</template>
+                            <template>[[get(column, item)]]</template>
+                        </vaadin-grid-column>
+                    </template>
                 </vaadin-grid>
             </div>
             <div>
@@ -107,13 +114,19 @@
                 },
                 token: {
                     type: String
+                },
+                selectedItems: {
+                    observer: "_selectedItemChanged"
+                },
+                columns:{
+                    type: Array
                 }
 
             },
             behaviors: [ListBehaviors.ListVaadinBehavior],
             observers: [
                 '_routeChanged(route.path)',
-                '_viewChanged(data)',
+                // '_viewChanged(data)',
                 '_fastsearchChanged(fastsearch)'
             ],
             listeners: {
@@ -125,7 +138,7 @@
             _routeChanged: function (newRoute) {
                 // debugger
                 if (newRoute == "") {
-                    //// console.log('entro', this.data);
+                    // console.log('entro route', this.data);
                     //va a ejecutar el ajax dos veces
                     this._viewChanged(this.data);
                     this.$.pages.entryAnimation = "slide-from-right-animation";

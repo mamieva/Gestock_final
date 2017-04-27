@@ -23,7 +23,7 @@
 <link rel="import" href="./shared-style.html">
 <dom-module id="products-form">
     <template>
-    <style include="shared-style"></style>
+        <style include="shared-style"></style>
         <style>
              :host {
                 display: block;
@@ -54,13 +54,12 @@
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
-            
             /*paper-dialog {
                 width: 50%;
                 height: 50%
             }*/
             
-            #componentDialog>paper-input{
+            #componentDialog>paper-input {
                 display: inline-block;
                 width: 40%;
                 /*float: left;*/
@@ -71,6 +70,7 @@
                 width: 30%;
                 /*float: left;*/
             }
+            
             .paper-dropdown-menu {
                 width: 35%;
                 /*display: block;
@@ -92,7 +92,7 @@
         <div class="container">
             <h3>Producto</h3>
             <form is="iron-form" method="POST" id="productForm">
-                <paper-input id="code" name="code" label="Código" >
+                <paper-input id="code" name="code" label="Código">
                     <iron-icon icon="icons:fingerprint" prefix></iron-icon>
                 </paper-input>
                 <paper-input id="name" name="name" label="Nombre" required>
@@ -213,10 +213,13 @@
                 },
                 itemsPriceList: {
                     type: Array
+                },
+                selected: {
+                    type: Boolean
                 }
             },
             observers: [
-                "_viewChanged(key)"
+                "_viewChanged(key,selected)"
             ],
             listeners: {
                 'iron-form-response': '_formResponse',
@@ -412,10 +415,10 @@
                 // if (this.product.status == serialize.status) {
                 //     this.showError('No se registraron cambios');
                 // } else {
-                    // this.$.brand.value = this.$.brand_autocomplete.value;
-                    this.$.updateAjax.body = serialize;
-                    this.$.updateAjax.generateRequest();
-                    // window.location.reload();
+                // this.$.brand.value = this.$.brand_autocomplete.value;
+                this.$.updateAjax.body = serialize;
+                this.$.updateAjax.generateRequest();
+                // window.location.reload();
                 // }
             },
             _createProduct: function (event) {
@@ -546,42 +549,47 @@
                 };
                 req.send();
             },
-            _viewChanged: function (key) {
-                //Cargar token cuando se ingrese a la pantalla de formulario
-                if (typeof window.localStorage.session !== "undefined") {
-                    this.token = JSON.parse(window.localStorage.session).token;
-                }
-                // Limpiar formulario
-                this.$.productForm.reset();
-                //Prendemos los botones
-                this.$.create.style.display = 'inline-block';
-                this.$.reset.style.display = 'inline-block';
-                this.$.delete.style.display = 'inline-block';
-                this.$.apply_changes.style.display = 'inline-block';
-                // this.$.name.disabled = null;
-                this.$.components.style.display = "none";
-                this.$.priceList.style.display = "none";
-                // this.$.description.disabled = null;
-                // this.$.description.style.display = 'inline-block';
-                //
-                this._getBrands();
-                this._getCategories();
-                this._getPriceLists();
-                if (key != '' && key != 'undefined') {
-                    this.$.status.selected = '';
-                    // this.$.name.disabled = 'disabled';
-                    // this.$.description.disabled = 'disabled';
-                    // this.$.description.style.display = 'none';
-                    this.$.create.style.display = 'none';
-                    this.$.reset.style.display = 'none';
-                    this.$.components.style.display = "block";
-                    this.$.priceList.style.display = "block";
-                    this._getProduct();
-                    this._getComponents();
+            _viewChanged: function () {
+                if (!this.selected) {
+                    this.key = '';
+                    return;
                 } else {
-                    this._getComponents();
-                    this.$.delete.style.display = 'none';
-                    this.$.apply_changes.style.display = 'none';
+                    //Cargar token cuando se ingrese a la pantalla de formulario
+                    if (typeof window.localStorage.session !== "undefined") {
+                        this.token = JSON.parse(window.localStorage.session).token;
+                    }
+                    // Limpiar formulario
+                    this.$.productForm.reset();
+                    //Prendemos los botones
+                    this.$.create.style.display = 'inline-block';
+                    this.$.reset.style.display = 'inline-block';
+                    this.$.delete.style.display = 'inline-block';
+                    this.$.apply_changes.style.display = 'inline-block';
+                    // this.$.name.disabled = null;
+                    this.$.components.style.display = "none";
+                    this.$.priceList.style.display = "none";
+                    // this.$.description.disabled = null;
+                    // this.$.description.style.display = 'inline-block';
+                    //
+                    this._getBrands();
+                    this._getCategories();
+                    this._getPriceLists();
+                    if (this.key != '' && this.key != 'undefined') {
+                        this.$.status.selected = '';
+                        // this.$.name.disabled = 'disabled';
+                        // this.$.description.disabled = 'disabled';
+                        // this.$.description.style.display = 'none';
+                        this.$.create.style.display = 'none';
+                        this.$.reset.style.display = 'none';
+                        this.$.components.style.display = "block";
+                        this.$.priceList.style.display = "block";
+                        this._getProduct();
+                        this._getComponents();
+                    } else {
+                        this._getComponents();
+                        this.$.delete.style.display = 'none';
+                        this.$.apply_changes.style.display = 'none';
+                    }
                 }
             },
             _addBrand: function () {
@@ -896,7 +904,7 @@
                 };
                 req.send();
             },
-            _clearChildren: function(element) {
+            _clearChildren: function (element) {
                 console.log(element)
                 for (var i = 0; i < element.childNodes.length; i++) {
                     var e = element.childNodes[i];
@@ -925,7 +933,7 @@
                             break;
                         default:
                             console.log("pasa")
-                            e.text= '';//(e);
+                            e.text = ''; //(e);
                     }
                 }
             }

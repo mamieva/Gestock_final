@@ -136,12 +136,15 @@
                 itemsCategories: {
                     type: Array
                 },
-                selectedCategory:{
+                selectedCategory: {
                     type: Array
+                },
+                selected: {
+                    type: Boolean
                 }
             },
             observers: [
-                "_viewChanged(key)"
+                "_viewChanged(key,selected)"
             ],
             listeners: {
                 'iron-form-response': '_formResponse',
@@ -155,7 +158,7 @@
                 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deleteCategory',
                 'addCategory.tap': '_addCategory',
-                'deleteCategory.tap':'_deleteCategories'
+                'deleteCategory.tap': '_deleteCategories'
             },
             _deleteCategory: function () {
                 // console.log("entro aceptar");
@@ -196,7 +199,8 @@
                 this.$.addCategoryAjax.addEventListener('error', this._handleError.bind(this));
                 //
                 this.$.deleteCategoriesAjax.reallythis = this;
-                this.$.deleteCategoriesAjax.addEventListener('response', this._handleResponsDeleteCategory.bind(this));
+                this.$.deleteCategoriesAjax.addEventListener('response', this._handleResponsDeleteCategory.bind(
+                    this));
                 this.$.deleteCategoriesAjax.addEventListener('error', this._handleError.bind(this));
                 //
                 var categoryCol = [{
@@ -262,9 +266,9 @@
                 // if (this.category.status == serialize.status) {
                 //     this.showError('No se registraron cambios');
                 // } else {
-                    this.$.updateAjax.body = serialize;
-                    this.$.updateAjax.generateRequest();
-                    // window.location.reload();
+                this.$.updateAjax.body = serialize;
+                this.$.updateAjax.generateRequest();
+                // window.location.reload();
                 // }
             },
             _createCategory: function (event) {
@@ -333,37 +337,42 @@
                 this.set('route.path', id);
                 this.showMessage(message);
             },
-            _viewChanged: function (key) {
-                //Cargar token cuando se ingrese a la pantalla de formulario
-                if (typeof window.localStorage.session !== "undefined") {
-                    this.token = JSON.parse(window.localStorage.session).token;
-                }
-                // Limpiar formulario
-                this.$.categoryForm.reset();
-                //Prendemos los botones
-                this.$.create.style.display = 'inline-block';
-                this.$.reset.style.display = 'inline-block';
-                this.$.delete.style.display = 'inline-block';
-                this.$.apply_changes.style.display = 'inline-block';
-                // this.$.name.disabled = null;
-                // this.$.description.disabled = null;
-                this.$.description.style.display = 'inline-block';
-                //
-                if (key != '' && key != 'undefined') {
-                    this.$.status.selected = '';
-                    // this.$.name.disabled = 'disabled';
-                    // this.$.description.disabled = 'disabled';
-                    this.$.description.style.display = 'none';
-                    this.$.create.style.display = 'none';
-                    this.$.reset.style.display = 'none';
-                    this._getCategories();
-                    this._getCategory();
-                    this.$.category.style.display = 'block';
-
+            _viewChanged: function () {
+                if (!this.selected) {
+                    this.key = '';
+                    return;
                 } else {
-                    this.$.category.style.display = 'none';
-                    this.$.delete.style.display = 'none';
-                    this.$.apply_changes.style.display = 'none';
+                    //Cargar token cuando se ingrese a la pantalla de formulario
+                    if (typeof window.localStorage.session !== "undefined") {
+                        this.token = JSON.parse(window.localStorage.session).token;
+                    }
+                    // Limpiar formulario
+                    this.$.categoryForm.reset();
+                    //Prendemos los botones
+                    this.$.create.style.display = 'inline-block';
+                    this.$.reset.style.display = 'inline-block';
+                    this.$.delete.style.display = 'inline-block';
+                    this.$.apply_changes.style.display = 'inline-block';
+                    // this.$.name.disabled = null;
+                    // this.$.description.disabled = null;
+                    this.$.description.style.display = 'inline-block';
+                    //
+                    if (this.key != '' && this.key != 'undefined') {
+                        this.$.status.selected = '';
+                        // this.$.name.disabled = 'disabled';
+                        // this.$.description.disabled = 'disabled';
+                        this.$.description.style.display = 'none';
+                        this.$.create.style.display = 'none';
+                        this.$.reset.style.display = 'none';
+                        this._getCategories();
+                        this._getCategory();
+                        this.$.category.style.display = 'block';
+
+                    } else {
+                        this.$.category.style.display = 'none';
+                        this.$.delete.style.display = 'none';
+                        this.$.apply_changes.style.display = 'none';
+                    }
                 }
             },
             _getCategories: function () {
@@ -434,7 +443,7 @@
                     // reallythis.$.resetRole.style.display = 'none';
                 }
             },
-            _deleteCategories: function(){
+            _deleteCategories: function () {
                 var selected = this.selectedCategory;
                 // console.log("categoryes", selected);
                 var reallythis = this;
@@ -454,7 +463,9 @@
                 //debugger
                 // reallythis.$.deleteCategoriesAjax.params = categoriesArray;
                 reallythis.$.deleteCategoriesAjax.contentType = "application/x-www-form-urlencoded";
-                reallythis.$.deleteCategoriesAjax.body = { "categories": JSON.stringify(categoriesArray) };
+                reallythis.$.deleteCategoriesAjax.body = {
+                    "categories": JSON.stringify(categoriesArray)
+                };
                 // reallythis.$.deleteCategoriesAjax.body = categoriesArray;
                 // console.log(reallythis.$.deleteCategoriesAjax.body);
                 reallythis.$.deleteCategoriesAjax.method = 'DELETE';
@@ -470,7 +481,7 @@
                 // reallythis._viewChanged(reallythis.key);
 
             },
-            _handleResponsDeleteCategory: function(response){
+            _handleResponsDeleteCategory: function (response) {
                 var message = response.detail.response.message;
                 var data = response.detail.response.data;
                 this.itemsCategories = data;
