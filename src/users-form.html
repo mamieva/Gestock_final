@@ -19,6 +19,7 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
 <dom-module id="users-form">
@@ -97,6 +98,8 @@
                 <paper-autocomplete label="Seleccionar Rol" id="selectRole" min-length="2"></paper-autocomplete>
                 <paper-button raised submit id="addRole">Agregar</paper-button>
                 <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="multi">
+                    <vaadin-grid-selection-column auto-select>
+                    </vaadin-grid-selection-column>
                     <vaadin-grid-column>
                         <template class="header">Nombre</template>
                         <template>[[item.name]]</template>
@@ -138,6 +141,10 @@
                     type: Object
                 },
                 url: {
+                    type: String,
+                    value: 'http://localhost:3000/user/'
+                },
+                url_base: {
                     type: String,
                     value: 'http://localhost:3000/'
                 },
@@ -187,7 +194,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url + 'user' + '/' + this.key;
+                this.$.deleteAjax.url = this.url + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -270,7 +277,7 @@
                 this.$.userAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.userAjax.url = this.url + 'user' + '/' + this.key;
+                this.$.userAjax.url = this.url + this.key;
                 this.$.userAjax.generateRequest();
             },
             _updateUser: function (event) {
@@ -278,7 +285,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url + 'user' + '/' + this.key;
+                this.$.updateAjax.url = this.url + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -309,7 +316,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url + 'user' + '/' + this.key;
+                this._getForm().action = this.url + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var user = this._getForm().serialize();
                 //user.token = JSON.parse(window.localStorage.session).token;
@@ -403,7 +410,7 @@
             _changeRol: function (event) {
                 var input = this.$.selectRole;
                 var search = event.detail.option.text;
-                var url = this.url + 'roles';
+                var url = this.url_base + 'roles';
                 var req = new XMLHttpRequest();
                 req.open('GET', encodeURI(url));
                 req.setRequestHeader('x-access-token', this.token);
@@ -432,7 +439,7 @@
                 //obtener todos los roles para poder Agregar
                 var input = this.$.selectRole;
                 //var search = event.detail.option.text;
-                var url = this.url + 'roles';
+                var url = this.url_base + 'roles';
                 var req = new XMLHttpRequest();
                 req.open('GET', encodeURI(url));
                 req.setRequestHeader('x-access-token', this.token);
@@ -501,7 +508,7 @@
                 };
                 this.$.getUserRoleAjax.method = 'GET';
                 this.$.getUserRoleAjax.handleAs = 'json';
-                this.$.getUserRoleAjax.url = this.url + 'user/' + this.key + '/roles';
+                this.$.getUserRoleAjax.url = this.url + this.key + '/roles';
                 this.$.getUserRoleAjax.generateRequest();
             },
             _getRolesList: function () {
@@ -512,7 +519,7 @@
                     'x-access-token': this.token
                 };
                 this.$.createUserRoleAjax.method = 'POST';
-                this.$.createUserRoleAjax.url = this.url + 'user/' + this.key + '/role';
+                this.$.createUserRoleAjax.url = this.url + this.key + '/role';
                 this.$.createUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.createUserRoleAjax.body = {
                     "roleId": this.$.selectRole.value
@@ -530,9 +537,11 @@
                 // this._viewChanged(this.key);
             },
             _selectedItemChanged: function (event) {
+                // console.log(this.selectedItems);
                 var reallythis = this.reallythis;
-                reallythis.selectedRoles = this.selection.selected();
+                reallythis.selectedRoles = this.selectedItems;
                 var select = reallythis.selectedRoles;
+                console.log(select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteRole.style.display = 'inline-block';
                     reallythis.$.resetRole.style.display = 'inline-block';
@@ -565,7 +574,7 @@
                 };
                 reallythis.$.deleteUserRoleAjax.generateRequest();
 
-                // ///////////////////////////////////////////////////
+                /////////////////////////////////////////////////////
                 // // debugger
                 // var selected = this.selectedRoles;
                 // var reallythis = this;

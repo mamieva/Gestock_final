@@ -44,6 +44,40 @@
             paper-button.pink:hover {
                 background-color: var(--paper-pink-100);
             }
+            
+            vaadin-grid {
+                height: auto;
+            }
+            
+            #pages {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 20px;
+            }
+            
+            #pages>button {
+                user-select: none;
+                padding: 5px;
+                margin: 0 5px;
+                border-radius: 10%;
+                border: 0;
+                background: transparent;
+                font: inherit;
+                outline: none;
+                cursor: pointer;
+            }
+            
+            #pages>button:hover,
+            #pages>button:focus {
+                color: var(--default-primary-color);
+                background-color: #eee;
+            }
+            
+            #pages>button[selected] {
+                font-weight: bold;
+                color: white;
+                background-color: var(--default-primary-color);
+            }
         </style>
         <app-route route="{{route}}" pattern="/:key" data="{{routeData}}" tail="{{routeTail}}" id="routeManager">
         </app-route>
@@ -53,7 +87,7 @@
                 <paper-button id="addUser" class="pink">Agregar nuevo </paper-button>
                 <paper-button id="newFilter" class="pink">filtro </paper-button>
                 <paper-input id="filter" label="Filter by first name" value={{filter}}></paper-input>
-                <vaadin-grid id="itemsList" items=[[items]] active-item="{{selectedItems}}">
+                <vaadin-grid id="itemsList" items=[[items]] active-item="{{selectedItems}}" page-size="5">
                     <template is="dom-repeat" items="[[columns]]" as="column">
                         <vaadin-grid-column>
                             <template class="header">[[column]]</template>
@@ -61,6 +95,13 @@
                         </vaadin-grid-column>
                     </template>
                 </vaadin-grid>
+                <div id="pages">
+                    <button on-tap="_prev">&lt;</button>
+                    <template is="dom-repeat" items="[[pages]]">
+                        <button on-tap="_select" selected$="[[_isSelected(page, item)]]">[[item]]</button>
+                    </template>
+                    <button on-tap="_next">&gt;</button>
+                </div>
             </div>
             <div>
                 <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
@@ -118,7 +159,13 @@
                 selectedItems: {
                     observer: "_selectedItemChanged"
                 },
-                columns:{
+                columns: {
+                    type: Array
+                },
+                page: {
+                    type: Number
+                },
+                pages: {
                     type: Array
                 }
 
@@ -127,7 +174,8 @@
             observers: [
                 '_routeChanged(route.path)',
                 // '_viewChanged(data)',
-                '_fastsearchChanged(fastsearch)'
+                '_fastsearchChanged(fastsearch)',
+                '_itemsChanged(items, page)'
             ],
             listeners: {
                 'addUser.tap': '_addUser',
@@ -230,6 +278,35 @@
                 // console.log(e);
                 this.$.animated.close();
 
+            },
+            _isSelected: function (page, item) {
+                return page === item - 1;
+            },
+
+            _select: function (e) {
+                this.page = e.model.item - 1;
+            },
+
+            _next: function () {
+                this.page = Math.min(this.pages.length - 1, this.page + 1);
+            },
+
+            _prev: function () {
+                this.page = Math.max(0, this.page - 1);
+            },
+
+            _itemsChanged: function (items, page) {
+                if (!this.pages) {
+                    this.pages = Array.apply(null, {
+                        length: Math.ceil(items.length / this.$.itemsList.pageSize)
+                    }).map(function (item, index) {
+                        return index + 1;
+                    });
+                }
+
+                var start = page * this.$.itemsList.pageSize;
+                var end = (page + 1) * this.$.itemsList.pageSize;
+                this.$.itemsList.items = items.slice(start, end);
             }
         });
     </script>
