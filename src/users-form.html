@@ -531,7 +531,7 @@
                 // console.log(response.detail.response);
                 var addRole = response.detail.response;
                 console.log("addrole", addRole);
-                // this.itemsRoles = addRole.data.roles;
+                this.itemsRoles = addRole.data;
                 this.showMessage(addRole.message);
                 // window.location.reload();
                 // this._viewChanged(this.key);
@@ -595,9 +595,9 @@
                 // // reallythis._viewChanged(reallythis.key);
             },
             _handleResponseDeleteUserRole: function (response) {
-                this.itemsRoles = response.detail.response.data.roles;
+                this.itemsRoles = response.detail.response.data;
                 this.showMessage(response.detail.response.message);
-                // console.log('deleterole', response);
+                // console.log('deleterole', itemsRoles);
                 // this._viewChanged(this.key);
             },
             _resetRoles: function () {
