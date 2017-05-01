@@ -19,8 +19,10 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
+<link rel="import" href="./shared-style.html">
 <dom-module id="roles-form">
     <template>
+        <style include="shared-style"></style>
         <style>
              :host {
                 display: block;
@@ -118,10 +120,13 @@
                 },
                 name: {
                     type: String
+                },
+                selected:{
+                    type: Boolean
                 }
             },
             observers: [
-                "_viewChanged(key)"
+                "_viewChanged(key,selected)"
             ],
             listeners: {
                 'iron-form-response': '_formResponse',
@@ -175,28 +180,29 @@
                 var role = response.detail.response.data;
                 this.role = role;
                 this.$.name.value = role.name;
+                this.$.description.value = role.description;
                 this.$.status.selected = role.status;
                 // console.log(this.$.status.selected);
                 if (role.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
-
             },
             _handleError: function (error) {
                 // console.log(error);
-                this.showError('Se produjo un error al obtener el rol');
+                var msg = error.detail.request.response.message;
+                this.showError(msg);
             },
             _handleResponseUpdate: function (response) {
                 // console.log(response.detail.response);
                 var update = response.detail.response;
-                this.showMessage('El rol ha sido actualizado con exito');
+                this.showMessage(update.message);
                 // window.location.reload();
                 this._viewChanged(this.key);
             },
             _handleResponseDelete: function (response) {
                 // console.log(response.detail.response);
-                var update = response.detail.response.message;
-                this.showMessage(update);
+                var update = response.detail.response;
+                this.showMessage(update.message);
                 // window.location.reload();
                 //this._viewChanged('');
                 this.set('route.path', '');
@@ -217,13 +223,13 @@
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                if (this.role.status == serialize.status) {
-                    this.showError('No se registraron cambios');
-                } else {
-                    this.$.updateAjax.body = serialize;
-                    this.$.updateAjax.generateRequest();
-                    // window.location.reload();
-                }
+                // if (this.role.status == serialize.status) {
+                //     this.showError('No se registraron cambios');
+                // } else {
+                this.$.updateAjax.body = serialize;
+                this.$.updateAjax.generateRequest();
+                // window.location.reload();
+                // }
             },
             _createRole: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
@@ -291,36 +297,41 @@
                 this.set('route.path', id);
                 this.showMessage(message);
             },
-            _viewChanged: function (key) {
+            _viewChanged: function () {
                 // debugger
-                if (this.name === 'roles') {
-                    //Cargar token cuando se ingrese a la pantalla de formulario
-                    if (typeof window.localStorage.session !== "undefined") {
-                        this.token = JSON.parse(window.localStorage.session).token;
-                    }
-                    // Limpiar formulario
-                    // console.log("reset");
-                    this.$.roleForm.reset();
-                    //Prendemos los botones
-                    this.$.create.style.display = 'inline-block';
-                    this.$.reset.style.display = 'inline-block';
-                    this.$.delete.style.display = 'inline-block';
-                    this.$.apply_changes.style.display = 'inline-block';
-                    this.$.name.disabled = null;
-                    this.$.description.disabled = null;
-                    this.$.description.style.display = 'inline-block';
-                    //
-                    if (key != '' && key != 'undefined') {
-                        this.$.status.selected = '';
-                        this.$.name.disabled = 'disabled';
-                        this.$.description.disabled = 'disabled';
-                        this.$.description.style.display = 'none';
-                        this.$.create.style.display = 'none';
-                        this.$.reset.style.display = 'none';
-                        this._getRole();
-                    } else {
-                        this.$.delete.style.display = 'none';
-                        this.$.apply_changes.style.display = 'none';
+                if (!this.selected) {
+                    this.key = '';
+                    return;
+                } else {
+                    if (this.name === 'roles') {
+                        //Cargar token cuando se ingrese a la pantalla de formulario
+                        if (typeof window.localStorage.session !== "undefined") {
+                            this.token = JSON.parse(window.localStorage.session).token;
+                        }
+                        // Limpiar formulario
+                        // console.log("reset");
+                        this.$.roleForm.reset();
+                        //Prendemos los botones
+                        this.$.create.style.display = 'inline-block';
+                        this.$.reset.style.display = 'inline-block';
+                        this.$.delete.style.display = 'inline-block';
+                        this.$.apply_changes.style.display = 'inline-block';
+                        // this.$.name.disabled = null;
+                        // this.$.description.disabled = null;
+                        this.$.description.style.display = 'inline-block';
+                        //
+                        if (this.key != '' && this.key != 'undefined') {
+                            this.$.status.selected = '';
+                            // this.$.name.disabled = 'disabled';
+                            // this.$.description.disabled = 'disabled';
+                            // this.$.description.style.display = 'none';
+                            this.$.create.style.display = 'none';
+                            this.$.reset.style.display = 'none';
+                            this._getRole();
+                        } else {
+                            this.$.delete.style.display = 'none';
+                            this.$.apply_changes.style.display = 'none';
+                        }
                     }
                 }
             }

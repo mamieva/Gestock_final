@@ -72,6 +72,7 @@
                 }
             },
             ready: function () {
+                this.page = 0;
                 //
                 //// console.log('attached');
                 //// console.log(this.route);
@@ -118,22 +119,24 @@
                 if (data.length > 0) {
                     keys = Object.keys(data[0]);
                 }
+                // console.log("keys",keys);
+                this.columns = keys;
                 let grid = this.getItemsList();
                 grid.columns = [];
                 grid.style.display = "block";
-                keys.forEach(function (element) {
-                    //// console.log(element);
-                    //if(element === 'id'){
-                    var col = {
-                        "name": element,
-                        "sortable": "true"
-                    };
-                    //}
-                    //else {
-                    //var col = {"name" : element};
-                    //}
-                    grid.addColumn(col);
-                });
+                // keys.forEach(function (element) {
+                //     //// console.log(element);
+                //     //if(element === 'id'){
+                //     var col = {
+                //         "name": element,
+                //         "sortable": "true"
+                //     };
+                //     //}
+                //     //else {
+                //     //var col = {"name" : element};
+                //     //}
+                //     grid.addColumn(col);
+                // });
 
                 // for( var name in keys){
                 //   //var col = {"name" : name.1};
@@ -181,18 +184,23 @@
                 this.getFilter()._openFilter();
             },
             _selectedItemChanged: function (event) {
-                var select = this.selection.selected();
-                //// console.log(select[0]);
-                var reallythis = this.reallythis;
-                if (select.length > 0) {
-                    //// console.log(this.items[this.selection.selected()[0]].id);
-                    var key = reallythis.items[select[0]]._id;
-                    //window.location.href = '/users/hla';
-                    //var reallythis = this.reallythis;
-                    // reallythis.set('routeData.key', key);
-                    reallythis.set('route.path', '/' + key);
-                    // // console.log(reallythis.route);
+                if (event) {
+                    // console.log(event._id);
+                    var key = event._id;
+                    this.set('route.path', '/' + key);
                 }
+                // var select = this.selection.selected();
+                // //// console.log(select[0]);
+                // var reallythis = this.reallythis;
+                // if (select.length > 0) {
+                //     //// console.log(this.items[this.selection.selected()[0]].id);
+                //     var key = reallythis.items[select[0]]._id;
+                //     //window.location.href = '/users/hla';
+                //     //var reallythis = this.reallythis;
+                //     // reallythis.set('routeData.key', key);
+                //     reallythis.set('route.path', '/' + key);
+                //     // // console.log(reallythis.route);
+                // }
             },
             _filterList: function (filter) {
                 // // console.log("cambiiaaa");
@@ -202,13 +210,12 @@
                     this.getItemsList().items = this.items.filter(function (item) {
                         return item.username.indexOf(filter) >= 0;
                     });
-                }
-                else{
+                } else {
                     this.getItemsList().items = this.items;
                 }
                 //this.items = ['hola'];
             },
-            _newFilter: function(){
+            _newFilter: function () {
                 this.$.animated.open();
             }
         }
