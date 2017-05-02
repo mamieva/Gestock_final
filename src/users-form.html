@@ -28,7 +28,7 @@
     <template>
         <style include="shared-style"></style>
         <style>
-            :host {
+            /*:host {
                 display: block;
             }
             
@@ -40,7 +40,7 @@
             
             form {
                 width: 90%;
-            }
+            }*/
             
             paper-input {
                 display: block;
@@ -63,7 +63,7 @@
                 margin-top: 40px;
             }
             
-            vaadin-grid,
+            /*vaadin-grid,*/
             .botoneraRoles {
                 height: auto;
                 margin-top: 20px;
@@ -78,9 +78,8 @@
                 float: left;
             }
             
-            paper-button {
+            /*paper-button {
                 vertical-align: bottom;
-                /*width: 20%;*/
                 font-family: 'Roboto', 'Noto', sans-serif;
                 font-weight: normal;
                 font-size: 14px;
@@ -92,7 +91,7 @@
                     color: white !important;
                 };
                 text-align: center;
-            }
+            }*/
             .btnAceptar{
                 width: 20%;
             }
@@ -350,7 +349,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
-                this._getForm().action = this.url + 'user';
+                this._getForm().action = this.url;
                 var user = this._getForm().serialize();
                 user.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = user;
@@ -385,12 +384,12 @@
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
-                this.showMessage(msg);
+                this.showError(msg);
             },
             _formError: function (error) {
                 //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
-                this.showMessage(msg);
+                this.showError(msg);
             },
             showError: function (errorMessage) {
                 //// console.log("error msg");
