@@ -207,6 +207,7 @@
                 //this.$.editor.load(this.key);
             },
             _viewChanged: function (data) {
+                this.page = 0;
                 // console.log("entra viewchang de lista", data);
                 this.ajaxlist.headers = '';
                 this.ajaxlist.params = '';
@@ -296,13 +297,14 @@
             },
 
             _itemsChanged: function (items, page) {
-                if (!this.pages) {
+                // console.log("entro a items",items)
+                // if (!this.pages) {
                     this.pages = Array.apply(null, {
                         length: Math.ceil(items.length / this.$.itemsList.pageSize)
                     }).map(function (item, index) {
                         return index + 1;
                     });
-                }
+                // }
 
                 var start = page * this.$.itemsList.pageSize;
                 var end = (page + 1) * this.$.itemsList.pageSize;

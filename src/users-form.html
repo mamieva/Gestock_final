@@ -111,7 +111,7 @@
         </div>
         <div class="container">
             <h3>Usuario</h3>
-            <form is="iron-form" method="POST" id="userForm">
+            <form is="iron-form" method="POST" class="form" id="userForm">
                 <paper-input id="username" name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
                     auto-validate required>
                     <iron-icon icon="mail" prefix></iron-icon>
@@ -576,7 +576,7 @@
             _handleResponseCreateUserRole: function (response) {
                 // console.log(response.detail.response);
                 var addRole = response.detail.response;
-                console.log("addrole", addRole);
+                // console.log("addrole", addRole);
                 this.itemsRoles = addRole.data;
                 this.showMessage(addRole.message);
                 // window.location.reload();
@@ -587,7 +587,7 @@
                 var reallythis = this.reallythis;
                 reallythis.selectedRoles = this.selectedItems;
                 var select = reallythis.selectedRoles;
-                console.log(select)
+                // console.log(select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteRole.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
