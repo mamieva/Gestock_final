@@ -15,6 +15,8 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
@@ -26,7 +28,7 @@
     <template>
         <style include="shared-style"></style>
         <style>
-             :host {
+            :host {
                 display: block;
             }
             
@@ -37,7 +39,7 @@
             }
             
             form {
-                width: 900px;
+                width: 90%;
             }
             
             paper-input {
@@ -57,7 +59,46 @@
             }
             
             .roles {
-                width: 900px;
+                width: 90%;
+                margin-top: 40px;
+            }
+            
+            vaadin-grid,
+            .botoneraRoles {
+                height: auto;
+                margin-top: 20px;
+            }
+            
+            paper-card {
+                width: 100%;
+            }
+            
+            paper-autocomplete {
+                width: 75%;
+                float: left;
+            }
+            
+            paper-button {
+                vertical-align: bottom;
+                /*width: 20%;*/
+                font-family: 'Roboto', 'Noto', sans-serif;
+                font-weight: normal;
+                font-size: 14px;
+                -webkit-font-smoothing: antialiased;
+                background-color: var(--paper-indigo-500);
+                color: white;
+                --paper-button-raised-keyboard-focus: {
+                    background-color: var(--paper-pink-a200) !important;
+                    color: white !important;
+                };
+                text-align: center;
+            }
+            .btnAceptar{
+                width: 20%;
+            }
+            
+            .dark {
+                background: var(--paper-blue-grey-500);
             }
         </style>
         <app-route route="{{route}}" pattern="/:user" data="{{userData}}" tail="{{routeTail}}" id="routeManager"></app-route>
@@ -95,24 +136,30 @@
                         </div>
             </form>
             <div id="roles" class="roles">
-                <paper-autocomplete label="Seleccionar Rol" id="selectRole" min-length="2"></paper-autocomplete>
-                <paper-button raised submit id="addRole">Agregar</paper-button>
-                <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="multi">
-                    <vaadin-grid-selection-column auto-select>
-                    </vaadin-grid-selection-column>
-                    <vaadin-grid-column>
-                        <template class="header">Nombre</template>
-                        <template>[[item.name]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column>
-                        <template class="header">Descripción</template>
-                        <template>[[item.description]]</template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
-            </div>
-            <div class="botoneraRoles">
-                <paper-button raised submit id="deleteRole">Eliminar Seleccionados</paper-button>
-                <paper-button raised id="resetRole">Deseleccionar todos</paper-button>
+                <paper-card heading="Roles del Usuario">
+                    <div class="card-content">
+                        <paper-autocomplete label="Seleccionar Rol" id="selectRole" min-length="0"></paper-autocomplete>
+                        <paper-button raised submit id="addRole" class="btnAceptar">Agregar</paper-button>
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Nombre</template>
+                                <template>[[item.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Descripción</template>
+                                <template>[[item.description]]</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                        <div class="botoneraRoles">
+                            <paper-button raised submit id="deleteRole">Eliminar Seleccionados</paper-button>
+                            <!--<paper-button raised id="resetRole">Deseleccionar todos</paper-button>-->
+                        </div>
+                    </div>
+                </paper-card>
             </div>
         </div>
         <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
@@ -122,7 +169,7 @@
             <p>¿Desea eliminar el usuario <strong>[[user.username]]</strong> ?</p>
             <div class="buttons">
                 <paper-button dialog-dismiss>Cancelar</paper-button>
-                <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
+                <paper-button dialog-confirm autofocus id="deleteAceptar" >Aceptar</paper-button>
             </div>
         </paper-dialog>
         </div>
@@ -186,7 +233,7 @@
                 //'autocomplete-change': '_changeRol',
                 'autocomplete-selected': "_selectedRol",
                 'deleteRole.click': "_deleteRoles",
-                'resetRole.tap': "_resetRoles"
+                // 'resetRole.tap': "_resetRoles"
             },
             _deleteUser: function () {
                 // console.log("entro aceptar");
@@ -263,7 +310,7 @@
                 var update = response.detail.response;
                 this.showMessage('El usuario ha sido actualizado con exito');
                 // window.location.reload();
-                // this._viewChanged(this.key);
+                this._viewChanged(this.key);
             },
             _handleResponseDelete: function (response) {
                 // console.log(response.detail.response);
@@ -386,7 +433,7 @@
                     // this.$.password.disabled = null;
                     this.$.password.style.display = 'inline-block';
                     this.$.deleteRole.style.display = 'none';
-                    this.$.resetRole.style.display = 'none';
+                    // this.$.resetRole.style.display = 'none';
                     //
                     if (this.key != '' && this.key != 'undefined') {
                         this.$.status.selected = '';
@@ -397,7 +444,7 @@
                         this.$.reset.style.display = 'none';
                         this._getUser();
                         this._getRoles();
-                        this._getUserRole();
+                        // this._getUserRole();
                     } else {
                         this.$.roles.style.display = 'none';
                         this.$.delete.style.display = 'none';
@@ -544,10 +591,10 @@
                 console.log(select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteRole.style.display = 'inline-block';
-                    reallythis.$.resetRole.style.display = 'inline-block';
+                    // reallythis.$.resetRole.style.display = 'inline-block';
                 } else {
                     reallythis.$.deleteRole.style.display = 'none';
-                    reallythis.$.resetRole.style.display = 'none';
+                    // reallythis.$.resetRole.style.display = 'none';
                 }
             },
             _deleteRoles: function () {

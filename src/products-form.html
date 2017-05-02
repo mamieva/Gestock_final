@@ -76,6 +76,10 @@
                 /*display: block;
                 margin: auto;*/
             }
+            
+            vaadin-grid {
+                height: auto;
+            }
         </style>
         <app-route route="{{route}}" pattern="/:product" data="{{productData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
@@ -145,6 +149,20 @@
                 <paper-button raised submit id="openPriceListDialog">Agregar Lista de Precio</paper-button>
                 <paper-button raised submit id="deletePriceList">Eliminar Lista</paper-button>
                 <vaadin-grid id="priceListList" items={{itemsPriceList}} selection-mode="multi">
+                    <vaadin-grid-selection-column auto-select>
+                    </vaadin-grid-selection-column>
+                    <vaadin-grid-column>
+                        <template class="header">Lista de Precio</template>
+                        <template>[[item.priceListId.name]]</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">Costo</template>
+                        <template>[[item.cost]]</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">Ganancia</template>
+                        <template>[[item.profit]]</template>
+                    </vaadin-grid-column>
                 </vaadin-grid>
             </div>
             <paper-dialog id="priceListDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
