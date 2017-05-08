@@ -19,8 +19,11 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
+<link rel="import" href="./shared-style.html">
+<link rel="import" href="./url-services-behavior.html">
 <dom-module id="priceLists-form">
     <template>
+        <style include="shared-style"></style>
         <style>
              :host {
                 display: block;
@@ -51,6 +54,14 @@
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
+            /*#toastError {
+                --paper-toast-background-color: #b2132b;
+                --paper-toast-color: white;
+            }
+            #toastOk {
+                --paper-toast-background-color: #488748;
+                --paper-toast-color: white;
+            }*/
         </style>
         <app-route route="{{route}}" pattern="/:priceList" data="{{priceListData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
@@ -81,8 +92,8 @@
                     <paper-button raised id="reset">Limpiar</paper-button>
                 </div>
             </form>
-            <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
-            <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
+            <paper-toast id="toastOk" text="" class="fit-bottom toastOk"></paper-toast>
+            <paper-toast id="toastError" text="" class="fit-bottom toastError"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
                 <!--<h2>Eliminar Lista de Precio</h2>-->
                 <p>¿Desea eliminar la Lista de Precio <strong>[[priceList.name]]</strong> ?</p>
@@ -106,10 +117,10 @@
                 ajaxlist: {
                     type: Object
                 },
-                url: {
-                    type: String,
-                    value: 'http://localhost:3000/pricelist'
-                },
+                // url: {
+                //     type: String,
+                //     value: 'http://localhost:3000/pricelist'
+                // },
                 token: {
                     type: String
                 },
@@ -118,10 +129,14 @@
                 },
                 name: {
                     type: String
+                },
+                selected: {
+                    type: Boolean
                 }
             },
+            behaviors: [URLServiceBehaviors.URLService],
             observers: [
-                "_viewChanged(key)"
+                "_viewChanged(key,selected)"
             ],
             listeners: {
                 'iron-form-response': '_formResponse',
@@ -141,7 +156,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url + '/' + this.key;
+                this.$.deleteAjax.url = this.url_base + 'pricelist/' + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -175,6 +190,7 @@
                 var priceList = response.detail.response.data;
                 this.priceList = priceList;
                 this.$.name.value = priceList.name;
+                this.$.description.value = priceList.description;
                 this.$.status.selected = priceList.status;
                 // console.log(this.$.status.selected);
                 if (priceList.status == 'ACTIVO') {
@@ -184,7 +200,8 @@
             },
             _handleError: function (error) {
                 // console.log(error);
-                this.showError('Se produjo un error al obtener la Lista de Precio');
+                var msg = error.detail.request.response.message;
+                this.showError(msg);
             },
             _handleResponseUpdate: function (response) {
                 // console.log(response.detail.response);
@@ -205,7 +222,7 @@
                 this.$.priceListAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.priceListAjax.url = this.url + '/' + this.key;
+                this.$.priceListAjax.url = this.url_base + 'pricelist/' + this.key;
                 this.$.priceListAjax.generateRequest();
             },
             _updatePriceList: function (event) {
@@ -213,17 +230,17 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url + '/' + this.key;
+                this.$.updateAjax.url = this.url_base + 'pricelist/' + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                if (this.priceList.status == serialize.status) {
-                    this.showError('No se registraron cambios');
-                } else {
-                    this.$.updateAjax.body = serialize;
-                    this.$.updateAjax.generateRequest();
-                    // window.location.reload();
-                }
+                // if (this.priceList.status == serialize.status) {
+                //     this.showError('No se registraron cambios');
+                // } else {
+                this.$.updateAjax.body = serialize;
+                this.$.updateAjax.generateRequest();
+                // window.location.reload();
+                // }
             },
             _createPriceList: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
@@ -231,7 +248,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
-                this._getForm().action = this.url;
+                this._getForm().action = this.url_base + 'pricelist';
                 var priceList = this._getForm().serialize();
                 priceList.token = JSON.parse(window.localStorage.session).token;
                 // this._getForm().params = priceList;
@@ -244,7 +261,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url + '/' + this.key;
+                this._getForm().action = this.url_base + 'pricelist/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var priceList = this._getForm().serialize();
                 //priceList.token = JSON.parse(window.localStorage.session).token;
@@ -266,12 +283,12 @@
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
-                this.showMessage(msg);
+                this.showError(msg);
             },
             _formError: function (error) {
                 //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
-                this.showMessage(msg);
+                this.showError(msg);
             },
             showError: function (errorMessage) {
                 //// console.log("error msg");
@@ -291,35 +308,40 @@
                 this.set('route.path', id);
                 this.showMessage(message);
             },
-            _viewChanged: function (key) {
-                debugger
-                if (this.name === 'pricelists') {
-                    //Cargar token cuando se ingrese a la pantalla de formulario
-                    if (typeof window.localStorage.session !== "undefined") {
-                        this.token = JSON.parse(window.localStorage.session).token;
-                    }
-                    // Limpiar formulario
-                    this.$.priceListForm.reset();
-                    //Prendemos los botones
-                    this.$.create.style.display = 'inline-block';
-                    this.$.reset.style.display = 'inline-block';
-                    this.$.delete.style.display = 'inline-block';
-                    this.$.apply_changes.style.display = 'inline-block';
-                    this.$.name.disabled = null;
-                    this.$.description.disabled = null;
-                    this.$.description.style.display = 'inline-block';
-                    //
-                    if (key != '' && key != 'undefined') {
-                        this.$.status.selected = '';
-                        this.$.name.disabled = 'disabled';
-                        this.$.description.disabled = 'disabled';
-                        this.$.description.style.display = 'none';
-                        this.$.create.style.display = 'none';
-                        this.$.reset.style.display = 'none';
-                        this._getPriceList();
-                    } else {
-                        this.$.delete.style.display = 'none';
-                        this.$.apply_changes.style.display = 'none';
+            _viewChanged: function () {
+                // debugger
+                if (!this.selected) {
+                    this.key = '';
+                    return;
+                } else {
+                    if (this.name === 'pricelists') {
+                        //Cargar token cuando se ingrese a la pantalla de formulario
+                        if (typeof window.localStorage.session !== "undefined") {
+                            this.token = JSON.parse(window.localStorage.session).token;
+                        }
+                        // Limpiar formulario
+                        this.$.priceListForm.reset();
+                        //Prendemos los botones
+                        this.$.create.style.display = 'inline-block';
+                        this.$.reset.style.display = 'inline-block';
+                        this.$.delete.style.display = 'inline-block';
+                        this.$.apply_changes.style.display = 'inline-block';
+                        // this.$.name.disabled = null;
+                        // this.$.description.disabled = null;
+                        this.$.description.style.display = 'inline-block';
+                        //
+                        if (this.key != '' && this.key != 'undefined') {
+                            this.$.status.selected = '';
+                            // this.$.name.disabled = 'disabled';
+                            // this.$.description.disabled = 'disabled';
+                            // this.$.description.style.display = 'none';
+                            this.$.create.style.display = 'none';
+                            this.$.reset.style.display = 'none';
+                            this._getPriceList();
+                        } else {
+                            this.$.delete.style.display = 'none';
+                            this.$.apply_changes.style.display = 'none';
+                        }
                     }
                 }
             }

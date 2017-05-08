@@ -8,6 +8,7 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="./list-page-behavior.html">
 <link rel="import" href="./users-form.html">
 <link rel="import" href="./roles-form.html">
@@ -17,6 +18,7 @@
 <link rel="import" href="./user-filter.html">
 <link rel="import" href="./priceLists-form.html">
 <link rel="import" href="./category-form.html">
+<link rel="import" href="./url-services-behavior.html">
 <dom-module id="list-page">
     <template>
         <style>
@@ -43,6 +45,40 @@
             paper-button.pink:hover {
                 background-color: var(--paper-pink-100);
             }
+            
+            vaadin-grid {
+                height: auto;
+            }
+            
+            #pages {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 20px;
+            }
+            
+            #pages>button {
+                user-select: none;
+                padding: 5px;
+                margin: 0 5px;
+                border-radius: 10%;
+                border: 0;
+                background: transparent;
+                font: inherit;
+                outline: none;
+                cursor: pointer;
+            }
+            
+            #pages>button:hover,
+            #pages>button:focus {
+                color: var(--default-primary-color);
+                background-color: #eee;
+            }
+            
+            #pages>button[selected] {
+                font-weight: bold;
+                color: white;
+                background-color: var(--default-primary-color);
+            }
         </style>
         <app-route route="{{route}}" pattern="/:key" data="{{routeData}}" tail="{{routeTail}}" id="routeManager">
         </app-route>
@@ -52,8 +88,21 @@
                 <paper-button id="addUser" class="pink">Agregar nuevo </paper-button>
                 <paper-button id="newFilter" class="pink">filtro </paper-button>
                 <paper-input id="filter" label="Filter by first name" value={{filter}}></paper-input>
-                <vaadin-grid id="itemsList" items=[[items]]>
+                <vaadin-grid id="itemsList" items=[[items]] active-item="{{selectedItems}}" page-size="5">
+                    <template is="dom-repeat" items="[[columns]]" as="column">
+                        <vaadin-grid-column>
+                            <template class="header">[[column]]</template>
+                            <template>[[get(column, item)]]</template>
+                        </vaadin-grid-column>
+                    </template>
                 </vaadin-grid>
+                <div id="pages">
+                    <button on-tap="_prev">&lt;</button>
+                    <template is="dom-repeat" items="[[pages]]">
+                        <button on-tap="_select" selected$="[[_isSelected(page, item)]]">[[item]]</button>
+                    </template>
+                    <button on-tap="_next">&gt;</button>
+                </div>
             </div>
             <div>
                 <iron-pages attr-for-selected="name" selected="{{data}}" selected-attribute="selected">
@@ -93,10 +142,10 @@
                 data: {
                     type: 'String'
                 },
-                url: {
-                    type: 'String',
-                    value: "http://localhost:3000/" //'https://jsonplaceholder.typicode.com/'
-                },
+                // url: {
+                //     type: 'String',
+                //     value: "http://localhost:3000/" //'https://jsonplaceholder.typicode.com/'
+                // },
                 route: {
                     type: Object,
                     notify: true
@@ -107,14 +156,27 @@
                 },
                 token: {
                     type: String
+                },
+                selectedItems: {
+                    observer: "_selectedItemChanged"
+                },
+                columns: {
+                    type: Array
+                },
+                page: {
+                    type: Number
+                },
+                pages: {
+                    type: Array
                 }
 
             },
-            behaviors: [ListBehaviors.ListVaadinBehavior],
+            behaviors: [ListBehaviors.ListVaadinBehavior,URLServiceBehaviors.URLService],
             observers: [
                 '_routeChanged(route.path)',
-                '_viewChanged(data)',
-                '_fastsearchChanged(fastsearch)'
+                // '_viewChanged(data)',
+                '_fastsearchChanged(fastsearch)',
+                '_itemsChanged(items, page)'
             ],
             listeners: {
                 'addUser.tap': '_addUser',
@@ -125,7 +187,7 @@
             _routeChanged: function (newRoute) {
                 // debugger
                 if (newRoute == "") {
-                    //// console.log('entro', this.data);
+                    // console.log('entro route', this.data);
                     //va a ejecutar el ajax dos veces
                     this._viewChanged(this.data);
                     this.$.pages.entryAnimation = "slide-from-right-animation";
@@ -146,6 +208,7 @@
                 //this.$.editor.load(this.key);
             },
             _viewChanged: function (data) {
+                this.page = 0;
                 // console.log("entra viewchang de lista", data);
                 this.ajaxlist.headers = '';
                 this.ajaxlist.params = '';
@@ -168,7 +231,7 @@
                         this.ajaxlist.headers = {
                             'x-access-token': this.token
                         };
-                        this.ajaxlist.url = this.url + type;
+                        this.ajaxlist.url = this.url_base + type;
                         this.$.divAjax.appendChild(this.ajaxlist);
                         this.ajaxlist.generateRequest();
                     }
@@ -217,6 +280,36 @@
                 // console.log(e);
                 this.$.animated.close();
 
+            },
+            _isSelected: function (page, item) {
+                return page === item - 1;
+            },
+
+            _select: function (e) {
+                this.page = e.model.item - 1;
+            },
+
+            _next: function () {
+                this.page = Math.min(this.pages.length - 1, this.page + 1);
+            },
+
+            _prev: function () {
+                this.page = Math.max(0, this.page - 1);
+            },
+
+            _itemsChanged: function (items, page) {
+                // console.log("entro a items",items)
+                // if (!this.pages) {
+                    this.pages = Array.apply(null, {
+                        length: Math.ceil(items.length / this.$.itemsList.pageSize)
+                    }).map(function (item, index) {
+                        return index + 1;
+                    });
+                // }
+
+                var start = page * this.$.itemsList.pageSize;
+                var end = (page + 1) * this.$.itemsList.pageSize;
+                this.$.itemsList.items = items.slice(start, end);
             }
         });
     </script>

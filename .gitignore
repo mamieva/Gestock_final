@@ -1,4 +1,8 @@
 bower_components/
 build/
 node_modules/
+<<<<<<< HEAD
 npm-debug.log
+=======
+!bower_components/paper-autocomplete
+>>>>>>> CopiandoAPaco
