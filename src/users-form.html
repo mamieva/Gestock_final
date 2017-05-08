@@ -15,6 +15,8 @@
 <link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
@@ -22,11 +24,12 @@
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
+<link rel="import" href="./url-services-behavior.html">
 <dom-module id="users-form">
     <template>
         <style include="shared-style"></style>
         <style>
-             :host {
+            /*:host {
                 display: block;
             }
             
@@ -37,8 +40,8 @@
             }
             
             form {
-                width: 900px;
-            }
+                width: 90%;
+            }*/
             
             paper-input {
                 display: block;
@@ -57,7 +60,45 @@
             }
             
             .roles {
-                width: 900px;
+                width: 90%;
+                margin-top: 40px;
+            }
+            
+            /*vaadin-grid,*/
+            .botoneraRoles {
+                height: auto;
+                margin-top: 20px;
+            }
+            
+            paper-card {
+                width: 100%;
+            }
+            
+            paper-autocomplete {
+                width: 75%;
+                float: left;
+            }
+            
+            /*paper-button {
+                vertical-align: bottom;
+                font-family: 'Roboto', 'Noto', sans-serif;
+                font-weight: normal;
+                font-size: 14px;
+                -webkit-font-smoothing: antialiased;
+                background-color: var(--paper-indigo-500);
+                color: white;
+                --paper-button-raised-keyboard-focus: {
+                    background-color: var(--paper-pink-a200) !important;
+                    color: white !important;
+                };
+                text-align: center;
+            }*/
+            .btnAceptar{
+                width: 20%;
+            }
+            
+            .dark {
+                background: var(--paper-blue-grey-500);
             }
         </style>
         <app-route route="{{route}}" pattern="/:user" data="{{userData}}" tail="{{routeTail}}" id="routeManager"></app-route>
@@ -71,7 +112,7 @@
         </div>
         <div class="container">
             <h3>Usuario</h3>
-            <form is="iron-form" method="POST" id="userForm">
+            <form is="iron-form" method="POST" class="form" id="userForm">
                 <paper-input id="username" name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
                     auto-validate required>
                     <iron-icon icon="mail" prefix></iron-icon>
@@ -95,24 +136,30 @@
                         </div>
             </form>
             <div id="roles" class="roles">
-                <paper-autocomplete label="Seleccionar Rol" id="selectRole" min-length="2"></paper-autocomplete>
-                <paper-button raised submit id="addRole">Agregar</paper-button>
-                <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="multi">
-                    <vaadin-grid-selection-column auto-select>
-                    </vaadin-grid-selection-column>
-                    <vaadin-grid-column>
-                        <template class="header">Nombre</template>
-                        <template>[[item.name]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column>
-                        <template class="header">Descripción</template>
-                        <template>[[item.description]]</template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
-            </div>
-            <div class="botoneraRoles">
-                <paper-button raised submit id="deleteRole">Eliminar Seleccionados</paper-button>
-                <paper-button raised id="resetRole">Deseleccionar todos</paper-button>
+                <paper-card heading="Roles del Usuario">
+                    <div class="card-content">
+                        <paper-autocomplete label="Seleccionar Rol" id="selectRole" min-length="0"></paper-autocomplete>
+                        <paper-button raised submit id="addRole" class="btnAceptar">Agregar</paper-button>
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="rolesList" items={{itemsRoles}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Nombre</template>
+                                <template>[[item.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Descripción</template>
+                                <template>[[item.description]]</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                        <div class="botoneraRoles">
+                            <paper-button raised submit id="deleteRole">Eliminar Seleccionados</paper-button>
+                            <!--<paper-button raised id="resetRole">Deseleccionar todos</paper-button>-->
+                        </div>
+                    </div>
+                </paper-card>
             </div>
         </div>
         <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
@@ -122,7 +169,7 @@
             <p>¿Desea eliminar el usuario <strong>[[user.username]]</strong> ?</p>
             <div class="buttons">
                 <paper-button dialog-dismiss>Cancelar</paper-button>
-                <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
+                <paper-button dialog-confirm autofocus id="deleteAceptar" >Aceptar</paper-button>
             </div>
         </paper-dialog>
         </div>
@@ -140,14 +187,14 @@
                 ajaxlist: {
                     type: Object
                 },
-                url: {
-                    type: String,
-                    value: 'http://localhost:3000/user/'
-                },
-                url_base: {
-                    type: String,
-                    value: 'http://localhost:3000/'
-                },
+                // url: {
+                //     type: String,
+                //     value: this.url_base + 'user/'
+                // },
+                // url_base: {
+                //     type: String,
+                //     value: 'http://localhost:3000/'
+                // },
                 token: {
                     type: String
                 },
@@ -168,6 +215,7 @@
                     reflectToAttribute: true
                 }
             },
+            behaviors: [URLServiceBehaviors.URLService],
             observers: [
                 "_viewChanged(key,selected)"
             ],
@@ -186,7 +234,7 @@
                 //'autocomplete-change': '_changeRol',
                 'autocomplete-selected': "_selectedRol",
                 'deleteRole.click': "_deleteRoles",
-                'resetRole.tap': "_resetRoles"
+                // 'resetRole.tap': "_resetRoles"
             },
             _deleteUser: function () {
                 // console.log("entro aceptar");
@@ -194,7 +242,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url + this.key;
+                this.$.deleteAjax.url = this.url_base + 'user/'  + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -263,7 +311,7 @@
                 var update = response.detail.response;
                 this.showMessage('El usuario ha sido actualizado con exito');
                 // window.location.reload();
-                // this._viewChanged(this.key);
+                this._viewChanged(this.key);
             },
             _handleResponseDelete: function (response) {
                 // console.log(response.detail.response);
@@ -277,7 +325,7 @@
                 this.$.userAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.userAjax.url = this.url + this.key;
+                this.$.userAjax.url = this.url_base + 'user/'  + this.key;
                 this.$.userAjax.generateRequest();
             },
             _updateUser: function (event) {
@@ -285,7 +333,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url + this.key;
+                this.$.updateAjax.url = this.url_base + 'user/'  + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -303,7 +351,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
-                this._getForm().action = this.url + 'user';
+                this._getForm().action = this.url_base + 'user/' ;
                 var user = this._getForm().serialize();
                 user.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = user;
@@ -316,7 +364,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url + this.key;
+                this._getForm().action = this.url_base + 'user/'  + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var user = this._getForm().serialize();
                 //user.token = JSON.parse(window.localStorage.session).token;
@@ -338,12 +386,12 @@
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
-                this.showMessage(msg);
+                this.showError(msg);
             },
             _formError: function (error) {
                 //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
-                this.showMessage(msg);
+                this.showError(msg);
             },
             showError: function (errorMessage) {
                 //// console.log("error msg");
@@ -386,7 +434,7 @@
                     // this.$.password.disabled = null;
                     this.$.password.style.display = 'inline-block';
                     this.$.deleteRole.style.display = 'none';
-                    this.$.resetRole.style.display = 'none';
+                    // this.$.resetRole.style.display = 'none';
                     //
                     if (this.key != '' && this.key != 'undefined') {
                         this.$.status.selected = '';
@@ -397,7 +445,7 @@
                         this.$.reset.style.display = 'none';
                         this._getUser();
                         this._getRoles();
-                        this._getUserRole();
+                        // this._getUserRole();
                     } else {
                         this.$.roles.style.display = 'none';
                         this.$.delete.style.display = 'none';
@@ -508,7 +556,7 @@
                 };
                 this.$.getUserRoleAjax.method = 'GET';
                 this.$.getUserRoleAjax.handleAs = 'json';
-                this.$.getUserRoleAjax.url = this.url + this.key + '/roles';
+                this.$.getUserRoleAjax.url = this.url_base + 'user/' + this.key + '/roles';
                 this.$.getUserRoleAjax.generateRequest();
             },
             _getRolesList: function () {
@@ -519,7 +567,7 @@
                     'x-access-token': this.token
                 };
                 this.$.createUserRoleAjax.method = 'POST';
-                this.$.createUserRoleAjax.url = this.url + this.key + '/role';
+                this.$.createUserRoleAjax.url = this.url_base + 'user/'  + this.key + '/role';
                 this.$.createUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.createUserRoleAjax.body = {
                     "roleId": this.$.selectRole.value
@@ -530,7 +578,7 @@
             _handleResponseCreateUserRole: function (response) {
                 // console.log(response.detail.response);
                 var addRole = response.detail.response;
-                console.log("addrole", addRole);
+                // console.log("addrole", addRole);
                 this.itemsRoles = addRole.data;
                 this.showMessage(addRole.message);
                 // window.location.reload();
@@ -541,13 +589,13 @@
                 var reallythis = this.reallythis;
                 reallythis.selectedRoles = this.selectedItems;
                 var select = reallythis.selectedRoles;
-                console.log(select)
+                // console.log(select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteRole.style.display = 'inline-block';
-                    reallythis.$.resetRole.style.display = 'inline-block';
+                    // reallythis.$.resetRole.style.display = 'inline-block';
                 } else {
                     reallythis.$.deleteRole.style.display = 'none';
-                    reallythis.$.resetRole.style.display = 'none';
+                    // reallythis.$.resetRole.style.display = 'none';
                 }
             },
             _deleteRoles: function () {
@@ -566,7 +614,7 @@
                     'x-access-token': reallythis.token
                 };
                 reallythis.$.deleteUserRoleAjax.method = 'DELETE';
-                reallythis.$.deleteUserRoleAjax.url = reallythis.url + reallythis.key + '/roles';
+                reallythis.$.deleteUserRoleAjax.url = reallythis.url_base + 'user/' + reallythis.key + '/roles';
                 reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
                 reallythis.$.deleteUserRoleAjax.body = {

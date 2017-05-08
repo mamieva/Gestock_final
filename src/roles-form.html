@@ -20,6 +20,7 @@
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
+<link rel="import" href="./url-services-behavior.html">
 <dom-module id="roles-form">
     <template>
         <style include="shared-style"></style>
@@ -108,10 +109,10 @@
                 ajaxlist: {
                     type: Object
                 },
-                url: {
-                    type: String,
-                    value: 'http://localhost:3000/role'
-                },
+                // url: {
+                //     type: String,
+                //     value: 'http://localhost:3000/role'
+                // },
                 token: {
                     type: String
                 },
@@ -121,10 +122,11 @@
                 name: {
                     type: String
                 },
-                selected:{
+                selected: {
                     type: Boolean
                 }
             },
+            behaviors: [URLServiceBehaviors.URLService],
             observers: [
                 "_viewChanged(key,selected)"
             ],
@@ -146,7 +148,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url + '/' + this.key;
+                this.$.deleteAjax.url = this.url_base + 'role/' + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -211,7 +213,7 @@
                 this.$.roleAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.roleAjax.url = this.url + '/' + this.key;
+                this.$.roleAjax.url = this.url_base + 'role/' + this.key;
                 this.$.roleAjax.generateRequest();
             },
             _updateRole: function (event) {
@@ -219,7 +221,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url + '/' + this.key;
+                this.$.updateAjax.url = this.url_base + 'role/' + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -240,7 +242,7 @@
                 this._getForm().action = this.url;
                 var role = this._getForm().serialize();
                 role.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = role;
+                this._getForm().params = role; 
                 //// console.log(role);
                 this.$.roleForm.submit();
             },
@@ -250,7 +252,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url + '/' + this.key;
+                this._getForm().action = this.url_base + 'role/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var role = this._getForm().serialize();
                 //role.token = JSON.parse(window.localStorage.session).token;
@@ -272,12 +274,12 @@
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
-                this.showMessage(msg);
+                this.showError(msg);
             },
             _formError: function (error) {
                 //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
-                this.showMessage(msg);
+                this.showError(msg);
             },
             showError: function (errorMessage) {
                 //// console.log("error msg");

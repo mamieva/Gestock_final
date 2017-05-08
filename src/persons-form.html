@@ -20,6 +20,7 @@
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
+<link rel="import" href="./url-services-behavior.html">
 <dom-module id="persons-form">
     <template>
         <style include="shared-style"></style>
@@ -120,6 +121,12 @@
                 <paper-button raised submit id="addAddress">Agregar Domicilio</paper-button>
                 <paper-button raised submit id="deleteAddress">Eliminar Seleccionado</paper-button>
                 <vaadin-grid id="addressList" items={{itemsAddress}} selection-mode="multi">
+                    <vaadin-grid-selection-column auto-select>
+                    </vaadin-grid-selection-column>
+                    <vaadin-grid-column>
+                        <template class="header">Dirección</template>
+                        <template>[[item.address]]</template>
+                    </vaadin-grid-column>
                 </vaadin-grid>
             </div>
             <div id="contacts">
@@ -132,6 +139,16 @@
                 <paper-button raised submit id="addContact">Agregar Contacto</paper-button>
                 <paper-button raised submit id="deleteContact">Eliminar Seleccionado</paper-button>
                 <vaadin-grid id="contactsList" items={{itemsContacts}} selection-mode="multi">
+                    <vaadin-grid-selection-column auto-select>
+                    </vaadin-grid-selection-column>
+                    <vaadin-grid-column>
+                        <template class="header">Nombre</template>
+                        <template>[[item.name]]</template>
+                    </vaadin-grid-column>
+                    <vaadin-grid-column>
+                        <template class="header">Teléfono</template>
+                        <template>[[item.phone]]</template>
+                    </vaadin-grid-column>
                 </vaadin-grid>
             </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
@@ -159,10 +176,10 @@
                 ajaxlist: {
                     type: Object
                 },
-                url: {
-                    type: String,
-                    value: 'http://localhost:3000/person'
-                },
+                // url: {
+                //     type: String,
+                //     value: 'http://localhost:3000/person'
+                // },
                 token: {
                     type: String
                 },
@@ -197,6 +214,7 @@
                     type: Boolean
                 }
             },
+            behaviors: [URLServiceBehaviors.URLService],
             observers: [
                 "_viewChanged(key,selected)"
             ],
@@ -239,7 +257,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url + '/' + this.key;
+                this.$.deleteAjax.url = this.url_base + 'person/' + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -355,7 +373,7 @@
                 this.$.personAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.personAjax.url = this.url + '/' + this.key;
+                this.$.personAjax.url = this.url_base + 'person/' + this.key;
                 this.$.personAjax.generateRequest();
             },
             _updatePerson: function (event) {
@@ -363,7 +381,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url + '/' + this.key;
+                this.$.updateAjax.url = this.url_base + 'person/' + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -381,7 +399,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
-                this._getForm().action = this.url;
+                this._getForm().action = this.url_base + 'person/';
                 var person = this._getForm().serialize();
                 person.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = person;
@@ -394,7 +412,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url + '/' + this.key;
+                this._getForm().action = this.url_base + 'person/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var person = this._getForm().serialize();
                 //person.token = JSON.parse(window.localStorage.session).token;
@@ -418,12 +436,12 @@
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
-                this.showMessage(msg);
+                this.showError(msg);
             },
             _formError: function (error) {
                 //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
-                this.showMessage(msg);
+                this.showError(msg);
             },
             showError: function (errorMessage) {
                 //// console.log("error msg");
@@ -506,7 +524,7 @@
                     'x-access-token': this.token
                 };
                 this.$.addAddressAjax.method = 'POST';
-                this.$.addAddressAjax.url = this.url + '/' + this.key + '/address';
+                this.$.addAddressAjax.url = this.url_base + 'person/' + this.key + '/address';
                 this.$.addAddressAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.addAddressAjax.debounceDuration = "300";
                 var serialize = {
@@ -526,7 +544,7 @@
             },
             _selectedAddressChanged: function (event) {
                 var reallythis = this.reallythis;
-                reallythis.selectedAddress = this.selection.selected();
+                reallythis.selectedAddress = this.selectedItems;
                 var select = reallythis.selectedAddress;
                 // // console.log("select", select)
                 if (select.length > 0 && select) {
@@ -561,7 +579,8 @@
                 // // reallythis.$.deleteAddressAjax.body = addressesArray;
                 // // console.log(reallythis.$.deleteAddressAjax.body);
                 reallythis.$.deleteAddressAjax.method = 'DELETE';
-                reallythis.$.deleteAddressAjax.url = reallythis.url + '/' + reallythis.key + '/addresses';
+                reallythis.$.deleteAddressAjax.url = reallythis.url_base + 'person/' + reallythis.key +
+                    '/addresses';
                 reallythis.$.deleteAddressAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
                 reallythis.$.deleteAddressAjax.body = {
@@ -577,7 +596,7 @@
                     'x-access-token': this.token
                 };
                 this.$.addContactAjax.method = 'POST';
-                this.$.addContactAjax.url = this.url + '/' + this.key + '/contact';
+                this.$.addContactAjax.url = this.url_base + 'person/' + this.key + '/contact';
                 this.$.addContactAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.addContactAjax.debounceDuration = "300";
                 var serialize = {
@@ -600,7 +619,7 @@
             },
             _selectedContactChanged: function (event) {
                 var reallythis = this.reallythis;
-                reallythis.selectedContacts = this.selection.selected();
+                reallythis.selectedContacts = this.selectedItems;
                 var select = reallythis.selectedContacts;
                 // // console.log("select", select)
                 if (select.length > 0 && select) {
@@ -631,7 +650,8 @@
                 // reallythis.$.deleteAddressAjax.params = addressesArray;
                 reallythis.$.deleteContactsAjax.contentType = "application/x-www-form-urlencoded";
                 reallythis.$.deleteContactsAjax.method = 'DELETE';
-                reallythis.$.deleteContactsAjax.url = reallythis.url + '/' + reallythis.key + '/contacts';
+                reallythis.$.deleteContactsAjax.url = reallythis.url_base + 'person/' + reallythis.key +
+                    '/contacts';
                 //reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
                 reallythis.$.deleteContactsAjax.body = {

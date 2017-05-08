@@ -20,6 +20,7 @@
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
+<link rel="import" href="./url-services-behavior.html">
 <dom-module id="categories-form">
     <template>
         <style include="shared-style"></style>
@@ -89,6 +90,16 @@
                 <paper-autocomplete label="Seleccionar Sub-Categoria" id="selectCategory" min-length="1"></paper-autocomplete>
                 <paper-button raised submit id="addCategory">Agregar</paper-button>
                 <vaadin-grid id="categoriesList" items={{itemsCategories}} selection-mode="multi">
+                    <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Nombre</template>
+                                <template>[[item.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Descripción</template>
+                                <template>[[item.description]]</template>
+                            </vaadin-grid-column>
                 </vaadin-grid>
                 <div class="botoneraCategory">
                     <paper-button raised submit id="deleteCategory">Eliminar Seleccionados</paper-button>
@@ -119,14 +130,14 @@
                 ajaxlist: {
                     type: Object
                 },
-                url: {
-                    type: String,
-                    value: 'http://localhost:3000/category/'
-                },
-                url_base: {
-                    type: String,
-                    value: 'http://localhost:3000/'
-                },
+                // url: {
+                //     type: String,
+                //     value: 'http://localhost:3000/category/'
+                // },
+                // url_base: {
+                //     type: String,
+                //     value: 'http://localhost:3000/'
+                // },
                 token: {
                     type: String
                 },
@@ -143,6 +154,7 @@
                     type: Boolean
                 }
             },
+            behaviors: [URLServiceBehaviors.URLService],
             observers: [
                 "_viewChanged(key,selected)"
             ],
@@ -166,7 +178,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url + this.key;
+                this.$.deleteAjax.url = this.url_base + 'category/'  + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -251,7 +263,7 @@
                 this.$.categoryAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.categoryAjax.url = this.url + this.key;
+                this.$.categoryAjax.url = this.url_base + 'category/'  + this.key;
                 this.$.categoryAjax.generateRequest();
             },
             _updateCategory: function (event) {
@@ -259,7 +271,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url + this.key;
+                this.$.updateAjax.url = this.url_base + 'category/'  + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -277,7 +289,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
-                this._getForm().action = this.url;
+                this._getForm().action = this.url_base + 'category/' ;
                 var category = this._getForm().serialize();
                 category.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = category;
@@ -290,7 +302,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url + this.key;
+                this._getForm().action = this.url_base + 'category/'  + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var category = this._getForm().serialize();
                 //category.token = JSON.parse(window.localStorage.session).token;
@@ -312,12 +324,12 @@
             },
             _formInvalid: function (e) {
                 var msg = 'Verifique los datos ingresados';
-                this.showMessage(msg);
+                this.showError(msg);
             },
             _formError: function (error) {
                 //// console.log('a',error.detail.request.response);
                 var msg = error.detail.request.response.message;
-                this.showMessage(msg);
+                this.showError(msg);
             },
             showError: function (errorMessage) {
                 //// console.log("error msg");
@@ -413,7 +425,7 @@
                     'x-access-token': this.token
                 };
                 this.$.addCategoryAjax.method = 'POST';
-                this.$.addCategoryAjax.url = this.url + this.key + '/category';
+                this.$.addCategoryAjax.url = this.url_base + 'category/'  + this.key + '/category';
                 this.$.addCategoryAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.addCategoryAjax.body = {
                     "categoryId": this.$.selectCategory.value
@@ -432,7 +444,7 @@
             },
             _selectedCategoryChanged: function () {
                 var reallythis = this.reallythis;
-                reallythis.selectedCategory = this.selection.selected();
+                reallythis.selectedCategory = this.selectedItems;
                 var select = reallythis.selectedCategory;
                 // // console.log("select", select)
                 if (select.length > 0 && select) {
@@ -469,7 +481,7 @@
                 // reallythis.$.deleteCategoriesAjax.body = categoriesArray;
                 // console.log(reallythis.$.deleteCategoriesAjax.body);
                 reallythis.$.deleteCategoriesAjax.method = 'DELETE';
-                reallythis.$.deleteCategoriesAjax.url = reallythis.url + reallythis.key + '/categories';
+                reallythis.$.deleteCategoriesAjax.url = reallythis.url_base + 'category/' + reallythis.key + '/categories';
                 reallythis.$.deleteCategoriesAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
                 reallythis.$.deleteCategoriesAjax.body = {

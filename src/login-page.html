@@ -8,6 +8,7 @@
 <link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
 <link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="./shared-style.html">
+<link rel="import" href="./url-services-behavior.html">
 <dom-module id="login-page">
     <style include="shared-style"></style>
     <style>
@@ -15,7 +16,6 @@
             color: #FF8A80;
             cursor: pointer;
         }
-        
         /*#toastError {
             --paper-toast-background-color: #f63d33;
             --paper-toast-color: white;
@@ -76,6 +76,7 @@
                     type: Object
                 }
             },
+            behaviors: [URLServiceBehaviors.URLService],
             listeners: {
                 'loginButton.tap': 'onLogin',
             },
@@ -128,7 +129,7 @@
                     username: this.$.email.value,
                     password: this.$.password.value
                 };
-                this.$.loginService.url = "http://localhost:3000/login";
+                this.$.loginService.url = this.url_base + 'login';
                 request = this.$.loginService.generateRequest();
                 //// console.log(request.completes);
                 request.completes.then(function (response) {
