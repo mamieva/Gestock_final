@@ -20,6 +20,7 @@
 <link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
+<link rel="import" href="./url-services-behavior.html">
 <dom-module id="brands-form">
     <template>
         <style include="shared-style"></style>
@@ -86,9 +87,15 @@
                 </div>
             </form>
             <div id="supplier" class="supplier">
-                <paper-autocomplete label="Seleccionar Proveedor" id="selectSupplier" min-length="1"></paper-autocomplete>
+                <paper-autocomplete label="Seleccionar Proveedor" id="selectSupplier"></paper-autocomplete>
                 <paper-button raised submit id="addSupplier">Agregar</paper-button>
                 <vaadin-grid id="suppliersList" items={{itemsSuppliers}} selection-mode="multi">
+                    <vaadin-grid-selection-column auto-select>
+                    </vaadin-grid-selection-column>
+                    <vaadin-grid-column>
+                        <template class="header">Lista de Precio</template>
+                        <template>[[item.businessName]]</template>
+                    </vaadin-grid-column>
                 </vaadin-grid>
                 <div class="botoneraSupplier">
                     <paper-button raised submit id="deleteSupplier">Eliminar Seleccionados</paper-button>
@@ -119,14 +126,14 @@
                 ajaxlist: {
                     type: Object
                 },
-                url: {
-                    type: String,
-                    value: 'http://localhost:3000/brand/'
-                },
-                url_base: {
-                    type: String,
-                    value: 'http://localhost:3000/'
-                },
+                // url: {
+                //     type: String,
+                //     value: 'http://localhost:3000/brand/'
+                // },
+                // url_base: {
+                //     type: String,
+                //     value: 'http://localhost:3000/'
+                // },
                 token: {
                     type: String
                 },
@@ -144,6 +151,7 @@
                     reflectToAttribute: true
                 }
             },
+            behaviors: [URLServiceBehaviors.URLService],
             observers: [
                 "_viewChanged(key,selected)"
             ],
@@ -167,7 +175,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url + this.key;
+                this.$.deleteAjax.url = this.url_base + 'brand/'  + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -253,7 +261,7 @@
                 this.$.brandAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.brandAjax.url = this.url + this.key;
+                this.$.brandAjax.url = this.url_base + 'brand/'  + this.key;
                 this.$.brandAjax.generateRequest();
             },
             _updateBrand: function (event) {
@@ -261,7 +269,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url + this.key;
+                this.$.updateAjax.url = this.url_base + 'brand/'  + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -279,7 +287,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
-                this._getForm().action = this.url;
+                this._getForm().action = this.url_base + 'brand/' ;
                 var brand = this._getForm().serialize();
                 brand.token = JSON.parse(window.localStorage.session).token;
                 this._getForm().params = brand;
@@ -292,7 +300,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url + this.key;
+                this._getForm().action = this.url_base + 'brand/'  + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var brand = this._getForm().serialize();
                 //brand.token = JSON.parse(window.localStorage.session).token;
@@ -421,7 +429,7 @@
                 if (this.$.selectSupplier.value) {
 
                     this.$.addSupplierAjax.method = 'POST';
-                    this.$.addSupplierAjax.url = this.url + this.key + '/supplier';
+                    this.$.addSupplierAjax.url = this.url_base + 'brand/'  + this.key + '/supplier';
                     this.$.addSupplierAjax.contentType = 'application/x-www-form-urlencoded';
                     this.$.addSupplierAjax.body = {
                         "supplierId": this.$.selectSupplier.value
@@ -444,7 +452,7 @@
             },
             _selectedSupplierChanged: function () {
                 var reallythis = this.reallythis;
-                reallythis.selectedSupplier = this.selection.selected();
+                reallythis.selectedSupplier = this.selectedItems;
                 var select = reallythis.selectedSupplier;
                 // // console.log("select", select)
                 if (select.length > 0 && select) {
@@ -481,7 +489,7 @@
                 // reallythis.$.deleteSuppliersAjax.body = suppliersArray;
                 // console.log(reallythis.$.deleteSuppliersAjax.body);
                 reallythis.$.deleteSuppliersAjax.method = 'DELETE';
-                reallythis.$.deleteSuppliersAjax.url = reallythis.url + reallythis.key + '/suppliers';
+                reallythis.$.deleteSuppliersAjax.url = reallythis.url_base + 'brand/' + reallythis.key + '/suppliers';
                 reallythis.$.deleteSuppliersAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
                 reallythis.$.deleteSuppliersAjax.body = {

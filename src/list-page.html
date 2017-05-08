@@ -18,6 +18,7 @@
 <link rel="import" href="./user-filter.html">
 <link rel="import" href="./priceLists-form.html">
 <link rel="import" href="./category-form.html">
+<link rel="import" href="./url-services-behavior.html">
 <dom-module id="list-page">
     <template>
         <style>
@@ -141,10 +142,10 @@
                 data: {
                     type: 'String'
                 },
-                url: {
-                    type: 'String',
-                    value: "http://localhost:3000/" //'https://jsonplaceholder.typicode.com/'
-                },
+                // url: {
+                //     type: 'String',
+                //     value: "http://localhost:3000/" //'https://jsonplaceholder.typicode.com/'
+                // },
                 route: {
                     type: Object,
                     notify: true
@@ -170,7 +171,7 @@
                 }
 
             },
-            behaviors: [ListBehaviors.ListVaadinBehavior],
+            behaviors: [ListBehaviors.ListVaadinBehavior,URLServiceBehaviors.URLService],
             observers: [
                 '_routeChanged(route.path)',
                 // '_viewChanged(data)',
@@ -230,7 +231,7 @@
                         this.ajaxlist.headers = {
                             'x-access-token': this.token
                         };
-                        this.ajaxlist.url = this.url + type;
+                        this.ajaxlist.url = this.url_base + type;
                         this.$.divAjax.appendChild(this.ajaxlist);
                         this.ajaxlist.generateRequest();
                     }
