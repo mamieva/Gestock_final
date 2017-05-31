@@ -1,26 +1,27 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
-<link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
-<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
 <link rel="import" href="./url-services-behavior.html">
+<link rel="import" href="./form-behavior.html">
 <dom-module id="categories-form">
     <template>
         <style include="shared-style"></style>
@@ -53,6 +54,16 @@
             div[suffix] {
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
+            }
+            
+            .category {
+                width: 90%;
+                margin-top: 40px;
+            }
+            
+            .botoneraCategory {
+                height: auto;
+                margin-top: 20px;
             }
         </style>
         <app-route route="{{route}}" pattern="/:category" data="{{categoryData}}" tail="{{routeTail}}" id="routeManager"></app-route>
@@ -87,10 +98,14 @@
                 </div>
             </form>
             <div id="category" class="category">
-                <paper-autocomplete label="Seleccionar Sub-Categoria" id="selectCategory" min-length="1"></paper-autocomplete>
-                <paper-button raised submit id="addCategory">Agregar</paper-button>
-                <vaadin-grid id="categoriesList" items={{itemsCategories}} selection-mode="multi">
-                    <vaadin-grid-selection-column auto-select>
+                <paper-card heading="Sub Categorias">
+                    <div class="card-content">
+                        <paper-autocomplete label="Seleccionar Sub-Categoria" id="selectCategory"></paper-autocomplete>
+                        <paper-button raised submit id="addCategory">Agregar</paper-button>
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="categoriesList" items={{itemsCategories}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
                             </vaadin-grid-selection-column>
                             <vaadin-grid-column>
                                 <template class="header">Nombre</template>
@@ -100,10 +115,12 @@
                                 <template class="header">Descripción</template>
                                 <template>[[item.description]]</template>
                             </vaadin-grid-column>
-                </vaadin-grid>
-                <div class="botoneraCategory">
-                    <paper-button raised submit id="deleteCategory">Eliminar Seleccionados</paper-button>
-                </div>
+                        </vaadin-grid>
+                        <div class="botoneraCategory">
+                            <paper-button raised submit id="deleteCategory">Eliminar Seleccionados</paper-button>
+                        </div>
+                    </div>
+                </paper-card>
             </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
@@ -130,14 +147,9 @@
                 ajaxlist: {
                     type: Object
                 },
-                // url: {
-                //     type: String,
-                //     value: 'http://localhost:3000/category/'
-                // },
-                // url_base: {
-                //     type: String,
-                //     value: 'http://localhost:3000/'
-                // },
+                url: {
+                    type: String
+                },
                 token: {
                     type: String
                 },
@@ -151,21 +163,16 @@
                     type: Array
                 },
                 selected: {
-                    type: Boolean
+                    type: Boolean,
+                    reflectToAttribute: true
                 }
             },
-            behaviors: [URLServiceBehaviors.URLService],
+            behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
             observers: [
                 "_viewChanged(key,selected)"
             ],
             listeners: {
-                'iron-form-response': '_formResponse',
-                'iron-form-submit': '_formSubmit',
-                'iron-form-error': '_formError',
-                'iron-form-presubmit': '_formPresubmit',
-                'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createCategory',
-                'reset.tap': '_reset',
+                'create.tap': '_createForm',
                 'apply_changes.tap': '_updateCategory',
                 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deleteCategory',
@@ -173,23 +180,19 @@
                 'deleteCategory.tap': '_deleteCategories'
             },
             _deleteCategory: function () {
-                // console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url_base + 'category/'  + this.key;
-                //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
-                // this.$.deleteAjax.debounceDuration = "300";
-                // var serialize = this._getForm().serialize();
-                //this.$.updateAjax.body = serialize;
+                this.$.deleteAjax.url = this.url_base + 'category/' + this.key;
                 this.$.deleteAjax.generateRequest();
-                // window.location.reload();
             },
             _deleteDialog: function () {
                 this.$.animated.open();
             },
             ready: function () {
+                //
+                this.url = this.url_base + 'category';
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
@@ -215,14 +218,6 @@
                     this));
                 this.$.deleteCategoriesAjax.addEventListener('error', this._handleError.bind(this));
                 //
-                var categoryCol = [{
-                    "name": "name",
-                    "sortable": "true"
-                }, {
-                    "name": "status",
-                    "sortable": "true"
-                }];
-                this._getCategoryList().columns = categoryCol;
                 // Gestionar grilla de direcciones
                 this._getCategoryList().reallythis = this;
                 this._getCategoryList().addEventListener('selected-items-changed', (this)._selectedCategoryChanged);
@@ -263,7 +258,7 @@
                 this.$.categoryAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.categoryAjax.url = this.url_base + 'category/'  + this.key;
+                this.$.categoryAjax.url = this.url_base + 'category/' + this.key;
                 this.$.categoryAjax.generateRequest();
             },
             _updateCategory: function (event) {
@@ -271,83 +266,15 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url_base + 'category/'  + this.key;
+                this.$.updateAjax.url = this.url_base + 'category/' + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                // if (this.category.status == serialize.status) {
-                //     this.showError('No se registraron cambios');
-                // } else {
                 this.$.updateAjax.body = serialize;
                 this.$.updateAjax.generateRequest();
-                // window.location.reload();
-                // }
-            },
-            _createCategory: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'POST';
-                this._getForm().action = this.url_base + 'category/' ;
-                var category = this._getForm().serialize();
-                category.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = category;
-                //// console.log(category);
-                this.$.categoryForm.submit();
-            },
-            _applychangesSubmit: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'PUT';
-                this._getForm().action = this.url_base + 'category/'  + this.key;
-                this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var category = this._getForm().serialize();
-                //category.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = category;
-                // console.log(this._getForm());
-                this.$.categoryForm.submit();
-            },
-            _reset: function (e) {
-                this.$.categoryForm.reset();
-            },
-            _formSubmit: function () {
-                //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
             },
             _getForm: function () {
                 return this.$.categoryForm;
-            },
-            _formPresubmit: function () {
-                // console.log("presubmit");
-            },
-            _formInvalid: function (e) {
-                var msg = 'Verifique los datos ingresados';
-                this.showError(msg);
-            },
-            _formError: function (error) {
-                //// console.log('a',error.detail.request.response);
-                var msg = error.detail.request.response.message;
-                this.showError(msg);
-            },
-            showError: function (errorMessage) {
-                //// console.log("error msg");
-                this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.categoryForm;
-                //// console.log(this.$.toastError.open());
-                this.$.toastError.open();
-            },
-            showMessage: function (message) {
-                this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.categoryForm;
-                this.$.toastOk.open();
-            },
-            _formResponse: function (response) {
-                var message = response.detail.response.message;
-                var id = response.detail.response.data.id;
-                this.set('route.path', id);
-                this.showMessage(message);
             },
             _viewChanged: function () {
                 if (!this.selected) {
@@ -425,7 +352,7 @@
                     'x-access-token': this.token
                 };
                 this.$.addCategoryAjax.method = 'POST';
-                this.$.addCategoryAjax.url = this.url_base + 'category/'  + this.key + '/category';
+                this.$.addCategoryAjax.url = this.url_base + 'category/' + this.key + '/category';
                 this.$.addCategoryAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.addCategoryAjax.body = {
                     "categoryId": this.$.selectCategory.value
@@ -481,7 +408,8 @@
                 // reallythis.$.deleteCategoriesAjax.body = categoriesArray;
                 // console.log(reallythis.$.deleteCategoriesAjax.body);
                 reallythis.$.deleteCategoriesAjax.method = 'DELETE';
-                reallythis.$.deleteCategoriesAjax.url = reallythis.url_base + 'category/' + reallythis.key + '/categories';
+                reallythis.$.deleteCategoriesAjax.url = reallythis.url_base + 'category/' + reallythis.key +
+                    '/categories';
                 reallythis.$.deleteCategoriesAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
                 reallythis.$.deleteCategoriesAjax.body = {

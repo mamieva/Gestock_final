@@ -1,14 +1,15 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="./list-page-behavior.html">
 <link rel="import" href="./users-form.html">
 <link rel="import" href="./roles-form.html">
@@ -18,6 +19,7 @@
 <link rel="import" href="./user-filter.html">
 <link rel="import" href="./priceLists-form.html">
 <link rel="import" href="./category-form.html">
+<link rel="import" href="./branchs-form.html">
 <link rel="import" href="./url-services-behavior.html">
 <dom-module id="list-page">
     <template>
@@ -79,10 +81,30 @@
                 color: white;
                 background-color: var(--default-primary-color);
             }
+            
+            #spinner {
+                position: absolute;
+                left: 50%;
+                top: 20%;
+                width: 100px;
+                height: 100px;
+                text-align: center;
+                position: absolute;
+                font-size: 20px;
+                --paper-spinner-stroke-width: 10px;
+                /*margin: 0 auto;*/
+            }            
+            paper-spinner.multi {
+                --paper-spinner-layer-1-color: var(--paper-purple-500);
+                --paper-spinner-layer-2-color: var(--paper-cyan-500);
+                --paper-spinner-layer-3-color: var(--paper-blue-grey-500);
+                --paper-spinner-layer-4-color: var(--paper-amber-500);
+            }
         </style>
         <app-route route="{{route}}" pattern="/:key" data="{{routeData}}" tail="{{routeTail}}" id="routeManager">
         </app-route>
         <div id="divAjax"></div>
+        <paper-spinner class="multi" id="spinner"></paper-spinner>
         <neon-animated-pages id="pages" selected="0">
             <div id="divList">
                 <paper-button id="addUser" class="pink">Agregar nuevo </paper-button>
@@ -99,7 +121,7 @@
                 <div id="pages">
                     <button on-tap="_prev">&lt;</button>
                     <template is="dom-repeat" items="[[pages]]">
-                        <button on-tap="_select" selected$="[[_isSelected(page, item)]]">[[item]]</button>
+                        <button on-tap="_select" selected$="[[_isSelected(grid_page, item)]]">[[item]]</button>
                     </template>
                     <button on-tap="_next">&gt;</button>
                 </div>
@@ -113,6 +135,7 @@
                     <persons-form name="proveedor" route="{{route}}" key="{{routeData.key}}" type-person="persons"></persons-form>
                     <priceLists-form name="pricelists" route="{{route}}" key="{{routeData.key}}"></priceLists-form>
                     <categories-form name="categories" route="{{route}}" key="{{routeData.key}}"></categories-form>
+                    <branchs-form name="branchs" route="{{route}}" key="{{routeData.key}}"></branchs-form>
                 </iron-pages>
             </div>
         </neon-animated-pages>
@@ -163,7 +186,7 @@
                 columns: {
                     type: Array
                 },
-                page: {
+                grid_page: {
                     type: Number
                 },
                 pages: {
@@ -171,12 +194,12 @@
                 }
 
             },
-            behaviors: [ListBehaviors.ListVaadinBehavior,URLServiceBehaviors.URLService],
+            behaviors: [ListBehaviors.ListVaadinBehavior, URLServiceBehaviors.URLService],
             observers: [
                 '_routeChanged(route.path)',
                 // '_viewChanged(data)',
                 '_fastsearchChanged(fastsearch)',
-                '_itemsChanged(items, page)'
+                '_itemsChanged(items, grid_page)'
             ],
             listeners: {
                 'addUser.tap': '_addUser',
@@ -199,7 +222,7 @@
                     //     this._viewChanged('');
                     // }
                 } else {
-                    //   // console.log('entro');
+                    // console.log('entro');
                     this.$.pages.entryAnimation = "slide-from-right-animation";
                     this.$.pages.exitAnimation = "slide-left-animation";
                     this.$.pages.selected = 1;
@@ -208,7 +231,12 @@
                 //this.$.editor.load(this.key);
             },
             _viewChanged: function (data) {
-                this.page = 0;
+                // arranca spinner de carga
+                this.$.spinner.active = true;
+                this.$.spinner.style.display = 'block';
+                this.$.pages.style.display = "none";
+                //
+                this.grid_page = 0;
                 // console.log("entra viewchang de lista", data);
                 this.ajaxlist.headers = '';
                 this.ajaxlist.params = '';
@@ -281,36 +309,39 @@
                 this.$.animated.close();
 
             },
-            _isSelected: function (page, item) {
-                return page === item - 1;
+
+            //VAADIN GRID
+            _isSelected: function (grid_page, item) {
+                return grid_page === item - 1;
             },
 
             _select: function (e) {
-                this.page = e.model.item - 1;
+                this.grid_page = e.model.item - 1;
             },
 
             _next: function () {
-                this.page = Math.min(this.pages.length - 1, this.page + 1);
+                this.grid_page = Math.min(this.pages.length - 1, this.grid_page + 1);
             },
 
             _prev: function () {
-                this.page = Math.max(0, this.page - 1);
+                this.grid_page = Math.max(0, this.grid_page - 1);
             },
 
-            _itemsChanged: function (items, page) {
+            _itemsChanged: function (items, grid_page) {
                 // console.log("entro a items",items)
                 // if (!this.pages) {
-                    this.pages = Array.apply(null, {
-                        length: Math.ceil(items.length / this.$.itemsList.pageSize)
-                    }).map(function (item, index) {
-                        return index + 1;
-                    });
+                this.pages = Array.apply(null, {
+                    length: Math.ceil(items.length / this.$.itemsList.pageSize)
+                }).map(function (item, index) {
+                    return index + 1;
+                });
                 // }
 
-                var start = page * this.$.itemsList.pageSize;
-                var end = (page + 1) * this.$.itemsList.pageSize;
+                var start = grid_page * this.$.itemsList.pageSize;
+                var end = (grid_page + 1) * this.$.itemsList.pageSize;
                 this.$.itemsList.items = items.slice(start, end);
             }
+            //VAADIN GRID CIERRA
         });
     </script>
 </dom-module>

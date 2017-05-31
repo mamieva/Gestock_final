@@ -1,126 +1,125 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animatable.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
-
-<link rel="import" href="./awsl-listeditor-vaadin-behavior">
-<link rel="import" href="./awsl-list-toolbar.html">
-<link rel="import" href="./awsl-editor.html">
-<link rel="import" href="./awsl-filter.html">
-
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
 <dom-module id="vaadin-list">
     <template>
         <style include="shared-styles"></style>
         <style>
-            :host {
-                @apply(--layout-vertical);
+             :host {
+                display: block;
             }
-
-            #listContent {
-                overflow: hidden;
+            
+            #pages {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 20px;
             }
-
-            vaadin-grid {
-                height: calc(100vh - 112px);
+            
+            #pages>button {
+                user-select: none;
+                padding: 5px;
+                margin: 0 5px;
+                border-radius: 10%;
+                border: 0;
+                background: transparent;
+                font: inherit;
+                outline: none;
+                cursor: pointer;
+            }
+            
+            #pages>button:hover,
+            #pages>button:focus {
+                color: var(--default-primary-color);
+                background-color: #eee;
+            }
+            
+            #pages>button[selected] {
+                font-weight: bold;
+                color: white;
+                background-color: var(--default-primary-color);
             }
         </style>
-
-        <app-route route="{{route}}"
-                   pattern="/:key"
-                   data="{{routeData}}"
-                   id="routeManager">
-        </app-route>
-
-        <awsl-filter id="filter"
-                     filterhref="[[filterhref]]" filterelement="[[filterelement]]">
-        </awsl-filter>
-
-        <neon-animated-pages id="pages" class="flex" entry-animation="slide-from-right-animation" exit-animation="slide-left-animation">
-            <neon-animatable>
-                <div id="listContent">
-                    <awsl-list-toolbar on-awsl-new="_onNew" fastsearch="{{fastsearch}}" items-count="[[itemsCount]]"></awsl-list-toolbar>
-                    <vaadin-grid id="itemsList" items="[[items]]">
-                        <content></content>
-                    </vaadin-grid>
-                </div>
-            </neon-animatable>
-            <neon-animatable>
-                <div>
-                    <awsl-editor id="editor" on-saved="_onSaved" on-close="_onClose" oname="{{oname}}"
-                                 on-awsl-set-title="_editorSetTitle"
-                                 edithref="[[edithref]]" editelement="[[editelement]]">
-                    </awsl-editor>
-                </div>
-            </neon-animatable>
-        </neon-animated-pages>
+        <vaadin-grid id="itemsList" items=[[items]] active-item="[[selectedItems]]" page-size="[[page_size]]">
+            <content></content>
+        </vaadin-grid>
+        <div id="pages">
+            <button on-tap="_prev">&lt;</button>
+            <template is="dom-repeat" items="[[pages]]">
+                <button on-tap="_select" selected$="[[_isSelected(grid_page, item)]]">[[item]]</button>
+            </template>
+            <button on-tap="_next">&gt;</button>
+        </div>
     </template>
     <script>
         Polymer({
             is: 'vaadin-list',
-            behaviors: ListBehaviors.ListEditorVaadinBehavior,
-            observers: [
-              '_routeChanged(route)',
-              '_viewChanged(routeData.key)',
-              '_fastsearchChanged(fastsearch)'
+            properties: {
+                grid_page: {
+                    type: Number
+                },
+                pages: {
+                    type: Array
+                },
+                items: {
+                    type: Array
+                },
+                selectedItems: {
+                    observer: "_selectedItemChanged"
+                }
+            },
+            behaviors: [
+                Polymer.IronA11yKeysBehavior,
+                Polymer.IronResizableBehavior,
+                // vaadin.elements.grid.ActiveItemBehavior,
+                vaadin.elements.grid.RowDetailsBehavior,
+                vaadin.elements.grid.DataProviderBehavior,
+                // vaadin.elements.grid.DynamicColumnsBehavior,
+                vaadin.elements.grid.ArrayDataProviderBehavior,
+                // vaadin.elements.grid.SelectionBehavior,
+                vaadin.elements.grid.SortBehavior,
+                vaadin.elements.grid.FilterBehavior,
+                vaadin.elements.grid.KeyboardNavigationBehavior,
+                vaadin.elements.grid.ColumnReorderingBehavior
             ],
-            _routeChanged: function (newRoute) {
-                if (newRoute.path == "")
-                {
-                    this.set('routeData.key', '');
-                    if (this.key !== undefined && this.key != "") {
-                        this._viewChanged('');
-                    }
-                }
+            observers: [
+                '_itemsChanged(items, grid_page)'
+            ],
+            //VAADIN GRID
+            _isSelected: function (grid_page, item) {
+                return grid_page === item - 1;
             },
-            _viewChanged: function (key) {
-                if (key === undefined || key == "") {
-                    this.reset();
-                }
-                else
-                {
-                    if (this.route.prefix == "/" + this.path && !this.settingRouteKey) {
-                        this.key = key;
-                        this.$.pages.entryAnimation = "slide-from-right-animation";
-                        this.$.pages.exitAnimation = "slide-left-animation";
-                        this.$.pages.selected = 1;
-                        this.$.editor.load(this.key);
-                    }
-                }
+
+            _select: function (e) {
+                this.grid_page = e.model.item - 1;
             },
-            getItemsList: function () {
-                return this.$.itemsList;
+
+            _next: function () {
+                this.grid_page = Math.min(this.pages.length - 1, this.grid_page + 1);
             },
-            getFilter: function () {
-                return this.$.filter;
+
+            _prev: function () {
+                this.grid_page = Math.max(0, this.grid_page - 1);
             },
-            reset: function () {
-                if (this.$.pages.selected != 0) {
-                    this._onClose();
-                    this.refresh();
-                }
+
+            _itemsChanged: function (items, grid_page) {
+                // console.log("entro a items",items)
+                // if (!this.pages) {
+                this.pages = Array.apply(null, {
+                    length: Math.ceil(items.length / this.$.itemsList.pageSize)
+                }).map(function (item, index) {
+                    return index + 1;
+                });
+                // }
+
+                var start = grid_page * this.$.itemsList.pageSize;
+                var end = (grid_page + 1) * this.$.itemsList.pageSize;
+                this.$.itemsList.items = items.slice(start, end);
             },
-            _onNew: function () {
-                this.key = "0";
-                this.set('route.path', '/' + this.key);
-            },
-            _onClose: function () {
-                this.$.pages.entryAnimation = "slide-from-left-animation";
-                this.$.pages.exitAnimation = "slide-right-animation";
-                this.set('route.path', '');
-                this.set('routeData.key', '');
-                this.$.pages.selected = 0;
-            },
-            _editorSetTitle: function (event) {
-                if (this.$.pages.selected == 0) {
-                    event.stopPropagation();
-                }
+            //VAADIN GRID CIERRA
+            ready: function () {
+                this.grid_page = 0;
+
             }
+
         });
     </script>
 </dom-module>

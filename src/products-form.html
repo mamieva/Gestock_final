@@ -19,11 +19,13 @@
 <link rel="import" href="../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/paper-styles/color.html">
-<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-styles/color.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/moment-element/moment-element.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
 <link rel="import" href="./url-services-behavior.html">
+<link rel="import" href="./form-behavior.html">
 <dom-module id="products-form">
     <template>
         <style include="shared-style"></style>
@@ -83,6 +85,12 @@
             vaadin-grid {
                 height: auto;
             }
+            
+            .components,
+            .priceList {
+                width: 90%;
+                margin-top: 40px;
+            }
         </style>
         <app-route route="{{route}}" pattern="/:product" data="{{productData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
@@ -123,25 +131,31 @@
                 </div>
             </form>
             <div id="components" class="components">
-                <!--<paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>-->
-                <paper-button raised submit id="openComponentDialog">Agregar Componente</paper-button>
-                <paper-button raised submit id="deleteComponent">Eliminar Componente</paper-button>
-                <vaadin-grid id="componentsList" items={{itemsComponents}} selection-mode="multi">
-                    <vaadin-grid-selection-column auto-select>
-                    </vaadin-grid-selection-column>
-                    <vaadin-grid-column>
-                        <template class="header">Componente</template>
-                        <template>[[item.componentId.name]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column>
-                        <template class="header">Cantidad</template>
-                        <template>[[item.quantity]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column>
-                        <template class="header">Unidad</template>
-                        <template>[[item.unit]]</template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
+                <paper-card heading="Componentes">
+                    <div class="card-content">
+                        <!--<paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>-->
+                        <paper-button raised submit id="openComponentDialog">Agregar Componente</paper-button>
+                        <paper-button raised submit id="deleteComponent">Eliminar Componente</paper-button>
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="componentsList" items={{itemsComponents}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Componente</template>
+                                <template>[[item.componentId.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Cantidad</template>
+                                <template>[[item.quantity]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Unidad</template>
+                                <template>[[item.unit]]</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
+                </paper-card>
             </div>
             <paper-dialog id="componentDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
                 <paper-autocomplete label="Seleccionar Componente" id="selectComponent"></paper-autocomplete>
@@ -162,25 +176,41 @@
                 </div>
             </paper-dialog>
             <div id="priceList" class="priceList">
-                <!--<paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>-->
-                <paper-button raised submit id="openPriceListDialog">Agregar Lista de Precio</paper-button>
-                <paper-button raised submit id="deletePriceList">Eliminar Lista</paper-button>
-                <vaadin-grid id="priceListList" items={{itemsPriceList}} selection-mode="multi">
-                    <vaadin-grid-selection-column auto-select>
-                    </vaadin-grid-selection-column>
-                    <vaadin-grid-column>
-                        <template class="header">Lista de Precio</template>
-                        <template>[[item.priceListId.name]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column>
-                        <template class="header">Costo</template>
-                        <template>[[item.cost]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column>
-                        <template class="header">Ganancia</template>
-                        <template>[[item.profit]]</template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
+                <paper-card heading="Lista de Precios">
+                    <div class="card-content">
+                        <!--<paper-autocomplete label="Seleccionar Componente" id="selectComponent" min-length="2"></paper-autocomplete>-->
+                        <paper-button raised submit id="openPriceListDialog">Agregar Lista de Precio</paper-button>
+                        <!--<paper-button raised submit id="deletePriceList">Eliminar Lista</paper-button>-->
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="priceListList" items={{itemsPriceList}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Lista de Precio</template>
+                                <template>[[item.priceListId.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Costo</template>
+                                <template>[[item.cost]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Ganancia</template>
+                                <template>[[item.profit]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Estado</template>
+                                <template>[[item.status]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Fecha de Cambio</template>
+                                <template>
+                                    <moment-element datetime="[[item.createdAt]]" from="now"></moment-element>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
+                </paper-card>
             </div>
             <paper-dialog id="priceListDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
                 <paper-autocomplete label="Seleccionar Lista" id="selectPriceList"></paper-autocomplete>
@@ -226,10 +256,10 @@
                 ajaxlist: {
                     type: Object
                 },
-                // url: {
-                //     type: String,
-                //     value: 'http://localhost:3000/product/'
-                // },
+                url: {
+                    type: String
+                    // value: 'http://localhost:3000/product/'
+                },
                 // url_base: {
                 //     type: String,
                 //     value: 'http://localhost:3000/'
@@ -250,20 +280,15 @@
                     type: Array
                 },
                 selected: {
-                    type: Boolean
+                    type: Boolean,
+                    reflectToAttribute: true
                 }
             },
-            behaviors: [URLServiceBehaviors.URLService],
+            behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
             observers: [
                 "_viewChanged(key,selected)"
             ],
             listeners: {
-                'iron-form-response': '_formResponse',
-                'iron-form-submit': '_formSubmit',
-                'iron-form-error': '_formError',
-                'iron-form-presubmit': '_formPresubmit',
-                'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createProduct',
                 'reset.tap': '_reset',
                 'apply_changes.tap': '_updateProduct',
                 'delete.tap': '_deleteDialog',
@@ -287,7 +312,6 @@
             _selectCategory: function (event) {
                 // // console.log("hola", event.detail.option.value);
                 this.$.category.value = event.detail.option.value;
-
             },
             _focusBrand: function (event) {
                 // console.log("hola", event);
@@ -300,7 +324,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url_base + 'product/'  + this.key;
+                this.$.deleteAjax.url = this.url_base + 'product/' + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -312,6 +336,7 @@
                 this.$.animated.open();
             },
             ready: function () {
+                this.url = this.url_base + 'product';
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
@@ -350,44 +375,7 @@
                 this.$.addPriceListAjax.addEventListener('response', this._handleResponseAddPriceList
                     .bind(this));
                 this.$.addPriceListAjax.addEventListener('error', this._handleError.bind(this));
-                //
-                // this.$.myId.source = ["viejo","nuevo"];
-                // var brandCol = [{
-                //     "name": "name",
-                //     "sortable": "true"
-                // }, {
-                //     "name": "description",
-                //     "sortable": "true"
-                // }];
-                // this._getBrandList().columns = brandCol;
-                // // Gestionar grilla de marcas
-                // this._getBrandList().reallythis = this;
-                // this._getBrandList().addEventListener('selected-items-changed', (this)._selectedSupplierChanged);
-                //
-                //Agregar columnas a las grilla e componentes
-                var componentCol = [{
-                    "name": "name",
-                    "sortable": "true"
-                }, {
-                    "name": "quantity",
-                    "sortable": "true"
-                }];
-                this._getComponentList().columns = componentCol;
-                //Agregar columnas a las grilla e lista de precios
-                var pricelistCol = [{
-                    "name": "priceLists",
-                    "sortable": "true"
-                }, {
-                    "name": "cost",
-                    "sortable": "true"
-                }, {
-                    "name": "profit",
-                    "sortable": "true"
-                }, {
-                    "name": "status",
-                    "sortable": "true"
-                }];
-                this._getPriceListList().columns = pricelistCol;
+
                 // Gestionar grilla de direcciones
                 this._getComponentList().reallythis = this;
                 this._getComponentList().addEventListener('selected-items-changed', (this)._selectedComponentChanged);
@@ -436,7 +424,7 @@
                 this.$.productAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.productAjax.url = this.url_base + 'product/'  + this.key;
+                this.$.productAjax.url = this.url_base + 'product/' + this.key;
                 this.$.productAjax.generateRequest();
             },
             _updateProduct: function (event) {
@@ -444,7 +432,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url_base + 'product/'  + this.key;
+                this.$.updateAjax.url = this.url_base + 'product/' + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -463,7 +451,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
-                this._getForm().action = this.url_base + 'product/' ;
+                this._getForm().action = this.url_base + 'product/';
 
                 // this.$.brand.value = this.$.brand_autocomplete.value;
 
@@ -480,7 +468,7 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url_base + 'product/'  + this.key;
+                this._getForm().action = this.url_base + 'product/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
                 //var product = this._getForm().serialize();
                 //product.token = JSON.parse(window.localStorage.session).token;
@@ -488,44 +476,8 @@
                 // console.log(this._getForm());
                 this.$.productForm.submit();
             },
-            _reset: function (e) {
-                this.$.productForm.reset();
-            },
-            _formSubmit: function () {
-                //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
-            },
             _getForm: function () {
                 return this.$.productForm;
-            },
-            _formPresubmit: function () {
-                // console.log("presubmit");
-            },
-            _formInvalid: function (e) {
-                var msg = 'Verifique los datos ingresados';
-                this.showError(msg);
-            },
-            _formError: function (error) {
-                //// console.log('a',error.detail.request.response);
-                var msg = error.detail.request.response.message;
-                this.showError(msg);
-            },
-            showError: function (errorMessage) {
-                //// console.log("error msg");
-                this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.productForm;
-                //// console.log(this.$.toastError.open());
-                this.$.toastError.open();
-            },
-            showMessage: function (message) {
-                this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.productForm;
-                this.$.toastOk.open();
-            },
-            _formResponse: function (response) {
-                var message = response.detail.response.message;
-                var id = response.detail.response.data.id;
-                this.set('route.path', id);
-                this.showMessage(message);
             },
             _getBrands: function () {
                 //obtener todos los marcas para poder Agregar
@@ -607,10 +559,11 @@
                     // this.$.description.disabled = null;
                     // this.$.description.style.display = 'inline-block';
                     //
-                    this._getBrands();
-                    this._getCategories();
-                    this._getPriceLists();
-                    if (this.key != '' && this.key != 'undefined') {
+                    // this._getBrands();
+                    // this._getCategories();
+                    // this._getPriceLists();
+                    // && this.key != 'undefined'
+                    if (this.key != '' ) {
                         this.$.status.selected = '';
                         // this.$.name.disabled = 'disabled';
                         // this.$.description.disabled = 'disabled';
@@ -621,6 +574,9 @@
                         this.$.priceList.style.display = "block";
                         this._getProduct();
                         this._getComponents();
+                        this._getBrands();
+                        this._getCategories();
+                        this._getPriceLists();
                     } else {
                         this._getComponents();
                         this.$.delete.style.display = 'none';
@@ -633,7 +589,7 @@
                     'x-access-token': this.token
                 };
                 this.$.addBrandAjax.method = 'POST';
-                this.$.addBrandAjax.url = this.url_base + 'product/'  + this.key + '/brand';
+                this.$.addBrandAjax.url = this.url_base + 'product/' + this.key + '/brand';
                 this.$.addBrandAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.addBrandAjax.body = {
                     "brandId": this.$.brand.value
@@ -689,7 +645,8 @@
                 // reallythis.$.deleteBrandsAjax.body = brandsArray;
                 // console.log(reallythis.$.deleteBrandsAjax.body);
                 reallythis.$.deleteBrandsAjax.method = 'DELETE';
-                reallythis.$.deleteBrandsAjax.url = reallythis.url_base + 'product/' + reallythis.key + '/brands';
+                reallythis.$.deleteBrandsAjax.url = reallythis.url_base + 'product/' + reallythis.key +
+                    '/brands';
                 reallythis.$.deleteBrandsAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
                 reallythis.$.deleteBrandsAjax.body = {
@@ -712,7 +669,7 @@
                     'x-access-token': this.token
                 };
                 this.$.addComponentAjax.method = 'POST';
-                this.$.addComponentAjax.url = this.url_base + 'product/'  + this.key + '/component';
+                this.$.addComponentAjax.url = this.url_base + 'product/' + this.key + '/component';
                 this.$.addComponentAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.addComponentAjax.body = {
                     "componentId": this.$.selectComponent.value,
@@ -773,7 +730,8 @@
                 // // reallythis.$.deleteComponentsAjax.body = componentsArray;
                 // // console.log(reallythis.$.deleteComponentsAjax.body);
                 reallythis.$.deleteComponentsAjax.method = 'DELETE';
-                reallythis.$.deleteComponentsAjax.url = reallythis.url_base + 'product/' + reallythis.key + '/components';
+                reallythis.$.deleteComponentsAjax.url = reallythis.url_base + 'product/' + reallythis.key +
+                    '/components';
                 reallythis.$.deleteComponentsAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
                 reallythis.$.deleteComponentsAjax.body = {
@@ -831,7 +789,7 @@
                     'x-access-token': this.token
                 };
                 this.$.addPriceListAjax.method = 'POST';
-                this.$.addPriceListAjax.url = this.url_base + 'product/'  + this.key + '/pricelist';
+                this.$.addPriceListAjax.url = this.url_base + 'product/' + this.key + '/pricelist';
                 this.$.addPriceListAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.addPriceListAjax.body = {
                     "priceListId": this.$.selectPriceList.value,
@@ -944,7 +902,7 @@
                 console.log(element)
                 for (var i = 0; i < element.childNodes.length; i++) {
                     var e = element.childNodes[i];
-                    console.log(e)
+                    // console.log(e)
                     if (e.tagName) switch (e.tagName.toLowerCase()) {
                         case 'input':
                             switch (e.type) {
@@ -968,7 +926,7 @@
                             e.innerHTML = '';
                             break;
                         default:
-                            console.log("pasa")
+                            // console.log("pasa")
                             e.text = ''; //(e);
                     }
                 }

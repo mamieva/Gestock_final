@@ -1,26 +1,28 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
-<link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
-<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
 <link rel="import" href="./url-services-behavior.html">
+<link rel="import" href="./form-behavior.html">
+
 <dom-module id="priceLists-form">
     <template>
         <style include="shared-style"></style>
@@ -80,7 +82,7 @@
                     <iron-icon icon="icons:description" prefix></iron-icon>
                 </paper-input>
                 <paper-dropdown-menu label="Estado" name="status" required>
-                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="">
+                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="ACTIVO">ACTIVO</paper-item>
                         <paper-item name="INACTIVO">INACTIVO</paper-item>
                     </paper-listbox>
@@ -117,10 +119,10 @@
                 ajaxlist: {
                     type: Object
                 },
-                // url: {
-                //     type: String,
-                //     value: 'http://localhost:3000/pricelist'
-                // },
+                url: {
+                    type: String
+                    // value: 'http://localhost:3000/pricelist'
+                },
                 token: {
                     type: String
                 },
@@ -131,21 +133,16 @@
                     type: String
                 },
                 selected: {
-                    type: Boolean
+                    type: Boolean,
+                    reflectToAttribute: true
                 }
             },
-            behaviors: [URLServiceBehaviors.URLService],
+            behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
             observers: [
                 "_viewChanged(key,selected)"
             ],
             listeners: {
-                'iron-form-response': '_formResponse',
-                'iron-form-submit': '_formSubmit',
-                'iron-form-error': '_formError',
-                'iron-form-presubmit': '_formPresubmit',
-                'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createPriceList',
-                'reset.tap': '_reset',
+                'create.tap': '_createForm',
                 'apply_changes.tap': '_updatePriceList',
                 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deletePriceList'
@@ -157,17 +154,14 @@
                 };
                 this.$.deleteAjax.method = 'DELETE';
                 this.$.deleteAjax.url = this.url_base + 'pricelist/' + this.key;
-                //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
-                // this.$.deleteAjax.debounceDuration = "300";
-                // var serialize = this._getForm().serialize();
-                //this.$.updateAjax.body = serialize;
                 this.$.deleteAjax.generateRequest();
-                // window.location.reload();
             },
             _deleteDialog: function () {
                 this.$.animated.open();
             },
             ready: function () {
+                //
+                this.url = this.url_base + 'pricelist';
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
@@ -196,7 +190,6 @@
                 if (priceList.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
-
             },
             _handleError: function (error) {
                 // console.log(error);
@@ -242,71 +235,8 @@
                 // window.location.reload();
                 // }
             },
-            _createPriceList: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'POST';
-                this._getForm().action = this.url_base + 'pricelist';
-                var priceList = this._getForm().serialize();
-                priceList.token = JSON.parse(window.localStorage.session).token;
-                // this._getForm().params = priceList;
-                //// console.log(priceList);
-                this.$.priceListForm.submit();
-            },
-            _applychangesSubmit: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'PUT';
-                this._getForm().action = this.url_base + 'pricelist/' + this.key;
-                this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var priceList = this._getForm().serialize();
-                //priceList.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = priceList;
-                // console.log(this._getForm());
-                this.$.priceListForm.submit();
-            },
-            _reset: function (e) {
-                this.$.priceListForm.reset();
-            },
-            _formSubmit: function () {
-                //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
-            },
             _getForm: function () {
                 return this.$.priceListForm;
-            },
-            _formPresubmit: function () {
-                // console.log("presubmit");
-            },
-            _formInvalid: function (e) {
-                var msg = 'Verifique los datos ingresados';
-                this.showError(msg);
-            },
-            _formError: function (error) {
-                //// console.log('a',error.detail.request.response);
-                var msg = error.detail.request.response.message;
-                this.showError(msg);
-            },
-            showError: function (errorMessage) {
-                //// console.log("error msg");
-                this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.priceListForm;
-                //// console.log(this.$.toastError.open());
-                this.$.toastError.open();
-            },
-            showMessage: function (message) {
-                this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.priceListForm;
-                this.$.toastOk.open();
-            },
-            _formResponse: function (response) {
-                var message = response.detail.response.message;
-                var id = response.detail.response.data.id;
-                this.set('route.path', id);
-                this.showMessage(message);
             },
             _viewChanged: function () {
                 // debugger

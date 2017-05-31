@@ -39,7 +39,9 @@
     "paper-listbox": "PolymerElements/paper-listbox#^1.1.2",
     "paper-dialog-behavior": "PolymerElements/paper-dialog-behavior#^1.2.7",
     "paper-dialog": "PolymerElements/paper-dialog#^1.1.0",
-    "paper-autocomplete": "^2.1.5"
+    "paper-autocomplete": "^2.1.5",
+    "iron-lazy-pages": "TimvdLippe/iron-lazy-pages#^1.5.1",
+    "moment-element": "abdonrd/moment-element#^0.4.4"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
