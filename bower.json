@@ -41,7 +41,8 @@
     "paper-dialog": "PolymerElements/paper-dialog#^1.1.0",
     "paper-autocomplete": "^2.1.5",
     "iron-lazy-pages": "TimvdLippe/iron-lazy-pages#^1.5.1",
-    "moment-element": "abdonrd/moment-element#^0.4.4"
+    "moment-element": "abdonrd/moment-element#^0.4.4",
+    "google-calendar": "GoogleWebComponents/google-calendar#^1.0.3"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

@@ -113,10 +113,10 @@
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                 </paper-input>
-                <paper-autocomplete id="brand_autocomplete" label="Seleccionar Marca" required></paper-autocomplete>
-                <input type="hidden" id="brand" name="brand">
-                <paper-autocomplete id="category_autocomplete" label="Seleccionar Categoria" required></paper-autocomplete>
-                <input type="hidden" id="category" name="category">
+                <paper-autocomplete  name="brand" id="brand" label="Seleccionar Marca" required></paper-autocomplete>
+                <!--<input type="hidden" id="brand" name="brand">-->
+                <paper-autocomplete name="category" id="category" label="Seleccionar Categoria" required></paper-autocomplete>
+                <!--<input type="hidden" id="category" name="category">-->
                 <paper-dropdown-menu label="Estado" name="status" required>
                     <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="ACTIVO">ACTIVO</paper-item>
@@ -298,21 +298,21 @@
                 'openPriceListDialog.tap': '_openPriceListDialog',
                 'addComponent.tap': '_addComponent',
                 'addPriceList.tap': '_addPriceList',
-                'brand_autocomplete.autocomplete-selected': '_selectBrand',
-                'category_autocomplete.autocomplete-selected': '_selectCategory',
+                // 'brand_autocomplete.autocomplete-selected': '_selectBrand',
+                // 'category_autocomplete.autocomplete-selected': '_selectCategory',
                 // 'brand_autocomplete.autocomplete-focus': '_focusBrand',
                 // 'brand_autocomplete.on-change': '_focusBrand',
                 'deleteComponent.tap': '_deleteComponents'
             },
-            _selectBrand: function (event) {
-                // // console.log("hola", event.detail.option.value);
-                this.$.brand.value = event.detail.option.value;
+            // _selectBrand: function (event) {
+            //     // // console.log("hola", event.detail.option.value);
+            //     this.$.brand.value = event.detail.option.value;
 
-            },
-            _selectCategory: function (event) {
-                // // console.log("hola", event.detail.option.value);
-                this.$.category.value = event.detail.option.value;
-            },
+            // },
+            // _selectCategory: function (event) {
+            //     // // console.log("hola", event.detail.option.value);
+            //     this.$.category.value = event.detail.option.value;
+            // },
             _focusBrand: function (event) {
                 // console.log("hola", event);
                 // this.$.brand_autocomplete.clear(); //.value = event.detail.option.value;
@@ -386,12 +386,12 @@
                 this.product = product;
                 this.$.code.value = product.code;
                 this.$.name.value = product.name;
-                this.$.brand_autocomplete.value = product.brand._id;
-                this.$.brand_autocomplete.text = product.brand.name;
                 this.$.brand.value = product.brand._id;
-                this.$.category_autocomplete.value = product.category._id;
-                this.$.category_autocomplete.text = product.category.name;
+                this.$.brand.text = product.brand.name;
+                // this.$.brand.value = product.brand._id;
                 this.$.category.value = product.category._id;
+                this.$.category.text = product.category.name;
+                // this.$.category.value = product.category._id;
                 this.itemsComponents = product.components;
                 this.itemsPriceList = product.priceLists;
                 this.$.status.selected = product.status;
@@ -410,14 +410,14 @@
                 var update = response.detail.response;
                 this.showMessage('El producto ha sido actualizado con exito');
                 // window.location.reload();
-                this._viewChanged(this.key);
+                this._viewChanged(this.key,this.selected);
             },
             _handleResponseDelete: function (response) {
                 // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
-                this._viewChanged('');
+                this._viewChanged('',this.selected);
                 this.set('route.path', '');
             },
             _getProduct: function () {
@@ -481,7 +481,7 @@
             },
             _getBrands: function () {
                 //obtener todos los marcas para poder Agregar
-                var input = this.$.brand_autocomplete;
+                var input = this.$.brand;
                 //var search = event.detail.option.text;
                 var url = this.url_base + 'brands';
                 var req = new XMLHttpRequest();
@@ -510,7 +510,7 @@
             },
             _getCategories: function () {
                 //obtener todos los marcas para poder Agregar
-                var input = this.$.category_autocomplete;
+                var input = this.$.category;
                 //var search = event.detail.option.text;
                 var url = this.url_base + 'categories';
                 var req = new XMLHttpRequest();

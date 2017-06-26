@@ -347,72 +347,72 @@
                 // window.location.reload();
                 // }
             },
-            _createUser: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'POST';
-                this._getForm().action = this.url_base + 'user/' ;
-                var user = this._getForm().serialize();
-                user.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = user;
-                //// console.log(user);
-                this.$.userForm.submit();
-            },
-            _applychangesSubmit: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'PUT';
-                this._getForm().action = this.url_base + 'user/'  + this.key;
-                this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var user = this._getForm().serialize();
-                //user.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = user;
-                // console.log(this._getForm());
-                this.$.userForm.submit();
-            },
-            _reset: function (e) {
-                this.$.userForm.reset();
-            },
-            _formSubmit: function () {
-                //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
-            },
+            // _createUser: function (event) {
+            //     //var token = JSON.parse(window.localStorage.session).token
+            //     this._getForm().headers = {
+            //         'x-access-token': this.token
+            //     };
+            //     this._getForm().method = 'POST';
+            //     this._getForm().action = this.url_base + 'user/' ;
+            //     var user = this._getForm().serialize();
+            //     user.token = JSON.parse(window.localStorage.session).token;
+            //     this._getForm().params = user;
+            //     //// console.log(user);
+            //     this.$.userForm.submit();
+            // },
+            // _applychangesSubmit: function (event) {
+            //     //var token = JSON.parse(window.localStorage.session).token
+            //     this._getForm().headers = {
+            //         'x-access-token': this.token
+            //     };
+            //     this._getForm().method = 'PUT';
+            //     this._getForm().action = this.url_base + 'user/'  + this.key;
+            //     this._getForm().contentType = "application/x-www-form-urlencoded";
+            //     //var user = this._getForm().serialize();
+            //     //user.token = JSON.parse(window.localStorage.session).token;
+            //     //this._getForm().params = user;
+            //     // console.log(this._getForm());
+            //     this.$.userForm.submit();
+            // },
+            // _reset: function (e) {
+            //     this.$.userForm.reset();
+            // },
+            // _formSubmit: function () {
+            //     //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
+            // },
             _getForm: function () {
                 return this.$.userForm;
             },
-            _formPresubmit: function () {
-                // console.log("presubmit");
-            },
-            _formInvalid: function (e) {
-                var msg = 'Verifique los datos ingresados';
-                this.showError(msg);
-            },
-            _formError: function (error) {
-                //// console.log('a',error.detail.request.response);
-                var msg = error.detail.request.response.message;
-                this.showError(msg);
-            },
-            showError: function (errorMessage) {
-                //// console.log("error msg");
-                this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.userForm;
-                //// console.log(this.$.toastError.open());
-                this.$.toastError.open();
-            },
-            showMessage: function (message) {
-                this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.userForm;
-                this.$.toastOk.open();
-            },
-            _formResponse: function (response) {
-                var message = response.detail.response.message;
-                var id = response.detail.response.data.id;
-                this.set('route.path', id);
-                this.showMessage(message);
-            },
+            // _formPresubmit: function () {
+            //     // console.log("presubmit");
+            // },
+            // _formInvalid: function (e) {
+            //     var msg = 'Verifique los datos ingresados';
+            //     this.showError(msg);
+            // },
+            // _formError: function (error) {
+            //     //// console.log('a',error.detail.request.response);
+            //     var msg = error.detail.request.response.message;
+            //     this.showError(msg);
+            // },
+            // showError: function (errorMessage) {
+            //     //// console.log("error msg");
+            //     this.$.toastError.text = errorMessage;
+            //     //this.$.toastError.fitInto = this.$.userForm;
+            //     //// console.log(this.$.toastError.open());
+            //     this.$.toastError.open();
+            // },
+            // showMessage: function (message) {
+            //     this.$.toastOk.text = message;
+            //     //this.$.toastOk.fitInto = this.$.userForm;
+            //     this.$.toastOk.open();
+            // },
+            // _formResponse: function (response) {
+            //     var message = response.detail.response.message;
+            //     var id = response.detail.response.data.id;
+            //     this.set('route.path', id);
+            //     this.showMessage(message);
+            // },
             _viewChanged: function () {
                 // debugger
                 if (!this.selected) {

@@ -232,19 +232,6 @@
                 // window.location.reload();
                 // }
             },
-            // _createRole: function (event) {
-            //     //var token = JSON.parse(window.localStorage.session).token
-            //     this._getForm().headers = {
-            //         'x-access-token': this.token
-            //     };
-            //     this._getForm().method = 'POST';
-            //     this._getForm().action = this.url;
-            //     var role = this._getForm().serialize();
-            //     role.token = JSON.parse(window.localStorage.session).token;
-            //     this._getForm().params = role; 
-            //     //// console.log(role);
-            //     this.$.roleForm.submit();
-            // },
             _applychangesSubmit: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
                 this._getForm().headers = {
@@ -253,51 +240,11 @@
                 this._getForm().method = 'PUT';
                 this._getForm().action = this.url_base + 'role/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var role = this._getForm().serialize();
-                //role.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = role;
-                // console.log(this._getForm());
                 this.$.roleForm.submit();
             },
-            // _reset: function (e) {
-            //     this.$.roleForm.reset();
-            // },
-            // _formSubmit: function () {
-            //     //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
-            // },
             _getForm: function () {
                 return this.$.roleForm;
             },
-            // _formPresubmit: function () {
-            //     // console.log("presubmit");
-            // },
-            // _formInvalid: function (e) {
-            //     var msg = 'Verifique los datos ingresados';
-            //     this.showError(msg);
-            // },
-            // _formError: function (error) {
-            //     //// console.log('a',error.detail.request.response);
-            //     var msg = error.detail.request.response.message;
-            //     this.showError(msg);
-            // },
-            // showError: function (errorMessage) {
-            //     //// console.log("error msg");
-            //     this.$.toastError.text = errorMessage;
-            //     //this.$.toastError.fitInto = this.$.roleForm;
-            //     //// console.log(this.$.toastError.open());
-            //     this.$.toastError.open();
-            // },
-            // showMessage: function (message) {
-            //     this.$.toastOk.text = message;
-            //     //this.$.toastOk.fitInto = this.$.roleForm;
-            //     this.$.toastOk.open();
-            // },
-            // _formResponse: function (response) {
-            //     var message = response.detail.response.message;
-            //     var id = response.detail.response.data.id;
-            //     this.set('route.path', id);
-            //     this.showMessage(message);
-            // },
             _viewChanged: function () {
                 // debugger
                 if (!this.selected) {
@@ -310,7 +257,6 @@
                             this.token = JSON.parse(window.localStorage.session).token;
                         }
                         // Limpiar formulario
-                        // console.log("reset");
                         this.$.roleForm.reset();
                         //Prendemos los botones
                         this.$.create.style.display = 'inline-block';

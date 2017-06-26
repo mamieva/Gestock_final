@@ -29,33 +29,33 @@
              :host {
                 display: block;
             }
-            
+
             .container {
                 display: block;
                 margin: 20px 0 0 20px;
                 width: 100%;
             }
-            
+
             form {
                 width: 900px;
             }
-            
+
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-            
+
             .botonera {
                 margin: 10px 0 0 0;
             }
-            
+
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
-            
+
             .contacts,
             .addresses {
                 width: 90%;
@@ -82,7 +82,7 @@
                         <paper-item name="PROVEEDOR">PROVEEDOR</paper-item>
                         <paper-item name="VENDEDOR">VENDEDOR</paper-item>
                         <paper-item name="CAJERO">CAJERO</paper-item>
-                        </paper-listbox>
+                    </paper-listbox>
                 </paper-dropdown-menu>
                 <paper-input id="businessName" name="businessName" label="Razón Social" required>
                     <iron-icon icon="mail" prefix></iron-icon>
@@ -124,43 +124,51 @@
             </form>
             <div id="addresses" class="addresses">
                 <paper-card heading="Direcciones">
-                    <paper-input id="address" name="address" label="Dirección">
-                        <iron-icon icon="icons:description" prefix></iron-icon>
-                    </paper-input>
-                    <paper-button raised submit id="addAddress">Agregar Domicilio</paper-button>
-                    <paper-button raised submit id="deleteAddress">Eliminar Seleccionado</paper-button>
-                    <vaadin-grid id="addressList" items={{itemsAddress}} selection-mode="multi">
-                        <vaadin-grid-selection-column auto-select>
-                        </vaadin-grid-selection-column>
-                        <vaadin-grid-column>
-                            <template class="header">Dirección</template>
-                            <template>[[item.address]]</template>
-                        </vaadin-grid-column>
-                    </vaadin-grid>
+                    <div class="card-content">
+                        <paper-input id="address" name="address" label="Dirección">
+                            <iron-icon icon="icons:description" prefix></iron-icon>
+                        </paper-input>
+                        <paper-button raised submit id="addAddress">Agregar Domicilio</paper-button>
+                        <paper-button raised submit id="deleteAddress">Eliminar Seleccionado</paper-button>
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="addressList" items={{itemsAddress}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Dirección</template>
+                                <template>[[item.address]]</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
                 </paper-card>
             </div>
             <div id="contacts" class="contacts">
                 <paper-card heading="Contactos">
-                    <paper-input id="contactName" name="contactName" label="Nombre Contacto">
-                        <iron-icon icon="icons:description" prefix></iron-icon>
-                    </paper-input>
-                    <paper-input id="contactPhone" name="contactPhone" label="Teléfono Contacto">
-                        <iron-icon icon="icons:description" prefix></iron-icon>
-                    </paper-input>
-                    <paper-button raised submit id="addContact">Agregar Contacto</paper-button>
-                    <paper-button raised submit id="deleteContact">Eliminar Seleccionado</paper-button>
-                    <vaadin-grid id="contactsList" items={{itemsContacts}} selection-mode="multi">
-                        <vaadin-grid-selection-column auto-select>
-                        </vaadin-grid-selection-column>
-                        <vaadin-grid-column>
-                            <template class="header">Nombre</template>
-                            <template>[[item.name]]</template>
-                        </vaadin-grid-column>
-                        <vaadin-grid-column>
-                            <template class="header">Teléfono</template>
-                            <template>[[item.phone]]</template>
-                        </vaadin-grid-column>
-                    </vaadin-grid>
+                    <div class="card-content">
+                        <paper-input id="contactName" name="contactName" label="Nombre Contacto">
+                            <iron-icon icon="icons:description" prefix></iron-icon>
+                        </paper-input>
+                        <paper-input id="contactPhone" name="contactPhone" label="Teléfono Contacto">
+                            <iron-icon icon="icons:description" prefix></iron-icon>
+                        </paper-input>
+                        <paper-button raised submit id="addContact">Agregar Contacto</paper-button>
+                        <paper-button raised submit id="deleteContact">Eliminar Seleccionado</paper-button>
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="contactsList" items={{itemsContacts}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Nombre</template>
+                                <template>[[item.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Teléfono</template>
+                                <template>[[item.phone]]</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
                 </paper-card>
             </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
@@ -367,14 +375,14 @@
                 var update = response.detail.response;
                 this.showMessage('La persona ha sido actualizado con exito');
                 // window.location.reload();
-                this._viewChanged(this.key);
+                this._viewChanged(this.key,this.selected);
             },
             _handleResponseDelete: function (response) {
                 // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
-                this._viewChanged('');
+                this._viewChanged('',this.selected);
                 this.set('route.path', '');
             },
             _getPerson: function () {
@@ -445,7 +453,6 @@
                             this.$.reset.style.display = 'none';
                             this._getPerson();
                         } else {
-                            // console.log("else");
                             var type = this.name.toUpperCase();
                             this.type = type;
                             this.$.addresses.style.display = 'none';
@@ -550,7 +557,7 @@
                 this.$.addContactAjax.body = serialize;
                 this.$.addContactAjax.generateRequest();
                 this.$.contactName.value = '';
-                this.$.contactPhone.value = '';              
+                this.$.contactPhone.value = '';
             },
             _selectedContactChanged: function (event) {
                 var reallythis = this.reallythis;
@@ -612,7 +619,7 @@
                 var data = response.detail.response.data;
                 this.itemsContacts = data;
                 this.showMessage(message);
-            },
+            }
         });
     </script>
 </dom-module>

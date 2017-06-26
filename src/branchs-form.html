@@ -3,6 +3,8 @@
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../bower_components/iron-icons/social-icons.html">
 <link rel="import" href="../bower_components/iron-icons/communication-icons.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
@@ -31,27 +33,27 @@
              :host {
                 display: block;
             }
-            
+
             .container {
                 display: block;
                 margin: 20px 0 0 20px;
                 width: 100%;
             }
-            
+
             form {
                 width: 900px;
             }
-            
+
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-            
+
             .botonera {
                 margin: 10px 0 0 0;
             }
-            
+
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
@@ -67,15 +69,18 @@
         <div class="container">
             <h3>Sucursal</h3>
             <form is="iron-form" id="branchForm">
+                <paper-autocomplete label="Empresa" id="business" name="business" disable-show-clear="true"></paper-autocomplete>
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
-                    <!--<div suffix>@email.com</div>-->
                 </paper-input>
-                <paper-autocomplete name="paises" label="Pais" id="pais" disable-show-clear="true"></paper-autocomplete>
-                <paper-autocomplete  name="provincia" label="Provincia" id="provincia"></paper-autocomplete>
-                <!--<paper-input id="pais" name="pais" label="Pais">
-                    <iron-icon icon="icons:description" prefix></iron-icon>
-                </paper-input>-->
+                <!--<paper-autocomplete label="Pais" id="pais" disable-show-clear="true"></paper-autocomplete>-->
+                <paper-autocomplete name="address.province" label="Provincia" id="provincia" disable-show-clear="true"></paper-autocomplete>
+                <paper-input id="city" name="address.city" label="Ciudad">
+                    <iron-icon icon="social:location-city" prefix></iron-icon>
+                </paper-input>
+                <paper-input id="calle" name="address.street" label="Calle">
+                    <iron-icon icon="maps:streetview" prefix></iron-icon>
+                </paper-input>
                 <paper-dropdown-menu label="Estado" name="status" required>
                     <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="ACTIVO">ACTIVO</paper-item>
@@ -142,7 +147,7 @@
                 'apply_changes.tap': '_updatebranch',
                 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deletebranch',
-                'pais.autocomplete-selected': '_getStates'
+                // 'pais.autocomplete-selected': '_getStates'
             },
             _deletebranch: function () {
                 // console.log("entro aceptar");
@@ -162,6 +167,7 @@
                 this.$.animated.open();
             },
             ready: function () {
+                //
                 //iniciar url
                 this.url = this.url_base + 'branch'
                 //cargar formulario
@@ -185,7 +191,16 @@
                 // console.log(response.detail.response.data);
                 var branch = response.detail.response.data;
                 this.branch = branch;
+                this.$.business.value = branch.business;
                 this.$.name.value = branch.name;
+                // this.$.pais.value = 'argentina';
+                // this.$.pais.text = 'Argentina';
+                // console.log(branch.address.province);
+                // this.$.provincia.selected = branch.address.province;
+                this.$.provincia.value = branch.address.province;
+                // this.$.provincia.text = branch.address.province;
+                this.$.city.value = branch.address.city;
+                this.$.calle.value = branch.address.street;
                 // this.$.description.value = branch.description;
                 this.$.status.selected = branch.status;
                 // console.log(this.$.status.selected);
@@ -264,10 +279,11 @@
             },
             _getStates: function (e) {
                 let reallythis = this;
-                console.log(e.detail.value);
-                console.log(e.detail.value + '.json');
+                // console.log(e.detail.value);
+                // console.log(e.detail.value + '.json');
                 //
-                let url = './data/countries/' + e.detail.value + '.json';
+                // let url = './data/countries/' + e.detail.value + '.json';
+                let url = './data/countries/argentina.json';
                 fetch(url, {
                         method: 'get'
                     }).then(function (response) {
@@ -280,13 +296,45 @@
                         reallythis.$.provincia.source = result.map(function (obj) {
                             return {
                                 text: obj.name,
-                                value: obj.name.toLowerCase()
+                                value: obj.name
                             };
                         });
                     }).catch(function (err) {
                         console.log(err);
                         // Error :(
                     });
+            },
+            _getBusiness: function () {
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token
+                });
+                let init = {
+                    method: 'POST',
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+
+                var myRequest = new Request( this.url_base + 'businesses', init);
+
+                fetch(myRequest)
+                .then(function(response){
+                    return response.json()
+                })
+                .then(function(result){
+                    reallythis.$.business.source = result.data.map(function(obj){
+                        return{
+                            text: obj.name,
+                            value: obj._id
+                        }
+                    })
+                    console.log(result);
+                })
+                .catch(function(err){
+                    console.log("error",err);
+                })
+
             },
             _viewChanged: function () {
                 // debugger
@@ -310,6 +358,8 @@
                         // this.$.name.disabled = null;
                         // this.$.description.disabled = null;
                         // this.$.description.style.display = 'inline-block';
+                        this._getStates();
+                        this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {
                             this.$.status.selected = '';
@@ -319,7 +369,6 @@
                             this.$.create.style.display = 'none';
                             this.$.reset.style.display = 'none';
                             this._getbranch();
-                            this._getCountries();
                         } else {
                             this.$.delete.style.display = 'none';
                             this.$.apply_changes.style.display = 'none';
