@@ -24,15 +24,16 @@
 <dom-module id="menu-app">
   <template>
     <style is="custom-style">
-        :host{
-          display: block;
-          min-height: 900px; 
-          overflow: hidden;
-        }
-        iron-selector a {
-          text-decoration: none;
-          color: black;
-        }
+       :host {
+        display: block;
+        min-height: 900px;
+        overflow: hidden;
+      }
+
+      iron-selector a {
+        text-decoration: none;
+        color: black;
+      }
     </style>
     <!-- Enrutador -->
     <!--<app-location route="{{route}}" use-hash-as-path></app-location>-->
@@ -48,43 +49,45 @@
         </paper-toolbar>
         <!-- Menu del panel lateral -->
         <paper-menu>
-        <iron-selector attr-for-selected="name" selected="{{pageData.page}}">
-          <paper-item name="home">
-            <a href="#/menu/home">Inicio</a>
-          </paper-item>
-          <paper-item name="users">
-            <a href="#/menu/users">Usuarios</a>
-          </paper-item>
-          <template is="dom-if" if="[[_isEqual(user,'false')]]">
-            <paper-item name="roles">
-              <a href="#/menu/roles">Roles</a>
+          <iron-selector attr-for-selected="name" selected="{{pageData.page}}">
+            <paper-item name="home">
+              <a href="#/menu/home">Inicio</a>
             </paper-item>
-          </template>
-          <paper-item name="pricelists">
-            <a href="#/menu/pricelists">Lista de Precios</a>
-          </paper-item>
-          <paper-item name="products">
-            <a href="#/menu/products">Productos</a>
-          </paper-item>
-          <paper-item name="brands">
-            <a href="#/menu/brands">Marcas</a>
-          </paper-item>
-          <paper-item name="categories">
-            <a href="#/menu/categories">Categorias</a>
-          </paper-item>
-          <paper-item name="proveedor">
-            <a href="#/menu/proveedor">Proveedores</a>
-          </paper-item>
-          <paper-item name="businesses">
-            <a href="#/menu/businesses">Empresas</a>
-          </paper-item>
-          <paper-item name="branchs">
-            <a href="#/menu/branchs">Sucursales</a>
-          </paper-item>
-          <paper-item name="purchases">Compras</paper-item>
-          <paper-item name="cash">Caja</paper-item>
-          <paper-item name="inventory">Inventario</paper-item>
-        </iron-selector>
+            <paper-item name="users">
+              <a href="#/menu/users">Usuarios</a>
+            </paper-item>
+            <template is="dom-if" if="[[_isEqual(user,'false')]]">
+              <paper-item name="roles">
+                <a href="#/menu/roles">Roles</a>
+              </paper-item>
+            </template>
+            <paper-item name="pricelists">
+              <a href="#/menu/pricelists">Lista de Precios</a>
+            </paper-item>
+            <paper-item name="products">
+              <a href="#/menu/products">Productos</a>
+            </paper-item>
+            <paper-item name="brands">
+              <a href="#/menu/brands">Marcas</a>
+            </paper-item>
+            <paper-item name="categories">
+              <a href="#/menu/categories">Categorias</a>
+            </paper-item>
+            <paper-item name="proveedor">
+              <a href="#/menu/proveedor">Proveedores</a>
+            </paper-item>
+            <paper-item name="businesses">
+              <a href="#/menu/businesses">Empresas</a>
+            </paper-item>
+            <paper-item name="branchs">
+              <a href="#/menu/branchs">Sucursales</a>
+            </paper-item>
+            <paper-item name="demands">
+              <a href="#/menu/demands">Solicitudes de Compra</a>
+            </paper-item>
+            <paper-item name="cash">Caja</paper-item>
+            <paper-item name="inventory">Inventario</paper-item>
+          </iron-selector>
         </paper-menu>
       </paper-header-panel>
       <!-- Panel principal -->
@@ -112,12 +115,12 @@
   <script>
     Polymer({
       is: 'menu-app',
-      properties:{
+      properties: {
         route: {
-                    type: Object,
-                    notify: true
-                },
-        user:{
+          type: Object,
+          notify: true
+        },
+        user: {
           type: String,
           value: "false"
         }
@@ -125,21 +128,20 @@
       observers: [
         '_updateScroll(route)'
       ],
-      attached: function() {   
+      attached: function () {
         //// console.log(this.route);     
         if (!this.pageData.page) {
           this.set('pageData.page', 'home');
-        }
-        else {
-           //// console.log(this.pageData.page);
+        } else {
+          //// console.log(this.pageData.page);
         }
       },
-      _updateScroll: function() {
+      _updateScroll: function () {
         window.scroll(0, 0);
       },
-      _isEqual: function(obj,value){
+      _isEqual: function (obj, value) {
         //var value = false;
-        console.log("objeto",value);
+        console.log("objeto", value);
         return obj === value;
       }
     });

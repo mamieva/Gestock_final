@@ -346,6 +346,7 @@
                         //Cargar token cuando se ingrese a la pantalla de formulario
                         if (typeof window.localStorage.session !== "undefined") {
                             this.token = JSON.parse(window.localStorage.session).token;
+                            this.business = JSON.parse(window.localStorage.session).business;
                         }
                         // Limpiar formulario
                         // console.log("reset");

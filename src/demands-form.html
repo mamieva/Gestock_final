@@ -18,11 +18,14 @@
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/neon-animation/neon-animation.html">
 <link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../bower_components/paper-date-picker-item/paper-date-picker-item.html">
+<link rel="import" href="../bower_components/paper-date-picker-item/paper-datetime-picker-item.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
 <link rel="import" href="./url-services-behavior.html">
 <link rel="import" href="./form-behavior.html">
-<dom-module id="businesses-form">
+<!--<script src="../bower_components/moment/min/locales.js"></script>-->
+<dom-module id="demands-form">
     <template>
         <style include="shared-style"></style>
         <style>
@@ -56,7 +59,7 @@
                 margin-right: 12px;
             }
 
-            .branchs {
+            .items {
                 width: 90%;
                 margin-top: 40px;
             }
@@ -72,8 +75,10 @@
             }
 
             paper-autocomplete {
-                width: 75%;
-                float: left;
+                width: 100%;
+                display: inline-block;
+                text-align: left;
+                /*float: left;*/
             }
 
             .btnAceptar {
@@ -83,31 +88,42 @@
             .dark {
                 background: var(--paper-blue-grey-500);
             }
+
+            .dialogItem {
+                width: 50%;
+                margin-top: 40px;
+                text-align: center;
+            }
+
+            .dialogItem>paper-input {
+                display: inline-block;
+                width: 40%;
+                /*float: left;*/
+            }
+            /*#stock, #cantidad {
+                text-align: right;
+            }*/
         </style>
-        <app-route route="{{route}}" pattern="/:business" data="{{businessData}}" tail="{{routeTail}}" id="routeManager"></app-route>
+        <app-route route="{{route}}" pattern="/:demand" data="{{demandData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
-            <iron-ajax id="businessAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+            <iron-ajax id="demandAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
             <iron-ajax id="addBranchAjax"></iron-ajax>
             <iron-ajax id="deleteBranchsAjax"></iron-ajax>
         </div>
         <div class="container">
-            <h3>Empresa</h3>
-            <form is="iron-form" method="POST" id="businessForm">
+            <h3>Solicitud de Compra</h3>
+            <form is="iron-form" method="POST" id="demandForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
+
+                <paper-date-picker-item id="datetime" icon="icons:today" placeholder="Fecha de la Solicitud" date-format='LLLL' locale="es"
+                    cancel-button="Cancelar" ok-button="Aceptar"></paper-date-picker-item>
+                <input type="hidden" name="startDate" id="startDate">
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
                 </paper-input>
-                <paper-input id="tributaryCode" name="tributaryCode" label="CUIT">
-                    <iron-icon icon="icons:description" prefix></iron-icon>
-                </paper-input>
-                <paper-dropdown-menu label="Estado" name="status" required>
-                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
-                        <paper-item name="ACTIVO">ACTIVO</paper-item>
-                        <paper-item name="INACTIVO">INACTIVO</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
                 <div class="botonera">
                     <paper-button raised submit id="create">Agregar</paper-button>
                     <paper-button raised submit id="apply_changes">Modificar</paper-button>
@@ -115,11 +131,27 @@
                     <paper-button raised id="reset">Limpiar</paper-button>
                 </div>
             </form>
-            <!--<div id="branchs" class="branchs">
-                <paper-card heading="Sucursales de la Empresa">
+            <div id="items" class="items">
+                <paper-card heading="Items de la Solicitud">
                     <div class="card-content">
-                        <paper-autocomplete label="Seleccionar Sucursal" id="selectBranch"></paper-autocomplete>
-                        <paper-button raised submit id="addBranch" class="btnAceptar">Agregar</paper-button>
+                        <paper-button raised submit id="addItem" class="btnItem">Agregar nuevo item</paper-button>
+                        <paper-dialog class="dialogItem" id="dialogItem" entry-animation="scale-up-animation" exit-animation="fade-out-animation"
+                            with-backdrop>
+                            <h2>Agregar Item</h2>
+                            <paper-autocomplete label="Seleccionar Sucursal" id="selectBranch"></paper-autocomplete>
+                            <paper-autocomplete label="Seleccionar Producto" id="selectProduct"></paper-autocomplete>
+                            <paper-autocomplete label="Seleccionar Proveedor" id="selectSupplier"></paper-autocomplete>
+                            <paper-input id="stock" name="stock" label="Stock Actual" type="number" required>
+                                <div suffix>unidades</div>
+                            </paper-input>
+                            <paper-input id="cantidad" name="cantidad" label="Cantidad a Solicitar" type="number"></paper-input>
+                            <div class="buttons">
+                                <paper-button dialog-dismiss>Cancelar</paper-button>
+                                <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
+                            </div>
+                        </paper-dialog>
+                        <!--<paper-autocomplete label="Seleccionar Sucursal" id="selectBranch"></paper-autocomplete>
+                        <paper-button raised submit id="addBranch" class="btnAceptar">Agregar</paper-button>-->
                     </div>
                     <div class="card-actions">
                         <vaadin-grid id="branchsList" items={{itemsBranchs}} selection-mode="multi">
@@ -139,22 +171,23 @@
                         </div>
                     </div>
                 </paper-card>
-            </div>-->
+            </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-                <!--<h2>Eliminar rol</h2>-->
-                <p>¿Desea eliminar la empresa <strong>[[business.name]]</strong> ?</p>
+                <!--<h2>Eliminar solicitud</h2>-->
+                <p>¿Desea eliminar la solicitud <strong>[[demand.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
                 </div>
             </paper-dialog>
+
         </div>
     </template>
     <script>
         Polymer({
-            is: 'businesses-form',
+            is: 'demands-form',
             properties: {
                 route: {
                     type: Object
@@ -167,12 +200,12 @@
                 },
                 url: {
                     type: String,
-                    // value: 'http://localhost:3000/business'
+                    // value: 'http://localhost:3000/demand'
                 },
                 token: {
                     type: String
                 },
-                business: {
+                demand: {
                     type: Object
                 },
                 name: {
@@ -182,7 +215,7 @@
                     type: Boolean,
                     reflectToAttribute: true
                 },
-                itemsBranchs: {
+                itemsItems: {
                     type: Object
                 }
             },
@@ -193,18 +226,20 @@
             listeners: {
                 'create.tap': '_createForm',
                 'reset.tap': '_reset',
-                'apply_changes.tap': '_updateBusiness',
+                'apply_changes.tap': '_updateDemand',
                 'delete.tap': '_deleteDialog',
-                'deleteAceptar.tap': '_deleteBusiness'
+                'deleteAceptar.tap': '_deleteDemand',
+                'datetime.date-changed': '_dateChanged',
+                'addItem.tap': '_dialogItem'
                 // 'addBranch.tap': '_addBranch'
             },
-            _deleteBusiness: function () {
+            _deleteDemand: function () {
                 // console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url_base + 'business/' + this.key;
+                this.$.deleteAjax.url = this.url_base + 'demand/' + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -217,13 +252,13 @@
             },
             ready: function () {
                 //iniciar url
-                this.url = this.url_base + 'business'
+                this.url = this.url_base + 'demand'
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
-                this.$.businessAjax.reallythis = this;
-                this.$.businessAjax.addEventListener('response', this._handleResponse.bind(this));
-                this.$.businessAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.demandAjax.reallythis = this;
+                this.$.demandAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.demandAjax.addEventListener('error', this._handleError.bind(this));
                 ///
                 this.$.updateAjax.reallythis = this;
                 this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
@@ -246,14 +281,16 @@
             },
             _handleResponse: function (response) {
                 // console.log(response.detail.response.data);
-                var business = response.detail.response.data;
-                this.business = business;
-                this.$.name.value = business.name;
-                this.$.tributaryCode.value = business.tributaryCode;
-                this.$.status.selected = business.status;
-                this.itemsBranchs = business.branchs;
+                var demand = response.detail.response.data;
+                this.demand = demand;
+                this.$.name.value = demand.name;
+                this.$.selectBusiness.value = demand.business;
+                this.$.datetime.date = demand.startDate;
+                // this.$.tributaryCode.value = demand.tributaryCode;
+                // this.$.status.selected = demand.status;
+                // this.itemsBranchs = demand.branchs;
                 // console.log(this.$.status.selected);
-                if (business.status == 'ACTIVO') {
+                if (demand.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
             },
@@ -277,23 +314,23 @@
                 //this._viewChanged('');
                 this.set('route.path', '');
             },
-            _getBusiness: function () {
-                this.$.businessAjax.headers = {
+            _getDemand: function () {
+                this.$.demandAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.businessAjax.url = this.url_base + 'business/' + this.key;
-                this.$.businessAjax.generateRequest();
+                this.$.demandAjax.url = this.url_base + 'demand/' + this.key;
+                this.$.demandAjax.generateRequest();
             },
-            _updateBusiness: function (event) {
+            _updateDemand: function (event) {
                 this.$.updateAjax.headers = {
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url_base + 'business/' + this.key;
+                this.$.updateAjax.url = this.url_base + 'demand/' + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                // if (this.business.status == serialize.status) {
+                // if (this.demand.status == serialize.status) {
                 //     this.showError('No se registraron cambios');
                 // } else {
                 this.$.updateAjax.body = serialize;
@@ -307,22 +344,22 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'PUT';
-                this._getForm().action = this.url_base + 'business/' + this.key;
+                this._getForm().action = this.url_base + 'demand/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var business = this._getForm().serialize();
-                //business.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = business;
+                //var demand = this._getForm().serialize();
+                //demand.token = JSON.parse(window.localStorage.session).token;
+                //this._getForm().params = demand;
                 // console.log(this._getForm());
-                this.$.businessForm.submit();
+                this.$.demandForm.submit();
             },
             // _reset: function (e) {
-            //     this.$.businessForm.reset();
+            //     this.$.demandForm.reset();
             // },
             // _formSubmit: function () {
             //     //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
             // },
             _getForm: function () {
-                return this.$.businessForm;
+                return this.$.demandForm;
             },
             _viewChanged: function () {
                 // debugger
@@ -330,35 +367,30 @@
                     this.key = '';
                     return;
                 } else {
-                    if (this.name === 'businesses') {
+                    if (this.name === 'demands') {
                         //Cargar token cuando se ingrese a la pantalla de formulario
                         if (typeof window.localStorage.session !== "undefined") {
                             this.token = JSON.parse(window.localStorage.session).token;
+                            this.business = JSON.parse(window.localStorage.session).business;
                         }
                         // Limpiar formulario
                         // console.log("reset");
-                        this.$.businessForm.reset();
+                        this.$.demandForm.reset();
                         //Prendemos los botones
                         this.$.create.style.display = 'inline-block';
                         this.$.reset.style.display = 'inline-block';
                         this.$.delete.style.display = 'inline-block';
                         this.$.apply_changes.style.display = 'inline-block';
                         this._getBusiness();
-                        // this.$.branchs.style.display = 'inline-block';
-                        // this.$.name.disabled = null;
-                        // this.$.description.disabled = null;
-                        this.$.tributaryCode.style.display = 'inline-block';
                         //
                         if (this.key != '' && this.key != 'undefined') {
-                            this.$.status.selected = '';
-                            // this.$.name.disabled = 'disabled';
-                            // this.$.description.disabled = 'disabled';
-                            // this.$.description.style.display = 'none';
                             this.$.create.style.display = 'none';
                             this.$.reset.style.display = 'none';
                             // this._getBranchs();
-                            this._getBusiness();
+                            this._getDemand();
                         } else {
+                            //iniciar fecha
+                            this.$.datetime.date = Date.now();
                             // this.$.branchs.style.display = 'none';
                             this.$.delete.style.display = 'none';
                             this.$.apply_changes.style.display = 'none';
@@ -369,12 +401,8 @@
             _getBranchs: function () {
                 //obtener todos los roles para poder Agregar
                 var input = this.$.selectBranch;
-                //var search = event.detail.option.text;
                 var url = this.url_base + 'branchs';
                 var req = new XMLHttpRequest();
-                // var params = {
-                //     type: "PROVEEDOR"
-                // };
                 req.open('GET', encodeURI(url));
                 req.setRequestHeader('x-access-token', this.token);
                 req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -404,7 +432,7 @@
                     'x-access-token': this.token
                 };
                 this.$.addBranchAjax.method = 'POST';
-                this.$.addBranchAjax.url = this.url_base + 'business/' + this.key + '/branch';
+                this.$.addBranchAjax.url = this.url_base + 'demand/' + this.key + '/branch';
                 this.$.addBranchAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.addBranchAjax.body = {
                     "branchId": this.$.selectBranch.value
@@ -460,7 +488,7 @@
                 // reallythis.$.deleteBranchsAjax.body = branchsArray;
                 // console.log(reallythis.$.deleteBranchsAjax.body);
                 reallythis.$.deleteBranchsAjax.method = 'DELETE';
-                reallythis.$.deleteBranchsAjax.url = reallythis.url_base + 'business/' + reallythis.key +
+                reallythis.$.deleteBranchsAjax.url = reallythis.url_base + 'demand/' + reallythis.key +
                     '/branchs';
                 reallythis.$.deleteBranchsAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
@@ -478,6 +506,13 @@
                 var data = response.detail.response.data;
                 this.itemsBranchs = data;
                 this.showMessage(message);
+            },
+            _dateChanged: function (e) {
+                this.$.startDate.value = e.detail.value;
+                console.log("object", moment(e.detail.value).format("DD/MM/YYYY"));
+            },
+            _dialogItem: function () {
+                this.$.dialogItem.open();
             }
         });
     </script>

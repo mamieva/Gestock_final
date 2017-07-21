@@ -5,6 +5,20 @@
 
     (function () {
         FormBehaviors.FormBehavior = {
+            properties: {
+                business: {
+                    type: String
+                },
+                filterBody: {
+                    type: Object,
+                    value: {
+                        "limit": '',
+                        "fields": '',
+                        "filter": {},
+                        "sort": {}
+                    }
+                }
+            },
             listeners: {
                 'iron-form-response': '_formResponse',
                 'iron-form-submit': '_formSubmit',
@@ -45,18 +59,47 @@
             _reset: function (e) {
                 this._getForm().reset();
             },
-            _getForm: function (){
+            _getForm: function () {
                 return null;
             },
-            _createForm: function(){
+            _createForm: function () {
                 this._getForm().headers = {
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
-                this._getForm().action = this.url ;
+                this._getForm().action = this.url;
                 this._getForm().submit();
 
-            }
+            },
+            _getBusiness: function () {
+                //obtener todos los roles para poder Agregar
+                var input = this.$.selectBusiness;
+                //var search = event.detail.option.text;
+                var url = this.url_base + 'businesses';
+                var req = new XMLHttpRequest();
+                req.open('GET', encodeURI(url));
+                req.setRequestHeader('x-access-token', this.token);
+                //// console.log('token',this.token);
+                req.responseType = 'json';
+                req.onload = function () {
+                    //// console.log('roles input',req.status);
+                    if (req.status === 200) {
+                        //// console.log(req.response)
+                        //var data = JSON.parse(req.response.data);
+                        var data = req.response.data;
+                        // console.log('data', data);
+                        var arr = data.map(function (obj) {
+                            return {
+                                text: obj.name ,
+                                value: obj._id
+                            };
+                        });
+                        input.source = arr;
+                        // console.log('a', input.source);
+                    }
+                };
+                req.send();
+            },
         }
     })();
 </script>

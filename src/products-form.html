@@ -33,27 +33,27 @@
              :host {
                 display: block;
             }
-            
+
             .container {
                 display: block;
                 margin: 20px 0 0 20px;
                 width: 100%;
             }
-            
+
             form {
                 width: 900px;
             }
-            
+
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-            
+
             .botonera {
                 margin: 10px 0 0 0;
             }
-            
+
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
@@ -63,29 +63,29 @@
                 width: 50%;
                 height: 50%
             }*/
-            
+
             #componentDialog>paper-input {
                 display: inline-block;
                 width: 40%;
                 /*float: left;*/
             }
-            
+
             #priceListDialog>paper-input {
                 display: inline-block;
                 width: 30%;
                 /*float: left;*/
             }
-            
+
             .paper-dropdown-menu {
                 width: 35%;
                 /*display: block;
                 margin: auto;*/
             }
-            
+
             vaadin-grid {
                 height: auto;
             }
-            
+
             .components,
             .priceList {
                 width: 90%;
@@ -107,13 +107,15 @@
         <div class="container">
             <h3>Producto</h3>
             <form is="iron-form" method="POST" id="productForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
+
                 <paper-input id="code" name="code" label="Código">
                     <iron-icon icon="icons:fingerprint" prefix></iron-icon>
                 </paper-input>
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                 </paper-input>
-                <paper-autocomplete  name="brand" id="brand" label="Seleccionar Marca" required></paper-autocomplete>
+                <paper-autocomplete name="brand" id="brand" label="Seleccionar Marca" required></paper-autocomplete>
                 <!--<input type="hidden" id="brand" name="brand">-->
                 <paper-autocomplete name="category" id="category" label="Seleccionar Categoria" required></paper-autocomplete>
                 <!--<input type="hidden" id="category" name="category">-->
@@ -410,14 +412,14 @@
                 var update = response.detail.response;
                 this.showMessage('El producto ha sido actualizado con exito');
                 // window.location.reload();
-                this._viewChanged(this.key,this.selected);
+                this._viewChanged(this.key, this.selected);
             },
             _handleResponseDelete: function (response) {
                 // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
-                this._viewChanged('',this.selected);
+                this._viewChanged('', this.selected);
                 this.set('route.path', '');
             },
             _getProduct: function () {
@@ -545,6 +547,7 @@
                     //Cargar token cuando se ingrese a la pantalla de formulario
                     if (typeof window.localStorage.session !== "undefined") {
                         this.token = JSON.parse(window.localStorage.session).token;
+                        this.business = JSON.parse(window.localStorage.session).business;
                     }
                     // Limpiar formulario
                     this.$.productForm.reset();
@@ -556,6 +559,7 @@
                     // this.$.name.disabled = null;
                     this.$.components.style.display = "none";
                     this.$.priceList.style.display = "none";
+                    this.$.selectBusiness.value = brand.business;
                     // this.$.description.disabled = null;
                     // this.$.description.style.display = 'inline-block';
                     //
@@ -563,7 +567,9 @@
                     // this._getCategories();
                     // this._getPriceLists();
                     // && this.key != 'undefined'
-                    if (this.key != '' ) {
+
+                    this._getBusiness();
+                    if (this.key != '') {
                         this.$.status.selected = '';
                         // this.$.name.disabled = 'disabled';
                         // this.$.description.disabled = 'disabled';

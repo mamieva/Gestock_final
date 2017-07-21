@@ -29,32 +29,43 @@
              :host {
                 display: block;
             }
-            
+
             .container {
                 display: block;
                 margin: 20px 0 0 20px;
                 width: 100%;
             }
-            
+
             form {
                 width: 900px;
             }
-            
+
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-            
+
             .botonera {
                 margin: 10px 0 0 0;
             }
-            
+
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
+
+            /* paper-dropdown-menu{
+                --paper-dropdown-menu-button	: {
+                    color: var(--paper-pink-500);
+                    background-color: var(--paper-pink-500);
+                    font-style: italic;
+                    text-align: right;
+                    font-weight: bold;
+                }
+                ;
+            } */
         </style>
         <app-route route="{{route}}" pattern="/:role" data="{{roleData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
@@ -65,6 +76,7 @@
         <div class="container">
             <h3>Rol</h3>
             <form is="iron-form" method="POST" id="roleForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
@@ -132,7 +144,7 @@
             observers: [
                 "_viewChanged(key,selected)"
             ],
-            listeners: {                
+            listeners: {
                 'create.tap': '_createForm',
                 'reset.tap': '_reset',
                 'apply_changes.tap': '_updateRole',
@@ -183,6 +195,7 @@
                 this.$.name.value = role.name;
                 this.$.description.value = role.description;
                 this.$.status.selected = role.status;
+                this.$.selectBusiness.value = role.business;
                 // console.log(this.$.status.selected);
                 if (role.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
@@ -255,6 +268,7 @@
                         //Cargar token cuando se ingrese a la pantalla de formulario
                         if (typeof window.localStorage.session !== "undefined") {
                             this.token = JSON.parse(window.localStorage.session).token;
+                            this.business = JSON.parse(window.localStorage.session).business;
                         }
                         // Limpiar formulario
                         this.$.roleForm.reset();
@@ -266,6 +280,7 @@
                         // this.$.name.disabled = null;
                         // this.$.description.disabled = null;
                         this.$.description.style.display = 'inline-block';
+                        this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {
                             this.$.status.selected = '';

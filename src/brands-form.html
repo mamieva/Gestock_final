@@ -29,36 +29,38 @@
              :host {
                 display: block;
             }
-            
+
             .container {
                 display: block;
                 margin: 20px 0 0 20px;
                 width: 100%;
             }
-            
+
             form {
                 width: 900px;
             }
-            
+
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-            
+
             .botonera {
                 margin: 10px 0 0 0;
             }
-            
+
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
+
             .supplier {
                 width: 90%;
                 margin-top: 40px;
             }
+
             .botoneraSupplier {
                 height: auto;
                 margin-top: 20px;
@@ -75,6 +77,10 @@
         <div class="container">
             <h3>Marca</h3>
             <form is="iron-form" method="POST" id="brandForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
+
+                <!-- <input type="hidden" name="business" value="{{business}}"> -->
+
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                 </paper-input>
@@ -223,6 +229,7 @@
                 this.$.name.value = brand.name;
                 this.$.description.value = brand.description;
                 this.$.status.selected = brand.status;
+                this.$.selectBusiness.value = brand.business;
                 this.itemsSuppliers = brand.suppliers;
                 if (brand.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
@@ -280,6 +287,8 @@
                     //Cargar token cuando se ingrese a la pantalla de formulario
                     if (typeof window.localStorage.session !== "undefined") {
                         this.token = JSON.parse(window.localStorage.session).token;
+                        this.business = JSON.parse(window.localStorage.session).business;
+                        this.filterBody.business = this.business;
                     }
                     // Limpiar formulario
                     this.$.brandForm.reset();
@@ -291,6 +300,7 @@
                     // this.$.name.disabled = null;
                     // this.$.description.disabled = null;
                     this.$.description.style.display = 'inline-block';
+                    this._getBusiness();
                     //
                     if (this.key != '' && this.key != 'undefined') {
                         this.$.status.selected = '';
@@ -312,30 +322,69 @@
                 }
             },
             _getSuppliers: function () {
-                //obtener todos los roles para poder Agregar
-                var input = this.$.selectSupplier;
-                var url = this.url_base + 'persons';
-                var req = new XMLHttpRequest();
-                var params = {
-                    type: "PROVEEDOR"
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                this.filterBody.filter.type = 'PROVEEDOR';
+                this.filterBody.filter.business = this.business;
+                let data = JSON.stringify(this.filterBody);
+                // data.append('json',this.filterBody);
+
+                // data.append('json',JSON.stringify(this.filterBody));
+
+                let init = {
+                    method: 'POST',
+                    body: data,
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
                 };
-                req.open('GET', encodeURI(url));
-                req.setRequestHeader('x-access-token', this.token);
-                req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                req.responseType = 'json';
-                req.onload = function () {
-                    if (req.status === 200) {
-                        var data = req.response.data;
-                        var arr = data.map(function (obj) {
-                            return {
-                                text: obj.businessName,
-                                value: obj._id
-                            };
-                        });
-                        input.source = arr;
-                    }
-                };
-                req.send(params);
+
+                var myRequest = new Request( this.url_base + 'persons', init);
+
+                fetch(myRequest)
+                .then(function(response){
+                    return response.json()
+                })
+                .then(function(result){
+                    reallythis.$.selectSupplier.source = result.data.map(function(obj){
+                        return{
+                            text: obj.businessName,
+                            value: obj._id
+                        }
+                    })
+                    console.log(result);
+                })
+                .catch(function(err){
+                    console.log("error",err);
+                })
+                // //obtener todos los roles para poder Agregar
+                // var input = this.$.selectSupplier;
+                // var url = this.url_base + 'persons';
+                // var req = new XMLHttpRequest();
+                // var params = {
+                //     type: "PROVEEDOR"
+                // };
+                // req.open('GET', encodeURI(url));
+                // req.setRequestHeader('x-access-token', this.token);
+                // req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                // req.body = this.filterBody;
+                // req.responseType = 'json';
+                // req.onload = function () {
+                //     if (req.status === 200) {
+                //         var data = req.response.data;
+                //         var arr = data.map(function (obj) {
+                //             return {
+                //                 text: obj.businessName,
+                //                 value: obj._id
+                //             };
+                //         });
+                //         input.source = arr;
+                //     }
+                // };
+                // req.send(params);
             },
             _addSupplier: function () {
                 this.$.addSupplierAjax.headers = {

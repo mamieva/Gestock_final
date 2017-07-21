@@ -21,6 +21,7 @@
 <link rel="import" href="./category-form.html">
 <link rel="import" href="./branchs-form.html">
 <link rel="import" href="./business-form.html">
+<link rel="import" href="./demands-form.html">
 <link rel="import" href="./url-services-behavior.html">
 <dom-module id="list-page">
     <template>
@@ -28,37 +29,37 @@
              :host {
                 display: block;
             }
-            
+
             #sort {
                 height: 300px;
             }
-            
+
             paper-button {
                 font-family: 'Roboto', 'Noto', sans-serif;
                 font-weight: normal;
                 font-size: 14px;
                 -webkit-font-smoothing: antialiased;
             }
-            
+
             paper-button.pink {
                 color: var(--paper-pink-a200);
                 --paper-button-ink-color: var(--paper-pink-a200);
             }
-            
+
             paper-button.pink:hover {
                 background-color: var(--paper-pink-100);
             }
-            
+
             vaadin-grid {
                 height: auto;
             }
-            
+
             #pages {
                 display: flex;
                 flex-wrap: wrap;
                 margin: 20px;
             }
-            
+
             #pages>button {
                 user-select: none;
                 padding: 5px;
@@ -70,19 +71,19 @@
                 outline: none;
                 cursor: pointer;
             }
-            
+
             #pages>button:hover,
             #pages>button:focus {
                 color: var(--default-primary-color);
                 background-color: #eee;
             }
-            
+
             #pages>button[selected] {
                 font-weight: bold;
                 color: white;
                 background-color: var(--default-primary-color);
             }
-            
+
             #spinner {
                 position: absolute;
                 left: 50%;
@@ -94,7 +95,8 @@
                 font-size: 20px;
                 --paper-spinner-stroke-width: 10px;
                 /*margin: 0 auto;*/
-            }            
+            }
+
             paper-spinner.multi {
                 --paper-spinner-layer-1-color: var(--paper-purple-500);
                 --paper-spinner-layer-2-color: var(--paper-cyan-500);
@@ -138,6 +140,7 @@
                     <categories-form name="categories" route="{{route}}" key="{{routeData.key}}"></categories-form>
                     <branchs-form name="branchs" route="{{route}}" key="{{routeData.key}}"></branchs-form>
                     <businesses-form name="businesses" route="{{route}}" key="{{routeData.key}}"></businesses-form>
+                    <demands-form name="demands" route="{{route}}" key="{{routeData.key}}"></demands-form>
                 </iron-pages>
             </div>
         </neon-animated-pages>
@@ -180,6 +183,9 @@
                     observer: "_filterList"
                 },
                 token: {
+                    type: String
+                },
+                business: {
                     type: String
                 },
                 selectedItems: {
@@ -240,27 +246,41 @@
                 //
                 this.grid_page = 0;
                 // console.log("entra viewchang de lista", data);
+                this.ajaxlist.method = 'POST';
                 this.ajaxlist.headers = '';
                 this.ajaxlist.params = '';
                 this.ajaxlist.url = '';
 
                 if (typeof window.localStorage.session !== "undefined") {
                     this.token = JSON.parse(window.localStorage.session).token;
+                    this.business = JSON.parse(window.localStorage.session).business;
                 }
                 var type = data;
                 var notList = ["home"];
                 var inList = ["proveedor"];
+                // this.ajaxlist.body = 
+                let body = {
+                    "limit": '',
+                    "fields": '',
+                    "filter": {},
+                    "sort": {}
+                };
+                // this.ajaxlist.body.filter.business = this.business;
+                body.filter.business = this.business;
+                // this.ajaxlist.body.sort._id = 1;
+                body.sort._id = 1;
+                console.log(this.ajaxlist.body)
                 if (type != 'undefined') {
                     if (notList.indexOf(type) === -1) {
                         if (inList.indexOf(type) >= 0) {
-                            this.ajaxlist.params = {
-                                type: type.toUpperCase()
-                            };
+                            body.filter.type = type.toUpperCase();
                             type = "persons";
                         }
                         this.ajaxlist.headers = {
-                            'x-access-token': this.token
+                            'x-access-token': this.token,
+                            'Content-type': 'application/json'
                         };
+                        this.ajaxlist.body = JSON.stringify(body);
                         this.ajaxlist.url = this.url_base + type;
                         this.$.divAjax.appendChild(this.ajaxlist);
                         this.ajaxlist.generateRequest();

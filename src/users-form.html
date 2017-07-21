@@ -22,6 +22,7 @@
 <link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
 <link rel="import" href="./url-services-behavior.html">
@@ -44,43 +45,42 @@
             form {
                 width: 90%;
             }*/
-            
+
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-            
+
             .botoneraUsuario {
                 margin: 10px 0 0 0;
             }
-            
+
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
-            
+
             .roles {
                 width: 90%;
                 margin-top: 40px;
             }
-            
             /*vaadin-grid,*/
+
             .botoneraRoles {
                 height: auto;
                 margin-top: 20px;
             }
-            
+
             paper-card {
                 width: 100%;
             }
-            
+
             paper-autocomplete {
                 width: 75%;
-                float: left;
+                /*float: left;*/
             }
-            
             /*paper-button {
                 vertical-align: bottom;
                 font-family: 'Roboto', 'Noto', sans-serif;
@@ -95,10 +95,11 @@
                 };
                 text-align: center;
             }*/
-            .btnAceptar{
+
+            .btnAceptar {
                 width: 20%;
             }
-            
+
             .dark {
                 background: var(--paper-blue-grey-500);
             }
@@ -115,27 +116,29 @@
         <div class="container">
             <h3>Usuario</h3>
             <form is="iron-form" method="POST" class="form" id="userForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
+
                 <paper-input id="username" name="username" label="Usuario" error-message="Debe ingresar un email válido!" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
                     auto-validate required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
-                    </paper-input>
-                    <paper-input id="password" password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
-                        auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
-                        <iron-icon icon="communication:vpn-key" prefix></iron-icon>
-                        </paper-input>
-                        <paper-dropdown-menu label="Estado" name="status" required>
-                            <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
-                                <paper-item name="ACTIVO">ACTIVO</paper-item>
-                                <paper-item name="INACTIVO">INACTIVO</paper-item>
-                            </paper-listbox>
-                        </paper-dropdown-menu>
-                        <div class="botoneraUsuario">
-                            <paper-button raised submit id="create">Agregar</paper-button>
-                            <paper-button raised submit id="apply_changes">Modificar</paper-button>
-                            <paper-button raised submit id="delete">Eliminar</paper-button>
-                            <paper-button raised id="reset">Limpiar</paper-button>
-                        </div>
+                </paper-input>
+                <paper-input id="password" password type="password" name="password" label="Contraseña" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+                    auto-validate error-message="Debe contener una mayúscula,una minúscula, un número y 8 caracteres" required>
+                    <iron-icon icon="communication:vpn-key" prefix></iron-icon>
+                </paper-input>
+                <paper-dropdown-menu label="Estado" name="status" required>
+                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
+                        <paper-item name="ACTIVO">ACTIVO</paper-item>
+                        <paper-item name="INACTIVO">INACTIVO</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+                <div class="botoneraUsuario">
+                    <paper-button raised submit id="create">Agregar</paper-button>
+                    <paper-button raised submit id="apply_changes">Modificar</paper-button>
+                    <paper-button raised submit id="delete">Eliminar</paper-button>
+                    <paper-button raised id="reset">Limpiar</paper-button>
+                </div>
             </form>
             <div id="roles" class="roles">
                 <paper-card heading="Roles del Usuario">
@@ -171,7 +174,7 @@
             <p>¿Desea eliminar el usuario <strong>[[user.username]]</strong> ?</p>
             <div class="buttons">
                 <paper-button dialog-dismiss>Cancelar</paper-button>
-                <paper-button dialog-confirm autofocus id="deleteAceptar" >Aceptar</paper-button>
+                <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
             </div>
         </paper-dialog>
         </div>
@@ -198,6 +201,9 @@
                 //     value: 'http://localhost:3000/'
                 // },
                 token: {
+                    type: String
+                },
+                business: {
                     type: String
                 },
                 user: {
@@ -244,7 +250,7 @@
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url_base + 'user/'  + this.key;
+                this.$.deleteAjax.url = this.url_base + 'user/' + this.key;
                 //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
                 // this.$.deleteAjax.debounceDuration = "300";
                 // var serialize = this._getForm().serialize();
@@ -296,6 +302,7 @@
                 this.user = user;
                 this.$.username.value = user.username;
                 this.$.status.selected = user.status;
+                this.$.selectBusiness.value = user.business;
                 this.itemsRoles = user.roles;
                 // // console.log(this.$.status.selected);
                 if (user.status == 'ACTIVO') {
@@ -327,7 +334,7 @@
                 this.$.userAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.userAjax.url = this.url_base + 'user/'  + this.key;
+                this.$.userAjax.url = this.url_base + 'user/' + this.key;
                 this.$.userAjax.generateRequest();
             },
             _updateUser: function (event) {
@@ -335,7 +342,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url_base + 'user/'  + this.key;
+                this.$.updateAjax.url = this.url_base + 'user/' + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -423,9 +430,11 @@
                     //Cargar token cuando se ingrese a la pantalla de formulario
                     if (typeof window.localStorage.session !== "undefined") {
                         this.token = JSON.parse(window.localStorage.session).token;
+                        this.business = JSON.parse(window.localStorage.session).business;
+                        // console.log('bb',this.business);
                     }
                     // Limpiar formulario
-                    this.$.userForm.reset();
+                    // this.$.userForm.reset();
                     //Prendemos los botones,regiones y elementos
                     this.$.create.style.display = 'inline-block';
                     this.$.reset.style.display = 'inline-block';
@@ -433,15 +442,16 @@
                     this.$.apply_changes.style.display = 'inline-block';
                     this.$.roles.style.display = 'block';
                     // this.$.username.disabled = null;
-                    // this.$.password.disabled = null;
+                    this.$.password.disabled = null;
                     this.$.password.style.display = 'inline-block';
                     this.$.deleteRole.style.display = 'none';
                     // this.$.resetRole.style.display = 'none';
+                    this._getBusiness();
                     //
                     if (this.key != '' && this.key != 'undefined') {
                         this.$.status.selected = '';
                         // this.$.username.disabled = 'disabled';
-                        // this.$.password.disabled = 'disabled';
+                        this.$.password.disabled = 'disabled';
                         this.$.password.style.display = 'none';
                         this.$.create.style.display = 'none';
                         this.$.reset.style.display = 'none';
@@ -514,6 +524,35 @@
                 };
                 req.send();
             },
+            // _getBusiness: function () {
+            //     //obtener todos los roles para poder Agregar
+            //     var input = this.$.selectBusiness;
+            //     //var search = event.detail.option.text;
+            //     var url = this.url_base + 'businesses';
+            //     var req = new XMLHttpRequest();
+            //     req.open('GET', encodeURI(url));
+            //     req.setRequestHeader('x-access-token', this.token);
+            //     //// console.log('token',this.token);
+            //     req.responseType = 'json';
+            //     req.onload = function () {
+            //         //// console.log('roles input',req.status);
+            //         if (req.status === 200) {
+            //             //// console.log(req.response)
+            //             //var data = JSON.parse(req.response.data);
+            //             var data = req.response.data;
+            //             // console.log('data', data);
+            //             var arr = data.map(function (obj) {
+            //                 return {
+            //                     text: obj.name,
+            //                     value: obj._id
+            //                 };
+            //             });
+            //             input.source = arr;
+            //             // console.log('a', input.source);
+            //         }
+            //     };
+            //     req.send();
+            // },
             _handleResponseGetUserRole: function (response) {
                 // console.log('userrole', response);
                 var data = response.detail.response.data;
@@ -569,7 +608,7 @@
                     'x-access-token': this.token
                 };
                 this.$.createUserRoleAjax.method = 'POST';
-                this.$.createUserRoleAjax.url = this.url_base + 'user/'  + this.key + '/role';
+                this.$.createUserRoleAjax.url = this.url_base + 'user/' + this.key + '/role';
                 this.$.createUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
                 this.$.createUserRoleAjax.body = {
                     "roleId": this.$.selectRole.value
@@ -616,7 +655,8 @@
                     'x-access-token': reallythis.token
                 };
                 reallythis.$.deleteUserRoleAjax.method = 'DELETE';
-                reallythis.$.deleteUserRoleAjax.url = reallythis.url_base + 'user/' + reallythis.key + '/roles';
+                reallythis.$.deleteUserRoleAjax.url = reallythis.url_base + 'user/' + reallythis.key +
+                    '/roles';
                 reallythis.$.deleteUserRoleAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
                 reallythis.$.deleteUserRoleAjax.body = {

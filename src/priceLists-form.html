@@ -30,27 +30,27 @@
              :host {
                 display: block;
             }
-            
+
             .container {
                 display: block;
                 margin: 20px 0 0 20px;
                 width: 100%;
             }
-            
+
             form {
                 width: 900px;
             }
-            
+
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-            
+
             .botonera {
                 margin: 10px 0 0 0;
             }
-            
+
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
@@ -74,6 +74,8 @@
         <div class="container">
             <h3>Lista de Precio</h3>
             <form is="iron-form" method="POST" id="priceListForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
+
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
@@ -186,6 +188,7 @@
                 this.$.name.value = priceList.name;
                 this.$.description.value = priceList.description;
                 this.$.status.selected = priceList.status;
+                this.$.selectBusiness.value = priceList.business;
                 // console.log(this.$.status.selected);
                 if (priceList.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
@@ -248,6 +251,7 @@
                         //Cargar token cuando se ingrese a la pantalla de formulario
                         if (typeof window.localStorage.session !== "undefined") {
                             this.token = JSON.parse(window.localStorage.session).token;
+                            this.business = JSON.parse(window.localStorage.session).business;
                         }
                         // Limpiar formulario
                         this.$.priceListForm.reset();
@@ -259,6 +263,8 @@
                         // this.$.name.disabled = null;
                         // this.$.description.disabled = null;
                         this.$.description.style.display = 'inline-block';
+
+                        this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {
                             this.$.status.selected = '';

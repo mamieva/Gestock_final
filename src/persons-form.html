@@ -75,6 +75,8 @@
         <div class="container">
             <h3>Persona</h3>
             <form is="iron-form" method="POST" id="personForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
+
                 <paper-dropdown-menu label="Tipo Persona" name="type" required>
                     <paper-listbox id="type" class="dropdown-content" attr-for-selected="name" selected="{{type}}" fallback-selection="{{type}}"
                         placeholder={{type}}>
@@ -355,6 +357,7 @@
                 this.$.grossIncomeCode.value = person.grossIncomeCode;
                 this.$.taxStatus.selected = person.taxStatus;
                 this.$.status.selected = person.status;
+                this.$.selectBusiness.value = person.business;
                 this.itemsContacts = person.contacts;
                 this.itemsAddress = person.addresses;
                 // console.log(this.$.status.selected);
@@ -375,14 +378,14 @@
                 var update = response.detail.response;
                 this.showMessage('La persona ha sido actualizado con exito');
                 // window.location.reload();
-                this._viewChanged(this.key,this.selected);
+                this._viewChanged(this.key, this.selected);
             },
             _handleResponseDelete: function (response) {
                 // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
-                this._viewChanged('',this.selected);
+                this._viewChanged('', this.selected);
                 this.set('route.path', '');
             },
             _getPerson: function () {
@@ -425,6 +428,7 @@
                         //Cargar token cuando se ingrese a la pantalla de formulario
                         if (typeof window.localStorage.session !== "undefined") {
                             this.token = JSON.parse(window.localStorage.session).token;
+                            this.business = JSON.parse(window.localStorage.session).business;
                         }
                         // Limpiar formulario y setear valores predeterminados
                         // this._getForm().reset();
@@ -440,6 +444,7 @@
                         // this.$.description.disabled = null;
                         // this.$.description.style.display = 'inline-block';                    
                         this.$.deleteAddress.style.display = 'none';
+                        this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {
                             var type = this.name.toUpperCase();
