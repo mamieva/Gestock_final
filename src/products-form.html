@@ -337,7 +337,8 @@
             _deleteDialog: function () {
                 this.$.animated.open();
             },
-            ready: function () {
+            ready: function () {    
+                moment.locale("es");
                 this.url = this.url_base + 'product';
                 //cargar formulario
                 this._getForm().reallythis = this;
@@ -397,6 +398,7 @@
                 this.itemsComponents = product.components;
                 this.itemsPriceList = product.priceLists;
                 this.$.status.selected = product.status;
+                this.$.selectBusiness.value = product.business;
                 // console.log("autocomplete", this.$.brand_autocomplete.value);
                 if (product.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
@@ -559,7 +561,6 @@
                     // this.$.name.disabled = null;
                     this.$.components.style.display = "none";
                     this.$.priceList.style.display = "none";
-                    this.$.selectBusiness.value = brand.business;
                     // this.$.description.disabled = null;
                     // this.$.description.style.display = 'inline-block';
                     //
