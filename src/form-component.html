@@ -1,0 +1,117 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="./simple-dialog.html">
+<dom-module id="user-filter">
+    <template>
+        <style>
+             :host {
+                display: block;
+            }
+            
+            .container {
+                display: block;
+                margin: 20px 0 0 20px;
+                width: 100%;
+            }
+            
+            form {
+                width: 300px;
+            }
+            
+            paper-input {
+                display: block;
+                width: 100%;
+                margin: auto;
+            }
+            
+            .botonera {
+                margin: 10px 0 0 0;
+            }
+            
+            iron-icon,
+            div[suffix] {
+                color: hsl(0, 0%, 50%);
+                margin-right: 12px;
+            }
+            vaadin-grid {
+                height: auto;
+            }
+        </style>
+        <div class="container">
+            <h3>Filtro de Busqueda</h3>
+            <form is="iron-form" method="POST" id="brandForm">
+                <content></content>
+                </paper-dropdown-menu>
+                <div class="botonera">
+                    <paper-button raised submit id="create">Agregar</paper-button>
+                    <paper-button raised submit id="apply_changes">Modificar</paper-button>
+                    <paper-button raised submit id="delete">Eliminar</paper-button>
+                    <paper-button raised id="reset">Limpiar</paper-button>
+                </div>
+            </form>
+            <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
+            <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
+            <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+                <!--<h2>Eliminar rol</h2>-->
+                <p>¿Desea eliminar el rol <strong>[[user.name]]</strong> ?</p>
+                <div class="buttons">
+                    <paper-button dialog-dismiss>Cancelar</paper-button>
+                    <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
+                </div>
+            </paper-dialog>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'user-filter',
+            properties: {
+                route: {
+                    type: Object
+                },
+                key: {
+                    type: String
+                },
+                url: {
+                    type: String,
+                    value: 'http://localhost:3000/role'
+                },
+                token: {
+                    type: String
+                },
+                user: {
+                    type: Object
+                }
+            },
+            observers: [
+                "_viewChanged(key)"
+            ],
+            listeners: {
+                'filter.tap': '_submitFilter',
+                'deleteAceptar.tap': '_deleteUser'
+            },
+            _submitFilter: function () {
+                var serialize = this.$.roleForm.serialize();
+                this.fire('submitFilter',serialize);
+            }
+
+        });
+    </script>
+</dom-module>

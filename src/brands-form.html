@@ -1,26 +1,27 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
-<link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
-<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
 <link rel="import" href="./url-services-behavior.html">
+<link rel="import" href="./form-behavior.html">
 <dom-module id="brands-form">
     <template>
         <style include="shared-style"></style>
@@ -28,31 +29,41 @@
              :host {
                 display: block;
             }
-            
+
             .container {
                 display: block;
                 margin: 20px 0 0 20px;
                 width: 100%;
             }
-            
+
             form {
                 width: 900px;
             }
-            
+
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-            
+
             .botonera {
                 margin: 10px 0 0 0;
             }
-            
+
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
+            }
+
+            .supplier {
+                width: 90%;
+                margin-top: 40px;
+            }
+
+            .botoneraSupplier {
+                height: auto;
+                margin-top: 20px;
             }
         </style>
         <app-route route="{{route}}" pattern="/:brand" data="{{brandData}}" tail="{{routeTail}}" id="routeManager"></app-route>
@@ -66,9 +77,12 @@
         <div class="container">
             <h3>Marca</h3>
             <form is="iron-form" method="POST" id="brandForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
+
+                <!-- <input type="hidden" name="business" value="{{business}}"> -->
+
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
-                    <!--<div suffix>@email.com</div>-->
                 </paper-input>
                 <paper-input id="description" name="description" label="Descripción">
                     <iron-icon icon="icons:description" prefix></iron-icon>
@@ -87,19 +101,25 @@
                 </div>
             </form>
             <div id="supplier" class="supplier">
-                <paper-autocomplete label="Seleccionar Proveedor" id="selectSupplier"></paper-autocomplete>
-                <paper-button raised submit id="addSupplier">Agregar</paper-button>
-                <vaadin-grid id="suppliersList" items={{itemsSuppliers}} selection-mode="multi">
-                    <vaadin-grid-selection-column auto-select>
-                    </vaadin-grid-selection-column>
-                    <vaadin-grid-column>
-                        <template class="header">Lista de Precio</template>
-                        <template>[[item.businessName]]</template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
-                <div class="botoneraSupplier">
-                    <paper-button raised submit id="deleteSupplier">Eliminar Seleccionados</paper-button>
-                </div>
+                <paper-card heading="Proveedores">
+                    <div class="card-content">
+                        <paper-autocomplete label="Seleccionar Proveedor" id="selectSupplier"></paper-autocomplete>
+                        <paper-button raised submit id="addSupplier">Agregar</paper-button>
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="suppliersList" items={{itemsSuppliers}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Proveedor</template>
+                                <template>[[item.businessName]]</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                        <div class="botoneraSupplier">
+                            <paper-button raised submit id="deleteSupplier">Eliminar Seleccionados</paper-button>
+                        </div>
+                    </div>
+                </paper-card>
             </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
@@ -126,14 +146,6 @@
                 ajaxlist: {
                     type: Object
                 },
-                // url: {
-                //     type: String,
-                //     value: 'http://localhost:3000/brand/'
-                // },
-                // url_base: {
-                //     type: String,
-                //     value: 'http://localhost:3000/'
-                // },
                 token: {
                     type: String
                 },
@@ -149,19 +161,18 @@
                 selected: {
                     type: Boolean,
                     reflectToAttribute: true
+                },
+                url: {
+                    type: String
                 }
             },
-            behaviors: [URLServiceBehaviors.URLService],
+            behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
             observers: [
                 "_viewChanged(key,selected)"
             ],
             listeners: {
-                'iron-form-response': '_formResponse',
-                'iron-form-submit': '_formSubmit',
-                'iron-form-error': '_formError',
-                'iron-form-presubmit': '_formPresubmit',
-                'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createBrand',
+                // 'create.tap': '_createBrand',
+                'create.tap': '_createForm',
                 'reset.tap': '_reset',
                 'apply_changes.tap': '_updateBrand',
                 'delete.tap': '_deleteDialog',
@@ -170,23 +181,19 @@
                 'deleteSupplier.tap': '_deleteSuppliers'
             },
             _deleteBrand: function () {
-                // console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
                 };
                 this.$.deleteAjax.method = 'DELETE';
-                this.$.deleteAjax.url = this.url_base + 'brand/'  + this.key;
-                //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
-                // this.$.deleteAjax.debounceDuration = "300";
-                // var serialize = this._getForm().serialize();
-                //this.$.updateAjax.body = serialize;
+                this.$.deleteAjax.url = this.url_base + 'brand/' + this.key;
                 this.$.deleteAjax.generateRequest();
-                // window.location.reload();
             },
             _deleteDialog: function () {
                 this.$.animated.open();
             },
             ready: function () {
+                //inicializar url
+                this.url = this.url_base + 'brand';
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
@@ -212,48 +219,33 @@
                     this));
                 this.$.deleteSuppliersAjax.addEventListener('error', this._handleError.bind(this));
                 //
-                var supplierCol = [{
-                    "name": "businessName",
-                    "sortable": "true"
-                }, {
-                    "name": "status",
-                    "sortable": "true"
-                }];
-                this._getSupplierList().columns = supplierCol;
                 // Gestionar grilla de direcciones
                 this._getSupplierList().reallythis = this;
                 this._getSupplierList().addEventListener('selected-items-changed', (this)._selectedSupplierChanged);
-                // this.$.myId.source = ["viejo","nuevo"];
             },
             _handleResponse: function (response) {
-                // console.log(response.detail.response.data);
                 var brand = response.detail.response.data;
                 this.brand = brand;
                 this.$.name.value = brand.name;
                 this.$.description.value = brand.description;
                 this.$.status.selected = brand.status;
-                this.itemsSuppliers = brand.suppliers
-                // console.log(this.$.status.selected);
+                this.$.selectBusiness.value = brand.business;
+                this.itemsSuppliers = brand.suppliers;
                 if (brand.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
             },
             _handleError: function (error) {
-                // console.log(error);
                 this.showError(error.detail.request.response.message);
             },
             _handleResponseUpdate: function (response) {
-                // console.log(response.detail.response);
                 var update = response.detail.response;
                 this.showMessage('La marca ha sido actualizado con exito');
-                // window.location.reload();
                 this._viewChanged(this.key);
             },
             _handleResponseDelete: function (response) {
-                // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
-                // window.location.reload();
                 this._viewChanged('');
                 this.set('route.path', '');
             },
@@ -261,7 +253,7 @@
                 this.$.brandAjax.headers = {
                     'x-access-token': this.token
                 };
-                this.$.brandAjax.url = this.url_base + 'brand/'  + this.key;
+                this.$.brandAjax.url = this.url_base + 'brand/' + this.key;
                 this.$.brandAjax.generateRequest();
             },
             _updateBrand: function (event) {
@@ -269,7 +261,7 @@
                     'x-access-token': this.token
                 };
                 this.$.updateAjax.method = 'PUT';
-                this.$.updateAjax.url = this.url_base + 'brand/'  + this.key;
+                this.$.updateAjax.url = this.url_base + 'brand/' + this.key;
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
@@ -281,71 +273,8 @@
                 // window.location.reload();
                 // }
             },
-            _createBrand: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'POST';
-                this._getForm().action = this.url_base + 'brand/' ;
-                var brand = this._getForm().serialize();
-                brand.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = brand;
-                //// console.log(brand);
-                this.$.brandForm.submit();
-            },
-            _applychangesSubmit: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'PUT';
-                this._getForm().action = this.url_base + 'brand/'  + this.key;
-                this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var brand = this._getForm().serialize();
-                //brand.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = brand;
-                // console.log(this._getForm());
-                this.$.brandForm.submit();
-            },
-            _reset: function (e) {
-                this.$.brandForm.reset();
-            },
-            _formSubmit: function () {
-                //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
-            },
             _getForm: function () {
                 return this.$.brandForm;
-            },
-            _formPresubmit: function () {
-                // console.log("presubmit");
-            },
-            _formInvalid: function (e) {
-                var msg = 'Verifique los datos ingresados';
-                this.showError(msg);
-            },
-            _formError: function (error) {
-                //// console.log('a',error.detail.request.response);
-                var msg = error.detail.request.response.message;
-                this.showError(msg);
-            },
-            showError: function (errorMessage) {
-                //// console.log("error msg");
-                this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.brandForm;
-                //// console.log(this.$.toastError.open());
-                this.$.toastError.open();
-            },
-            showMessage: function (message) {
-                this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.brandForm;
-                this.$.toastOk.open();
-            },
-            _formResponse: function (response) {
-                var message = response.detail.response.message;
-                var id = response.detail.response.data.id;
-                this.set('route.path', id);
-                this.showMessage(message);
             },
             _viewChanged: function () {
                 // console.log(this.selected)
@@ -358,6 +287,8 @@
                     //Cargar token cuando se ingrese a la pantalla de formulario
                     if (typeof window.localStorage.session !== "undefined") {
                         this.token = JSON.parse(window.localStorage.session).token;
+                        this.business = JSON.parse(window.localStorage.session).business;
+                        this.filterBody.business = this.business;
                     }
                     // Limpiar formulario
                     this.$.brandForm.reset();
@@ -369,6 +300,7 @@
                     // this.$.name.disabled = null;
                     // this.$.description.disabled = null;
                     this.$.description.style.display = 'inline-block';
+                    this._getBusiness();
                     //
                     if (this.key != '' && this.key != 'undefined') {
                         this.$.status.selected = '';
@@ -390,37 +322,69 @@
                 }
             },
             _getSuppliers: function () {
-                //obtener todos los roles para poder Agregar
-                var input = this.$.selectSupplier;
-                //var search = event.detail.option.text;
-                var url = this.url_base + 'persons';
-                var req = new XMLHttpRequest();
-                var params = {
-                    type: "PROVEEDOR"
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                this.filterBody.filter.type = 'PROVEEDOR';
+                this.filterBody.filter.business = this.business;
+                let data = JSON.stringify(this.filterBody);
+                // data.append('json',this.filterBody);
+
+                // data.append('json',JSON.stringify(this.filterBody));
+
+                let init = {
+                    method: 'POST',
+                    body: data,
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
                 };
-                req.open('GET', encodeURI(url));
-                req.setRequestHeader('x-access-token', this.token);
-                req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                //// console.log('token',this.token);
-                req.responseType = 'json';
-                req.onload = function () {
-                    //// console.log('roles input',req.status);
-                    if (req.status === 200) {
-                        //// console.log(req.response)
-                        //var data = JSON.parse(req.response.data);
-                        var data = req.response.data;
-                        // // console.log('data', data);
-                        var arr = data.map(function (obj) {
-                            return {
-                                text: obj.businessName,
-                                value: obj._id
-                            };
-                        });
-                        input.source = arr;
-                        // // console.log('a', input.source);
-                    }
-                };
-                req.send(params);
+
+                var myRequest = new Request( this.url_base + 'persons', init);
+
+                fetch(myRequest)
+                .then(function(response){
+                    return response.json()
+                })
+                .then(function(result){
+                    reallythis.$.selectSupplier.source = result.data.map(function(obj){
+                        return{
+                            text: obj.businessName,
+                            value: obj._id
+                        }
+                    })
+                    console.log(result);
+                })
+                .catch(function(err){
+                    console.log("error",err);
+                })
+                // //obtener todos los roles para poder Agregar
+                // var input = this.$.selectSupplier;
+                // var url = this.url_base + 'persons';
+                // var req = new XMLHttpRequest();
+                // var params = {
+                //     type: "PROVEEDOR"
+                // };
+                // req.open('GET', encodeURI(url));
+                // req.setRequestHeader('x-access-token', this.token);
+                // req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                // req.body = this.filterBody;
+                // req.responseType = 'json';
+                // req.onload = function () {
+                //     if (req.status === 200) {
+                //         var data = req.response.data;
+                //         var arr = data.map(function (obj) {
+                //             return {
+                //                 text: obj.businessName,
+                //                 value: obj._id
+                //             };
+                //         });
+                //         input.source = arr;
+                //     }
+                // };
+                // req.send(params);
             },
             _addSupplier: function () {
                 this.$.addSupplierAjax.headers = {
@@ -429,7 +393,7 @@
                 if (this.$.selectSupplier.value) {
 
                     this.$.addSupplierAjax.method = 'POST';
-                    this.$.addSupplierAjax.url = this.url_base + 'brand/'  + this.key + '/supplier';
+                    this.$.addSupplierAjax.url = this.url_base + 'brand/' + this.key + '/supplier';
                     this.$.addSupplierAjax.contentType = 'application/x-www-form-urlencoded';
                     this.$.addSupplierAjax.body = {
                         "supplierId": this.$.selectSupplier.value
@@ -445,7 +409,6 @@
                 var addSupplier = response.detail.response;
                 this.itemsSuppliers = addSupplier.data;
                 this.showMessage(addSupplier.message);
-                // window.location.reload();
             },
             _getSupplierList: function () {
                 return this.$.suppliersList;
@@ -454,52 +417,34 @@
                 var reallythis = this.reallythis;
                 reallythis.selectedSupplier = this.selectedItems;
                 var select = reallythis.selectedSupplier;
-                // // console.log("select", select)
                 if (select.length > 0 && select) {
                     reallythis.$.deleteSupplier.style.display = 'inline-block';
-                    // reallythis.$.resetRole.style.display = 'inline-block';
                 } else {
                     reallythis.$.deleteSupplier.style.display = 'none';
-                    // reallythis.$.resetRole.style.display = 'none';
                 }
             },
             _deleteSuppliers: function () {
                 var selected = this.selectedSupplier;
-                // console.log("supplieres", selected);
                 var reallythis = this;
                 var suppliersArray = [];
 
                 selected.forEach(function (element, index, array) {
                     //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
                     var supplierId = reallythis.itemsSuppliers[index]._id;
-                    // console.log('indice' + index, reallythis.itemsSuppliers[index]);
                     suppliersArray.push(supplierId);
 
                 });
-                // console.log(suppliersArray);
                 reallythis.$.deleteSuppliersAjax.headers = {
                     'x-access-token': reallythis.token
                 };
-                //debugger
-                // reallythis.$.deleteSuppliersAjax.params = suppliersArray;
-                reallythis.$.deleteSuppliersAjax.contentType = "application/x-www-form-urlencoded";
-                reallythis.$.deleteSuppliersAjax.body = {
-                    "suppliers": JSON.stringify(suppliersArray)
-                };
-                // reallythis.$.deleteSuppliersAjax.body = suppliersArray;
-                // console.log(reallythis.$.deleteSuppliersAjax.body);
                 reallythis.$.deleteSuppliersAjax.method = 'DELETE';
-                reallythis.$.deleteSuppliersAjax.url = reallythis.url_base + 'brand/' + reallythis.key + '/suppliers';
+                reallythis.$.deleteSuppliersAjax.url = reallythis.url_base + 'brand/' + reallythis.key +
+                    '/suppliers';
                 reallythis.$.deleteSuppliersAjax.contentType = 'application/x-www-form-urlencoded';
-                // console.log("llega a request")
                 reallythis.$.deleteSuppliersAjax.body = {
                     "suppliers": JSON.stringify(suppliersArray)
                 };
-                // console.log(reallythis.$.deleteSuppliersAjax.body);
                 reallythis.$.deleteSuppliersAjax.generateRequest();
-
-                // reallythis._viewChanged(reallythis.key);
-
             },
             _handleResponsDeleteSupplier: function (response) {
                 var message = response.detail.response.message;

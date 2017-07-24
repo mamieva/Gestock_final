@@ -1,0 +1,382 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete-suggestions.html">
+<link rel="import" href="./simple-dialog.html">
+<link rel="import" href="./shared-style.html">
+<link rel="import" href="./url-services-behavior.html">
+<link rel="import" href="./form-behavior.html">
+<script type="text/javascript" src="../data/countries.json"></script>
+<dom-module id="branchs-form">
+    <template>
+        <style include="shared-style"></style>
+        <style>
+             :host {
+                display: block;
+            }
+
+            .container {
+                display: block;
+                margin: 20px 0 0 20px;
+                width: 100%;
+            }
+
+            form {
+                width: 900px;
+            }
+
+            paper-input {
+                display: block;
+                width: 100%;
+                margin: auto;
+            }
+
+            .botonera {
+                margin: 10px 0 0 0;
+            }
+
+            iron-icon,
+            div[suffix] {
+                color: hsl(0, 0%, 50%);
+                margin-right: 12px;
+            }
+        </style>
+        <app-route route="{{route}}" pattern="/:branch" data="{{branchData}}" tail="{{routeTail}}" id="routeManager"></app-route>
+        <div id="ajaxContainer">
+            <iron-ajax id="branchAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+            <iron-ajax id="updateAjax"></iron-ajax>
+            <iron-ajax id="deleteAjax"></iron-ajax>
+        </div>
+        <div class="container">
+            <h3>Sucursal</h3>
+            <form is="iron-form" id="branchForm">
+                <paper-autocomplete label="Empresa" id="business" name="business" disable-show-clear="true"></paper-autocomplete>
+                <paper-input id="name" name="name" label="Nombre" required>
+                    <iron-icon icon="mail" prefix></iron-icon>
+                </paper-input>
+                <!--<paper-autocomplete label="Pais" id="pais" disable-show-clear="true"></paper-autocomplete>-->
+                <paper-autocomplete name="address.province" label="Provincia" id="provincia" disable-show-clear="true"></paper-autocomplete>
+                <paper-input id="city" name="address.city" label="Ciudad">
+                    <iron-icon icon="social:location-city" prefix></iron-icon>
+                </paper-input>
+                <paper-input id="calle" name="address.street" label="Calle">
+                    <iron-icon icon="maps:streetview" prefix></iron-icon>
+                </paper-input>
+                <paper-dropdown-menu label="Estado" name="status" required>
+                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
+                        <paper-item name="ACTIVO">ACTIVO</paper-item>
+                        <paper-item name="INACTIVO">INACTIVO</paper-item>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+                <div class="botonera">
+                    <paper-button raised submit id="create">Agregar</paper-button>
+                    <paper-button raised submit id="apply_changes">Modificar</paper-button>
+                    <paper-button raised submit id="delete">Eliminar</paper-button>
+                    <paper-button raised id="reset">Limpiar</paper-button>
+                </div>
+            </form>
+            <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
+            <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
+            <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+                <!--<h2>Eliminar sucursal</h2>-->
+                <p>¿Desea eliminar la sucursal <strong>[[branch.name]]</strong> ?</p>
+                <div class="buttons">
+                    <paper-button dialog-dismiss>Cancelar</paper-button>
+                    <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
+                </div>
+            </paper-dialog>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'branchs-form',
+            properties: {
+                route: {
+                    type: Object
+                },
+                key: {
+                    type: String
+                },
+                ajaxlist: {
+                    type: Object
+                },
+                url: {
+                    type: String,
+                    // value: 'http://localhost:3000/branch'
+                },
+                token: {
+                    type: String
+                },
+                branch: {
+                    type: Object
+                },
+                name: {
+                    type: String
+                },
+                selected: {
+                    type: Boolean,
+                    reflectToAttribute: true
+                }
+            },
+            behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
+            observers: [
+                "_viewChanged(key,selected)"
+            ],
+            listeners: {
+                'create.tap': '_createForm',
+                'reset.tap': '_reset',
+                'apply_changes.tap': '_updatebranch',
+                'delete.tap': '_deleteDialog',
+                'deleteAceptar.tap': '_deletebranch',
+                // 'pais.autocomplete-selected': '_getStates'
+            },
+            _deletebranch: function () {
+                // console.log("entro aceptar");
+                this.$.deleteAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.deleteAjax.method = 'DELETE';
+                this.$.deleteAjax.url = this.url_base + 'branch/' + this.key;
+                //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
+                // this.$.deleteAjax.debounceDuration = "300";
+                // var serialize = this._getForm().serialize();
+                //this.$.updateAjax.body = serialize;
+                this.$.deleteAjax.generateRequest();
+                // window.location.reload();
+            },
+            _deleteDialog: function () {
+                this.$.animated.open();
+            },
+            ready: function () {
+                //
+                //iniciar url
+                this.url = this.url_base + 'branch'
+                //cargar formulario
+                this._getForm().reallythis = this;
+                // cargar eventos del ajax
+                this.$.branchAjax.reallythis = this;
+                this.$.branchAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.branchAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.updateAjax.reallythis = this;
+                this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
+                this.$.updateAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.deleteAjax.reallythis = this;
+                this.$.deleteAjax.addEventListener('response', this._handleResponseDelete.bind(this));
+                this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
+                //
+                // this.$.myId.source = ["viejo","nuevo"];
+            },
+            _handleResponse: function (response) {
+                // console.log(response.detail.response.data);
+                var branch = response.detail.response.data;
+                this.branch = branch;
+                this.$.business.value = branch.business;
+                this.$.name.value = branch.name;
+                // this.$.pais.value = 'argentina';
+                // this.$.pais.text = 'Argentina';
+                // console.log(branch.address.province);
+                // this.$.provincia.selected = branch.address.province;
+                this.$.provincia.value = branch.address.province;
+                // this.$.provincia.text = branch.address.province;
+                this.$.city.value = branch.address.city;
+                this.$.calle.value = branch.address.street;
+                // this.$.description.value = branch.description;
+                this.$.status.selected = branch.status;
+                // console.log(this.$.status.selected);
+                if (branch.status == 'ACTIVO') {
+                    this.$.delete.style.display = 'none';
+                }
+            },
+            _handleError: function (error) {
+                // console.log(error);
+                var msg = error.detail.request.response.message;
+                this.showError(msg);
+            },
+            _handleResponseUpdate: function (response) {
+                // console.log(response.detail.response);
+                var update = response.detail.response;
+                this.showMessage(update.message);
+                // window.location.reload();
+                this._viewChanged(this.key);
+            },
+            _handleResponseDelete: function (response) {
+                // console.log(response.detail.response);
+                var update = response.detail.response;
+                this.showMessage(update.message);
+                // window.location.reload();
+                //this._viewChanged('');
+                this.set('route.path', '');
+            },
+            _getbranch: function () {
+                this.$.branchAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.branchAjax.url = this.url_base + 'branch/' + this.key;
+                this.$.branchAjax.generateRequest();
+            },
+            _updatebranch: function (event) {
+                this.$.updateAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.updateAjax.method = 'PUT';
+                this.$.updateAjax.url = this.url_base + 'branch/' + this.key;
+                this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
+                this.$.updateAjax.debounceDuration = "300";
+                var serialize = this._getForm().serialize();
+                // if (this.branch.status == serialize.status) {
+                //     this.showError('No se registraron cambios');
+                // } else {
+                this.$.updateAjax.body = serialize;
+                this.$.updateAjax.generateRequest();
+                // window.location.reload();
+                // }
+            },
+            _applychangesSubmit: function (event) {
+                //var token = JSON.parse(window.localStorage.session).token
+                this._getForm().headers = {
+                    'x-access-token': this.token
+                };
+                this._getForm().method = 'PUT';
+                this._getForm().action = this.url_base + 'branch/' + this.key;
+                this._getForm().contentType = "application/x-www-form-urlencoded";
+                //var branch = this._getForm().serialize();
+                //branch.token = JSON.parse(window.localStorage.session).token;
+                //this._getForm().params = branch;
+                // console.log(this._getForm());
+                this.$.branchForm.submit();
+            },
+            _getForm: function () {
+                return this.$.branchForm;
+            },
+            _getCountries: function () {
+                this.$.pais.source = countries.map(function (obj) {
+                    return {
+                        text: obj.name,
+                        value: obj.name.toLowerCase()
+                    };
+                });
+            },
+            _getStates: function (e) {
+                let reallythis = this;
+                // console.log(e.detail.value);
+                // console.log(e.detail.value + '.json');
+                //
+                // let url = './data/countries/' + e.detail.value + '.json';
+                let url = './data/countries/argentina.json';
+                fetch(url, {
+                        method: 'get'
+                    }).then(function (response) {
+                        // console.log(response.json())
+                        return response.json();
+                    })
+                    .then(function (result) {
+                        // console.log(result)
+                        // console.log(reallythis.$.provincia)
+                        reallythis.$.provincia.source = result.map(function (obj) {
+                            return {
+                                text: obj.name,
+                                value: obj.name
+                            };
+                        });
+                    }).catch(function (err) {
+                        console.log(err);
+                        // Error :(
+                    });
+            },
+            _getBusiness: function () {
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token
+                });
+                let init = {
+                    method: 'POST',
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+
+                var myRequest = new Request( this.url_base + 'businesses', init);
+
+                fetch(myRequest)
+                .then(function(response){
+                    return response.json()
+                })
+                .then(function(result){
+                    reallythis.$.business.source = result.data.map(function(obj){
+                        return{
+                            text: obj.name,
+                            value: obj._id
+                        }
+                    })
+                    console.log(result);
+                })
+                .catch(function(err){
+                    console.log("error",err);
+                })
+
+            },
+            _viewChanged: function () {
+                // debugger
+                if (!this.selected) {
+                    this.key = '';
+                    return;
+                } else {
+                    if (this.name === 'branchs') {
+                        //Cargar token cuando se ingrese a la pantalla de formulario
+                        if (typeof window.localStorage.session !== "undefined") {
+                            this.token = JSON.parse(window.localStorage.session).token;
+                            this.business = JSON.parse(window.localStorage.session).business;
+                        }
+                        // Limpiar formulario
+                        // console.log("reset");
+                        this.$.branchForm.reset();
+                        //Prendemos los botones
+                        this.$.create.style.display = 'inline-block';
+                        this.$.reset.style.display = 'inline-block';
+                        this.$.delete.style.display = 'inline-block';
+                        this.$.apply_changes.style.display = 'inline-block';
+                        // this.$.name.disabled = null;
+                        // this.$.description.disabled = null;
+                        // this.$.description.style.display = 'inline-block';
+                        this._getStates();
+                        this._getBusiness();
+                        //
+                        if (this.key != '' && this.key != 'undefined') {
+                            this.$.status.selected = '';
+                            // this.$.name.disabled = 'disabled';
+                            // this.$.description.disabled = 'disabled';
+                            // this.$.description.style.display = 'none';
+                            this.$.create.style.display = 'none';
+                            this.$.reset.style.display = 'none';
+                            this._getbranch();
+                        } else {
+                            this.$.delete.style.display = 'none';
+                            this.$.apply_changes.style.display = 'none';
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</dom-module>

@@ -1,5 +1,5 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <script>
     var ListBehaviors = ListBehaviors || {};
 
@@ -111,6 +111,11 @@
                 this.getItemsList().addEventListener('sort-order-changed', this._sortOrderChanged);
             },
             _handleResponse: function (response) {
+                //spinner de carga - apagar
+                this.$.spinner.active = false;
+                this.$.spinner.style.display = 'none';
+                this.$.pages.style.display = 'block';
+                //
                 //debugger;
                 // // console.log('aaaaaaaaa',response.detail.response.data);
                 var data = response.detail.response.data;

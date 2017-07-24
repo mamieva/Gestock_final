@@ -1,0 +1,105 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<script>
+    var FormBehaviors = FormBehaviors || {};
+
+    (function () {
+        FormBehaviors.FormBehavior = {
+            properties: {
+                business: {
+                    type: String
+                },
+                filterBody: {
+                    type: Object,
+                    value: {
+                        "limit": '',
+                        "fields": '',
+                        "filter": {},
+                        "sort": {}
+                    }
+                }
+            },
+            listeners: {
+                'iron-form-response': '_formResponse',
+                'iron-form-submit': '_formSubmit',
+                'iron-form-error': '_formError',
+                'iron-form-presubmit': '_formPresubmit',
+                'iron-form-invalid': '_formInvalid',
+                'reset.tap': '_reset',
+                'create.tap': '_createForm',
+            },
+            _formPresubmit: function () {
+                return null;
+            },
+            _formInvalid: function (e) {
+                var msg = 'Verifique los datos ingresados';
+                this.showError(msg);
+            },
+            _formError: function (error) {
+                var msg = error.detail.request.response.message;
+                this.showError(msg);
+            },
+            showError: function (errorMessage) {
+                this.$.toastError.text = errorMessage;
+                this.$.toastError.open();
+            },
+            showMessage: function (message) {
+                this.$.toastOk.text = message;
+                this.$.toastOk.open();
+            },
+            _formResponse: function (response) {
+                var message = response.detail.response.message;
+                var id = response.detail.response.data.id;
+                this.set('route.path', id);
+                this.showMessage(message);
+            },
+            _formSubmit: function () {
+                return null;
+            },
+            _reset: function (e) {
+                this._getForm().reset();
+            },
+            _getForm: function () {
+                return null;
+            },
+            _createForm: function () {
+                this._getForm().headers = {
+                    'x-access-token': this.token
+                };
+                this._getForm().method = 'POST';
+                this._getForm().action = this.url;
+                this._getForm().submit();
+
+            },
+            _getBusiness: function () {
+                //obtener todos los roles para poder Agregar
+                var input = this.$.selectBusiness;
+                //var search = event.detail.option.text;
+                var url = this.url_base + 'businesses';
+                var req = new XMLHttpRequest();
+                req.open('GET', encodeURI(url));
+                req.setRequestHeader('x-access-token', this.token);
+                //// console.log('token',this.token);
+                req.responseType = 'json';
+                req.onload = function () {
+                    //// console.log('roles input',req.status);
+                    if (req.status === 200) {
+                        //// console.log(req.response)
+                        //var data = JSON.parse(req.response.data);
+                        var data = req.response.data;
+                        // console.log('data', data);
+                        var arr = data.map(function (obj) {
+                            return {
+                                text: obj.name ,
+                                value: obj._id
+                            };
+                        });
+                        input.source = arr;
+                        // console.log('a', input.source);
+                    }
+                };
+                req.send();
+            },
+        }
+    })();
+</script>

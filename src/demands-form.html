@@ -1,0 +1,667 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../bower_components/paper-date-picker-item/paper-date-picker-item.html">
+<link rel="import" href="../bower_components/paper-date-picker-item/paper-datetime-picker-item.html">
+<link rel="import" href="../bower_components/moment-element/moment-element.html">
+<link rel="import" href="./simple-dialog.html">
+<link rel="import" href="./shared-style.html">
+<link rel="import" href="./url-services-behavior.html">
+<link rel="import" href="./form-behavior.html">
+<!--<script src="../bower_components/moment/min/locales.js"></script>-->
+<dom-module id="demands-form">
+    <template>
+        <style include="shared-style"></style>
+        <style>
+             :host {
+                display: block;
+            }
+
+            .container {
+                display: block;
+                margin: 20px 0 0 20px;
+                width: 100%;
+            }
+
+            form {
+                width: 900px;
+            }
+
+            paper-input {
+                display: block;
+                width: 100%;
+                margin: auto;
+            }
+
+            .botonera {
+                margin: 10px 0 0 0;
+            }
+
+            iron-icon,
+            div[suffix] {
+                color: hsl(0, 0%, 50%);
+                margin-right: 12px;
+            }
+
+            .items {
+                width: 90%;
+                margin-top: 40px;
+            }
+            /*vaadin-grid,*/
+
+            .botoneraBranchs {
+                height: auto;
+                margin-top: 20px;
+            }
+
+            paper-card {
+                width: 100%;
+            }
+
+            paper-autocomplete {
+                width: 100%;
+                display: inline-block;
+                text-align: left;
+                /*float: left;*/
+            }
+
+            .btnAceptar {
+                width: 20%;
+            }
+
+            .dark {
+                background: var(--paper-blue-grey-500);
+            }
+
+            .dialogItem {
+                width: 50%;
+                margin-top: 40px;
+                text-align: center;
+            }
+
+            .dialogItem>paper-input {
+                display: inline-block;
+                width: 40%;
+                /*float: left;*/
+            }
+            /*#stock, #cantidad {
+                text-align: right;
+            }*/
+        </style>
+        <app-route route="{{route}}" pattern="/:demand" data="{{demandData}}" tail="{{routeTail}}" id="routeManager"></app-route>
+        <div id="ajaxContainer">
+            <iron-ajax id="demandAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+            <iron-ajax id="updateAjax"></iron-ajax>
+            <iron-ajax id="deleteAjax"></iron-ajax>
+            <iron-ajax id="addBranchAjax"></iron-ajax>
+            <iron-ajax id="deleteBranchsAjax"></iron-ajax>
+        </div>
+        <div class="container">
+            <h3>Solicitud de Compra</h3>
+            <form is="iron-form" method="POST" id="demandForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
+
+                <paper-date-picker-item id="datetime" icon="icons:today" placeholder="Fecha de la Solicitud" date-format='LLLL' locale="es"
+                    cancel-button="Cancelar" ok-button="Aceptar"></paper-date-picker-item>
+                <input type="hidden" name="startDate" id="startDate">
+                <paper-input id="name" name="name" label="Nombre" required>
+                    <iron-icon icon="mail" prefix></iron-icon>
+                    <!--<div suffix>@email.com</div>-->
+                </paper-input>
+                <div class="botonera">
+                    <paper-button raised submit id="create">Agregar</paper-button>
+                    <paper-button raised submit id="apply_changes">Modificar</paper-button>
+                    <paper-button raised submit id="delete">Eliminar</paper-button>
+                    <paper-button raised id="reset">Limpiar</paper-button>
+                </div>
+            </form>
+            <div id="items" class="items">
+                <paper-card heading="Items de la Solicitud">
+                    <div class="card-content">
+                        <paper-button raised submit id="addItem" class="btnItem">Agregar nuevo item</paper-button>
+                        <paper-dialog class="dialogItem" id="dialogItem" entry-animation="scale-up-animation" exit-animation="fade-out-animation"
+                            with-backdrop>
+                            <h2>Agregar Item</h2>
+                            <paper-autocomplete label="Seleccionar Sucursal" id="selectBranch"></paper-autocomplete>
+                            <paper-autocomplete label="Seleccionar Producto" id="selectProduct"></paper-autocomplete>
+                            <paper-autocomplete label="Seleccionar Proveedor" id="selectSupplier"></paper-autocomplete>
+                            <paper-input id="stock" name="stock" label="Stock Actual" type="number" required>
+                                <div suffix>unidades</div>
+                            </paper-input>
+                            <paper-input id="quantity" name="quantity" label="Cantidad a Solicitar" type="number"></paper-input>
+                            <div class="buttons">
+                                <paper-button dialog-dismiss>Cancelar</paper-button>
+                                <paper-button dialog-confirm autofocus id="addNewItem">Aceptar</paper-button>
+                            </div>
+                        </paper-dialog>
+                        <!--<paper-autocomplete label="Seleccionar Sucursal" id="selectBranch"></paper-autocomplete>
+                        <paper-button raised submit id="addBranch" class="btnAceptar">Agregar</paper-button>-->
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="itemsList" items={{itemsItems}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Nombre</template>
+                                <template>
+                                    <moment-element datetime="[[item.dateDemand]]" output-format="dddd D/MM/YY"></moment-element></template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Descripción</template>
+                                <template>[[item.product]]</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                        <div class="botoneraBranchs">
+                            <paper-button raised submit id="deleteBranch">Eliminar Seleccionados</paper-button>
+                        </div>
+                    </div>
+                </paper-card>
+            </div>
+            <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
+            <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
+            <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+                <!--<h2>Eliminar solicitud</h2>-->
+                <p>¿Desea eliminar la solicitud <strong>[[demand.name]]</strong> ?</p>
+                <div class="buttons">
+                    <paper-button dialog-dismiss>Cancelar</paper-button>
+                    <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
+                </div>
+            </paper-dialog>
+
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'demands-form',
+            properties: {
+                route: {
+                    type: Object
+                },
+                key: {
+                    type: String
+                },
+                ajaxlist: {
+                    type: Object
+                },
+                url: {
+                    type: String,
+                    // value: 'http://localhost:3000/demand'
+                },
+                token: {
+                    type: String
+                },
+                demand: {
+                    type: Object
+                },
+                name: {
+                    type: String
+                },
+                selected: {
+                    type: Boolean,
+                    reflectToAttribute: true
+                },
+                itemsItems: {
+                    type: Array,
+                    value: []
+                }
+            },
+            behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
+            observers: [
+                "_viewChanged(key,selected)"
+            ],
+            listeners: {
+                'create.tap': '_createForm',
+                'reset.tap': '_reset',
+                'apply_changes.tap': '_updateDemand',
+                'delete.tap': '_deleteDialog',
+                'deleteAceptar.tap': '_deleteDemand',
+                'datetime.date-changed': '_dateChanged',
+                'addItem.tap': '_dialogItem',
+                'addNewItem.tap': '_addItem',
+                'itemsList.selected-items-changed': '_prueba'
+                // 'addBranch.tap': '_addBranch'
+            },
+            _prueba: function(){
+                console.log(this.$.itemsList.selectedItems);
+            },
+            _deleteDemand: function () {
+                // console.log("entro aceptar");
+                this.$.deleteAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.deleteAjax.method = 'DELETE';
+                this.$.deleteAjax.url = this.url_base + 'demand/' + this.key;
+                //this.$.deleteAjax.contentType = "application/x-www-form-urlencoded";
+                // this.$.deleteAjax.debounceDuration = "300";
+                // var serialize = this._getForm().serialize();
+                //this.$.updateAjax.body = serialize;
+                this.$.deleteAjax.generateRequest();
+                // window.location.reload();
+            },
+            _deleteDialog: function () {
+                this.$.animated.open();
+            },
+            ready: function () {
+                //iniciar url
+                this.url = this.url_base + 'demand'
+                //cargar formulario
+                this._getForm().reallythis = this;
+                // cargar eventos del ajax
+                this.$.demandAjax.reallythis = this;
+                this.$.demandAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.demandAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.updateAjax.reallythis = this;
+                this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
+                this.$.updateAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.deleteAjax.reallythis = this;
+                this.$.deleteAjax.addEventListener('response', this._handleResponseDelete.bind(this));
+                this.$.deleteAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.addBranchAjax.reallythis = this;
+                this.$.addBranchAjax.addEventListener('response', this._handleResponsAddBranch.bind(this));
+                this.$.addBranchAjax.addEventListener('error', this._handleError.bind(this));
+                ///
+                this.$.deleteBranchsAjax.reallythis = this;
+                this.$.deleteBranchsAjax.addEventListener('response', this._handleResponsDeleteBranch.bind(
+                    this));
+                this.$.deleteBranchsAjax.addEventListener('error', this._handleError.bind(this));
+                //
+                // this.$.myId.source = ["viejo","nuevo"];
+            },
+            _handleResponse: function (response) {
+                // console.log(response.detail.response.data);
+                var demand = response.detail.response.data;
+                this.demand = demand;
+                this.$.name.value = demand.name;
+                this.$.selectBusiness.value = demand.business;
+                this.$.datetime.date = demand.startDate;
+                this.itemsItems = demand.items;
+                // this.$.tributaryCode.value = demand.tributaryCode;
+                // this.$.status.selected = demand.status;
+                // this.itemsBranchs = demand.branchs;
+                // console.log(this.$.status.selected);
+                if (demand.status == 'ACTIVO') {
+                    this.$.delete.style.display = 'none';
+                }
+            },
+            _handleError: function (error) {
+                // console.log(error);
+                var msg = error.detail.request.response.message;
+                this.showError(msg);
+            },
+            _handleResponseUpdate: function (response) {
+                // console.log(response.detail.response);
+                var update = response.detail.response;
+                this.showMessage(update.message);
+                // window.location.reload();
+                this._viewChanged(this.key);
+            },
+            _handleResponseDelete: function (response) {
+                // console.log(response.detail.response);
+                var update = response.detail.response;
+                this.showMessage(update.message);
+                // window.location.reload();
+                //this._viewChanged('');
+                this.set('route.path', '');
+            },
+            _getDemand: function () {
+                this.$.demandAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.demandAjax.url = this.url_base + 'demand/' + this.key;
+                this.$.demandAjax.generateRequest();
+            },
+            _updateDemand: function (event) {
+                this.$.updateAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.updateAjax.method = 'PUT';
+                this.$.updateAjax.url = this.url_base + 'demand/' + this.key;
+                this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
+                this.$.updateAjax.debounceDuration = "300";
+                var serialize = this._getForm().serialize();
+                // if (this.demand.status == serialize.status) {
+                //     this.showError('No se registraron cambios');
+                // } else {
+                this.$.updateAjax.body = serialize;
+                this.$.updateAjax.generateRequest();
+                // window.location.reload();
+                // }
+            },
+            _applychangesSubmit: function (event) {
+                //var token = JSON.parse(window.localStorage.session).token
+                this._getForm().headers = {
+                    'x-access-token': this.token
+                };
+                this._getForm().method = 'PUT';
+                this._getForm().action = this.url_base + 'demand/' + this.key;
+                this._getForm().contentType = "application/x-www-form-urlencoded";
+                //var demand = this._getForm().serialize();
+                //demand.token = JSON.parse(window.localStorage.session).token;
+                //this._getForm().params = demand;
+                // console.log(this._getForm());
+                this.$.demandForm.submit();
+            },
+            // _reset: function (e) {
+            //     this.$.demandForm.reset();
+            // },
+            // _formSubmit: function () {
+            //     //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
+            // },
+            _getForm: function () {
+                return this.$.demandForm;
+            },
+            _viewChanged: function () {
+                // debugger
+                if (!this.selected) {
+                    this.key = '';
+                    return;
+                } else {
+                    if (this.name === 'demands') {
+                        //Cargar token cuando se ingrese a la pantalla de formulario
+                        if (typeof window.localStorage.session !== "undefined") {
+                            this.token = JSON.parse(window.localStorage.session).token;
+                            this.business = JSON.parse(window.localStorage.session).business;
+                        }
+                        // Limpiar formulario
+                        // console.log("reset");
+                        this.$.demandForm.reset();
+                        //Prendemos los botones
+                        this.$.create.style.display = 'inline-block';
+                        this.$.reset.style.display = 'inline-block';
+                        this.$.delete.style.display = 'inline-block';
+                        this.$.apply_changes.style.display = 'inline-block';
+                        this._getProducts();
+                        this._getBranchs();
+                        this._getSuppliers();
+                        this._getBusiness();
+                        //
+                        if (this.key != '' && this.key != 'undefined') {
+                            this.$.create.style.display = 'none';
+                            this.$.reset.style.display = 'none';
+                            this._getDemand();
+                        } else {
+                            //iniciar fecha
+                            this.$.datetime.date = Date.now();
+                            // this.$.branchs.style.display = 'none';
+                            this.$.delete.style.display = 'none';
+                            this.$.apply_changes.style.display = 'none';
+                        }
+                    }
+                }
+            },
+            _getBranchs: function () {
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                // this.filterBody.filter.type = 'PROVEEDOR';
+                this.filterBody.filter.business = this.business;
+                let data = JSON.stringify(this.filterBody);
+                // data.append('json',this.filterBody);
+                // data.append('json',JSON.stringify(this.filterBody));
+                let init = {
+                    method: 'POST',
+                    body: data,
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+                var myRequest = new Request(this.url_base + 'branchs', init);
+
+                fetch(myRequest)
+                    .then(function (response) {
+                        return response.json()
+                    })
+                    .then(function (result) {
+                        reallythis.$.selectBranch.source = result.data.map(function (obj) {
+                            return {
+                                text: obj.name,
+                                value: obj._id
+                            }
+                        })
+                        console.log(result);
+                    })
+                    .catch(function (err) {
+                        console.log("error", err);
+                    })
+            },
+            _addBranch: function () {
+                this.$.addBranchAjax.headers = {
+                    'x-access-token': this.token
+                };
+                this.$.addBranchAjax.method = 'POST';
+                this.$.addBranchAjax.url = this.url_base + 'demand/' + this.key + '/branch';
+                this.$.addBranchAjax.contentType = 'application/x-www-form-urlencoded';
+                this.$.addBranchAjax.body = {
+                    "branchId": this.$.selectBranch.value
+                };
+                this.$.selectBranch.text = '';
+                this.$.addBranchAjax.generateRequest();
+            },
+            _handleResponsAddBranch: function (response) {
+                var addBranch = response.detail.response;
+                this.itemsBranchs = addBranch.data;
+                this.showMessage(addBranch.message);
+                // window.location.reload();
+            },
+            _getBranchList: function () {
+                return this.$.branchsList;
+            },
+            _selectedBranchChanged: function () {
+                var reallythis = this.reallythis;
+                reallythis.selectedBranch = this.selectedItems;
+                var select = reallythis.selectedBranch;
+                // // console.log("select", select)
+                if (select.length > 0 && select) {
+                    reallythis.$.deleteBranch.style.display = 'inline-block';
+                    // reallythis.$.resetRole.style.display = 'inline-block';
+                } else {
+                    reallythis.$.deleteBranch.style.display = 'none';
+                    // reallythis.$.resetRole.style.display = 'none';
+                }
+            },
+            _deleteBranchs: function () {
+                var selected = this.selectedBranch;
+                // console.log("branchs", selected);
+                var reallythis = this;
+                var branchsArray = [];
+
+                selected.forEach(function (element, index, array) {
+                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
+                    var branchId = reallythis.itemsBranchs[index]._id;
+                    // console.log('indice' + index, reallythis.itemsBranchs[index]);
+                    branchsArray.push(branchId);
+
+                });
+                // console.log(branchsArray);
+                reallythis.$.deleteBranchsAjax.headers = {
+                    'x-access-token': reallythis.token
+                };
+                //debugger
+                // reallythis.$.deleteBranchsAjax.params = branchsArray;
+                // reallythis.$.deleteBranchsAjax.contentType = "application/x-www-form-urlencoded";
+                // reallythis.$.deleteBranchsAjax.body = {
+                //     "branchs": JSON.stringify(branchsArray)
+                // };
+                // reallythis.$.deleteBranchsAjax.body = branchsArray;
+                // console.log(reallythis.$.deleteBranchsAjax.body);
+                reallythis.$.deleteBranchsAjax.method = 'DELETE';
+                reallythis.$.deleteBranchsAjax.url = reallythis.url_base + 'demand/' + reallythis.key +
+                    '/branchs';
+                reallythis.$.deleteBranchsAjax.contentType = 'application/x-www-form-urlencoded';
+                // console.log("llega a request")
+                reallythis.$.deleteBranchsAjax.body = {
+                    "branchs": JSON.stringify(branchsArray)
+                };
+                // console.log(reallythis.$.deleteBranchsAjax.body);
+                reallythis.$.deleteBranchsAjax.generateRequest();
+
+                // reallythis._viewChanged(reallythis.key);
+
+            },
+            _handleResponsDeleteBranch: function (response) {
+                var message = response.detail.response.message;
+                var data = response.detail.response.data;
+                this.itemsBranchs = data;
+                this.showMessage(message);
+            },
+            _dateChanged: function (e) {
+                this.$.startDate.value = e.detail.value;
+                console.log("object", moment(e.detail.value).format("DD/MM/YYYY"));
+            },
+            _dialogItem: function () {
+                this.$.dialogItem.open();
+            },
+            _addItem: function () {
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                //
+                let item = {};
+                item.dateDemand = this.$.startDate.value;
+                item.branch = this.$.selectBranch.value;
+                item.supplier = this.$.selectSupplier.value;
+                item.product = this.$.selectProduct.value;
+                item.quantity = this.$.quantity.value;
+                //
+                // this.filterBody.filter.type = 'PROVEEDOR';
+                // this.filterBody.filter.business = this.business;
+                this.itemsItems.push(item);
+                item = JSON.stringify(item);
+                // data.append('json',this.filterBody);
+
+                // data.append('json',JSON.stringify(this.filterBody));
+                let init = {
+                    method: 'PUT',
+                    body: item,
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+                var myRequest = new Request(this.url_base + 'demand/' + this.key + '/add/item', init);
+                fetch(myRequest)
+                    .then(function (response) {
+                        return response.json()
+                    })
+                    .then(function (result) {
+                        if (result.status != 200) {
+                            reallythis.showError(result.message);
+                        }
+                        reallythis.showMessage(result.message);
+                        reallythis.itemsItems = result.data;
+                        console.log(result);
+                    })
+                    .catch(function (err) {
+                        reallythis.showError(err.message);
+                        console.log("error", err.message);
+                    })
+
+            },
+            _getSuppliers: function () {
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                this.filterBody.filter.type = 'PROVEEDOR';
+                this.filterBody.filter.business = this.business;
+                let data = JSON.stringify(this.filterBody);
+                // data.append('json',this.filterBody);
+
+                // data.append('json',JSON.stringify(this.filterBody));
+
+                let init = {
+                    method: 'POST',
+                    body: data,
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+
+                var myRequest = new Request(this.url_base + 'persons', init);
+
+                fetch(myRequest)
+                    .then(function (response) {
+                        return response.json()
+                    })
+                    .then(function (result) {
+                        reallythis.$.selectSupplier.source = result.data.map(function (obj) {
+                            return {
+                                text: obj.businessName,
+                                value: obj._id
+                            }
+                        })
+                        console.log(result);
+                    })
+                    .catch(function (err) {
+                        console.log("error", err);
+                    })
+            },
+            _getProducts: function () {
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                // this.filterBody.filter.type = 'PROVEEDOR';
+                this.filterBody.filter.business = this.business;
+                let data = JSON.stringify(this.filterBody);
+                // data.append('json',this.filterBody);
+
+                // data.append('json',JSON.stringify(this.filterBody));
+
+                let init = {
+                    method: 'POST',
+                    body: data,
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+
+                var myRequest = new Request(this.url_base + 'products', init);
+
+                fetch(myRequest)
+                    .then(function (response) {
+                        return response.json()
+                    })
+                    .then(function (result) {
+                        reallythis.$.selectProduct.source = result.data.map(function (obj) {
+                            return {
+                                text: obj.name,
+                                value: obj._id
+                            }
+                        })
+                        console.log(result);
+                    })
+                    .catch(function (err) {
+                        console.log("error", err);
+                    })
+            }
+
+
+        });
+    </script>
+</dom-module>

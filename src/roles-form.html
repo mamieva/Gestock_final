@@ -1,26 +1,27 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
-<link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
-<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
 <link rel="import" href="./url-services-behavior.html">
+<link rel="import" href="./form-behavior.html">
 <dom-module id="roles-form">
     <template>
         <style include="shared-style"></style>
@@ -28,32 +29,43 @@
              :host {
                 display: block;
             }
-            
+
             .container {
                 display: block;
                 margin: 20px 0 0 20px;
                 width: 100%;
             }
-            
+
             form {
                 width: 900px;
             }
-            
+
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-            
+
             .botonera {
                 margin: 10px 0 0 0;
             }
-            
+
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
+
+            /* paper-dropdown-menu{
+                --paper-dropdown-menu-button	: {
+                    color: var(--paper-pink-500);
+                    background-color: var(--paper-pink-500);
+                    font-style: italic;
+                    text-align: right;
+                    font-weight: bold;
+                }
+                ;
+            } */
         </style>
         <app-route route="{{route}}" pattern="/:role" data="{{roleData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
@@ -64,6 +76,7 @@
         <div class="container">
             <h3>Rol</h3>
             <form is="iron-form" method="POST" id="roleForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
                 <paper-input id="name" name="name" label="Nombre" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
@@ -72,7 +85,7 @@
                     <iron-icon icon="icons:description" prefix></iron-icon>
                 </paper-input>
                 <paper-dropdown-menu label="Estado" name="status" required>
-                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name" selected="">
+                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="ACTIVO">ACTIVO</paper-item>
                         <paper-item name="INACTIVO">INACTIVO</paper-item>
                     </paper-listbox>
@@ -109,10 +122,10 @@
                 ajaxlist: {
                     type: Object
                 },
-                // url: {
-                //     type: String,
-                //     value: 'http://localhost:3000/role'
-                // },
+                url: {
+                    type: String,
+                    // value: 'http://localhost:3000/role'
+                },
                 token: {
                     type: String
                 },
@@ -123,20 +136,16 @@
                     type: String
                 },
                 selected: {
-                    type: Boolean
+                    type: Boolean,
+                    reflectToAttribute: true
                 }
             },
-            behaviors: [URLServiceBehaviors.URLService],
+            behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
             observers: [
                 "_viewChanged(key,selected)"
             ],
             listeners: {
-                'iron-form-response': '_formResponse',
-                'iron-form-submit': '_formSubmit',
-                'iron-form-error': '_formError',
-                'iron-form-presubmit': '_formPresubmit',
-                'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createRole',
+                'create.tap': '_createForm',
                 'reset.tap': '_reset',
                 'apply_changes.tap': '_updateRole',
                 'delete.tap': '_deleteDialog',
@@ -160,6 +169,8 @@
                 this.$.animated.open();
             },
             ready: function () {
+                //iniciar url
+                this.url = this.url_base + 'role'
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
@@ -184,6 +195,7 @@
                 this.$.name.value = role.name;
                 this.$.description.value = role.description;
                 this.$.status.selected = role.status;
+                this.$.selectBusiness.value = role.business;
                 // console.log(this.$.status.selected);
                 if (role.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
@@ -233,19 +245,6 @@
                 // window.location.reload();
                 // }
             },
-            _createRole: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'POST';
-                this._getForm().action = this.url;
-                var role = this._getForm().serialize();
-                role.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = role; 
-                //// console.log(role);
-                this.$.roleForm.submit();
-            },
             _applychangesSubmit: function (event) {
                 //var token = JSON.parse(window.localStorage.session).token
                 this._getForm().headers = {
@@ -254,50 +253,10 @@
                 this._getForm().method = 'PUT';
                 this._getForm().action = this.url_base + 'role/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var role = this._getForm().serialize();
-                //role.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = role;
-                // console.log(this._getForm());
                 this.$.roleForm.submit();
-            },
-            _reset: function (e) {
-                this.$.roleForm.reset();
-            },
-            _formSubmit: function () {
-                //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
             },
             _getForm: function () {
                 return this.$.roleForm;
-            },
-            _formPresubmit: function () {
-                // console.log("presubmit");
-            },
-            _formInvalid: function (e) {
-                var msg = 'Verifique los datos ingresados';
-                this.showError(msg);
-            },
-            _formError: function (error) {
-                //// console.log('a',error.detail.request.response);
-                var msg = error.detail.request.response.message;
-                this.showError(msg);
-            },
-            showError: function (errorMessage) {
-                //// console.log("error msg");
-                this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.roleForm;
-                //// console.log(this.$.toastError.open());
-                this.$.toastError.open();
-            },
-            showMessage: function (message) {
-                this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.roleForm;
-                this.$.toastOk.open();
-            },
-            _formResponse: function (response) {
-                var message = response.detail.response.message;
-                var id = response.detail.response.data.id;
-                this.set('route.path', id);
-                this.showMessage(message);
             },
             _viewChanged: function () {
                 // debugger
@@ -309,9 +268,9 @@
                         //Cargar token cuando se ingrese a la pantalla de formulario
                         if (typeof window.localStorage.session !== "undefined") {
                             this.token = JSON.parse(window.localStorage.session).token;
+                            this.business = JSON.parse(window.localStorage.session).business;
                         }
                         // Limpiar formulario
-                        // console.log("reset");
                         this.$.roleForm.reset();
                         //Prendemos los botones
                         this.$.create.style.display = 'inline-block';
@@ -321,6 +280,7 @@
                         // this.$.name.disabled = null;
                         // this.$.description.disabled = null;
                         this.$.description.style.display = 'inline-block';
+                        this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {
                             this.$.status.selected = '';

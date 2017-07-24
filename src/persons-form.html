@@ -1,26 +1,27 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-icons/communication-icons.html">
-<link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/app-route/app-route.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
-<link rel="import" href="../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="./simple-dialog.html">
 <link rel="import" href="./shared-style.html">
 <link rel="import" href="./url-services-behavior.html">
+<link rel="import" href="./form-behavior.html">
 <dom-module id="persons-form">
     <template>
         <style include="shared-style"></style>
@@ -28,31 +29,37 @@
              :host {
                 display: block;
             }
-            
+
             .container {
                 display: block;
                 margin: 20px 0 0 20px;
                 width: 100%;
             }
-            
+
             form {
                 width: 900px;
             }
-            
+
             paper-input {
                 display: block;
                 width: 100%;
                 margin: auto;
             }
-            
+
             .botonera {
                 margin: 10px 0 0 0;
             }
-            
+
             iron-icon,
             div[suffix] {
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
+            }
+
+            .contacts,
+            .addresses {
+                width: 90%;
+                margin-top: 40px;
             }
         </style>
         <app-route route="{{route}}" pattern="/:person" data="{{personData}}" tail="{{routeTail}}" id="routeManager"></app-route>
@@ -68,8 +75,11 @@
         <div class="container">
             <h3>Persona</h3>
             <form is="iron-form" method="POST" id="personForm">
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
+
                 <paper-dropdown-menu label="Tipo Persona" name="type" required>
-                    <paper-listbox id="type" class="dropdown-content" attr-for-selected="name" selected="{{type}}">
+                    <paper-listbox id="type" class="dropdown-content" attr-for-selected="name" selected="{{type}}" fallback-selection="{{type}}"
+                        placeholder={{type}}>
                         <paper-item name="CLIENTE">CLIENTE</paper-item>
                         <paper-item name="PROVEEDOR">PROVEEDOR</paper-item>
                         <paper-item name="VENDEDOR">VENDEDOR</paper-item>
@@ -114,42 +124,54 @@
                     <paper-button raised id="reset">Limpiar</paper-button>
                 </div>
             </form>
-            <div id="addresses">
-                <paper-input id="address" name="address" label="Dirección">
-                    <iron-icon icon="icons:description" prefix></iron-icon>
-                </paper-input>
-                <paper-button raised submit id="addAddress">Agregar Domicilio</paper-button>
-                <paper-button raised submit id="deleteAddress">Eliminar Seleccionado</paper-button>
-                <vaadin-grid id="addressList" items={{itemsAddress}} selection-mode="multi">
-                    <vaadin-grid-selection-column auto-select>
-                    </vaadin-grid-selection-column>
-                    <vaadin-grid-column>
-                        <template class="header">Dirección</template>
-                        <template>[[item.address]]</template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
+            <div id="addresses" class="addresses">
+                <paper-card heading="Direcciones">
+                    <div class="card-content">
+                        <paper-input id="address" name="address" label="Dirección">
+                            <iron-icon icon="icons:description" prefix></iron-icon>
+                        </paper-input>
+                        <paper-button raised submit id="addAddress">Agregar Domicilio</paper-button>
+                        <paper-button raised submit id="deleteAddress">Eliminar Seleccionado</paper-button>
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="addressList" items={{itemsAddress}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Dirección</template>
+                                <template>[[item.address]]</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
+                </paper-card>
             </div>
-            <div id="contacts">
-                <paper-input id="contactName" name="contactName" label="Nombre Contacto">
-                    <iron-icon icon="icons:description" prefix></iron-icon>
-                </paper-input>
-                <paper-input id="contactPhone" name="contactPhone" label="Teléfono Contacto">
-                    <iron-icon icon="icons:description" prefix></iron-icon>
-                </paper-input>
-                <paper-button raised submit id="addContact">Agregar Contacto</paper-button>
-                <paper-button raised submit id="deleteContact">Eliminar Seleccionado</paper-button>
-                <vaadin-grid id="contactsList" items={{itemsContacts}} selection-mode="multi">
-                    <vaadin-grid-selection-column auto-select>
-                    </vaadin-grid-selection-column>
-                    <vaadin-grid-column>
-                        <template class="header">Nombre</template>
-                        <template>[[item.name]]</template>
-                    </vaadin-grid-column>
-                    <vaadin-grid-column>
-                        <template class="header">Teléfono</template>
-                        <template>[[item.phone]]</template>
-                    </vaadin-grid-column>
-                </vaadin-grid>
+            <div id="contacts" class="contacts">
+                <paper-card heading="Contactos">
+                    <div class="card-content">
+                        <paper-input id="contactName" name="contactName" label="Nombre Contacto">
+                            <iron-icon icon="icons:description" prefix></iron-icon>
+                        </paper-input>
+                        <paper-input id="contactPhone" name="contactPhone" label="Teléfono Contacto">
+                            <iron-icon icon="icons:description" prefix></iron-icon>
+                        </paper-input>
+                        <paper-button raised submit id="addContact">Agregar Contacto</paper-button>
+                        <paper-button raised submit id="deleteContact">Eliminar Seleccionado</paper-button>
+                    </div>
+                    <div class="card-actions">
+                        <vaadin-grid id="contactsList" items={{itemsContacts}} selection-mode="multi">
+                            <vaadin-grid-selection-column auto-select>
+                            </vaadin-grid-selection-column>
+                            <vaadin-grid-column>
+                                <template class="header">Nombre</template>
+                                <template>[[item.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Teléfono</template>
+                                <template>[[item.phone]]</template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                    </div>
+                </paper-card>
             </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
@@ -176,10 +198,10 @@
                 ajaxlist: {
                     type: Object
                 },
-                // url: {
-                //     type: String,
-                //     value: 'http://localhost:3000/person'
-                // },
+                url: {
+                    type: String
+                    // value: 'http://localhost:3000/person'
+                },
                 token: {
                     type: String
                 },
@@ -205,27 +227,22 @@
                 },
                 type: {
                     type: String,
-                    observer: "prueba"
+                    observer: "prueba",
+                    reflectToAttribute: true
                 },
                 name: {
                     type: String
                 },
                 selected: {
-                    type: Boolean
+                    type: Boolean,
+                    reflectToAttribute: true
                 }
             },
-            behaviors: [URLServiceBehaviors.URLService],
+            behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
             observers: [
                 "_viewChanged(key,selected)"
             ],
             listeners: {
-                'iron-form-response': '_formResponse',
-                'iron-form-submit': '_formSubmit',
-                'iron-form-error': '_formError',
-                'iron-form-presubmit': '_formPresubmit',
-                'iron-form-invalid': '_formInvalid',
-                'create.tap': '_createPerson',
-                'reset.tap': '_reset',
                 'apply_changes.tap': '_updatePerson',
                 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deletePerson',
@@ -269,6 +286,7 @@
                 this.$.animated.open();
             },
             ready: function () {
+                this.url = this.url_base + 'person';
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
@@ -339,6 +357,7 @@
                 this.$.grossIncomeCode.value = person.grossIncomeCode;
                 this.$.taxStatus.selected = person.taxStatus;
                 this.$.status.selected = person.status;
+                this.$.selectBusiness.value = person.business;
                 this.itemsContacts = person.contacts;
                 this.itemsAddress = person.addresses;
                 // console.log(this.$.status.selected);
@@ -359,14 +378,14 @@
                 var update = response.detail.response;
                 this.showMessage('La persona ha sido actualizado con exito');
                 // window.location.reload();
-                this._viewChanged(this.key);
+                this._viewChanged(this.key, this.selected);
             },
             _handleResponseDelete: function (response) {
                 // console.log(response.detail.response);
                 var update = response.detail.response.message;
                 this.showMessage(update);
                 // window.location.reload();
-                this._viewChanged('');
+                this._viewChanged('', this.selected);
                 this.set('route.path', '');
             },
             _getPerson: function () {
@@ -393,73 +412,8 @@
                 // window.location.reload();
                 // }
             },
-            _createPerson: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'POST';
-                this._getForm().action = this.url_base + 'person/';
-                var person = this._getForm().serialize();
-                person.token = JSON.parse(window.localStorage.session).token;
-                this._getForm().params = person;
-                //// console.log(person);
-                this.$.personForm.submit();
-            },
-            _applychangesSubmit: function (event) {
-                //var token = JSON.parse(window.localStorage.session).token
-                this._getForm().headers = {
-                    'x-access-token': this.token
-                };
-                this._getForm().method = 'PUT';
-                this._getForm().action = this.url_base + 'person/' + this.key;
-                this._getForm().contentType = "application/x-www-form-urlencoded";
-                //var person = this._getForm().serialize();
-                //person.token = JSON.parse(window.localStorage.session).token;
-                //this._getForm().params = person;
-                // console.log(this._getForm());
-                this.$.personForm.submit();
-            },
-            _reset: function (e) {
-                this.$.personForm.reset();
-            },
-            _formSubmit: function () {
-                //this.querySelector('.output').innerHTML = JSON.stringify(event.detail);
-            },
             _getForm: function () {
                 return this.$.personForm;
-            },
-            _formPresubmit: function (event) {
-                // console.log(event);
-                // this.request.params = {"status": "ACTIVO"};
-                // console.log("presubmit");
-            },
-            _formInvalid: function (e) {
-                var msg = 'Verifique los datos ingresados';
-                this.showError(msg);
-            },
-            _formError: function (error) {
-                //// console.log('a',error.detail.request.response);
-                var msg = error.detail.request.response.message;
-                this.showError(msg);
-            },
-            showError: function (errorMessage) {
-                //// console.log("error msg");
-                this.$.toastError.text = errorMessage;
-                //this.$.toastError.fitInto = this.$.personForm;
-                //// console.log(this.$.toastError.open());
-                this.$.toastError.open();
-            },
-            showMessage: function (message) {
-                this.$.toastOk.text = message;
-                //this.$.toastOk.fitInto = this.$.personForm;
-                this.$.toastOk.open();
-            },
-            _formResponse: function (response) {
-                var message = response.detail.response.message;
-                var id = response.detail.response.data.id;
-                this.set('route.path', id);
-                this.showMessage(message);
             },
             _viewChanged: function () {
                 // debugger
@@ -467,16 +421,18 @@
                     this.key = '';
                     return;
                 } else {
-                    this.$.type.forceSynchronousItemUpdate();
+                    // this.$.type.forceSynchronousItemUpdate();
                     // console.log("type", this.typePerson)
                     // console.log("name", this.name)
                     if (this.typePerson === 'persons') {
                         //Cargar token cuando se ingrese a la pantalla de formulario
                         if (typeof window.localStorage.session !== "undefined") {
                             this.token = JSON.parse(window.localStorage.session).token;
+                            this.business = JSON.parse(window.localStorage.session).business;
                         }
-                        // Limpiar formulario
-                        this.$.personForm.reset();
+                        // Limpiar formulario y setear valores predeterminados
+                        // this._getForm().reset();
+                        this.$.type.selected = "PROVEEDOR";
                         //Prendemos los botones
                         this.$.create.style.display = 'inline-block';
                         this.$.reset.style.display = 'inline-block';
@@ -488,6 +444,7 @@
                         // this.$.description.disabled = null;
                         // this.$.description.style.display = 'inline-block';                    
                         this.$.deleteAddress.style.display = 'none';
+                        this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {
                             var type = this.name.toUpperCase();
@@ -501,7 +458,6 @@
                             this.$.reset.style.display = 'none';
                             this._getPerson();
                         } else {
-                            // console.log("else");
                             var type = this.name.toUpperCase();
                             this.type = type;
                             this.$.addresses.style.display = 'none';
@@ -605,17 +561,8 @@
                 };
                 this.$.addContactAjax.body = serialize;
                 this.$.addContactAjax.generateRequest();
-                // window.location.reload();
-                //
                 this.$.contactName.value = '';
                 this.$.contactPhone.value = '';
-                // //
-                // var contact = {
-                //     "name": this.$.contactName.value,
-                //     "phone": this.$.contactPhone.value
-                // };
-                // this.push("itemsContacts", contact)
-                // // console.log(this.itemsAddress);                
             },
             _selectedContactChanged: function (event) {
                 var reallythis = this.reallythis;
@@ -677,7 +624,7 @@
                 var data = response.detail.response.data;
                 this.itemsContacts = data;
                 this.showMessage(message);
-            },
+            }
         });
     </script>
 </dom-module>
