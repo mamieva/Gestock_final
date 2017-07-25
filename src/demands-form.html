@@ -140,6 +140,7 @@
                             with-backdrop>
                             <h2>Agregar Item</h2>
                             <paper-autocomplete label="Seleccionar Sucursal" id="selectBranch"></paper-autocomplete>
+                            <paper-autocomplete label="Seleccionar Marca" id="selectBrand"></paper-autocomplete>
                             <paper-autocomplete label="Seleccionar Producto" id="selectProduct"></paper-autocomplete>
                             <paper-autocomplete label="Seleccionar Proveedor" id="selectSupplier"></paper-autocomplete>
                             <paper-input id="stock" name="stock" label="Stock Actual" type="number" required>
@@ -159,13 +160,14 @@
                             <vaadin-grid-selection-column auto-select>
                             </vaadin-grid-selection-column>
                             <vaadin-grid-column>
-                                <template class="header">Nombre</template>
+                                <template class="header">Fecha</template>
                                 <template>
-                                    <moment-element datetime="[[item.dateDemand]]" output-format="dddd D/MM/YY"></moment-element></template>
+                                    <moment-element datetime="[[item.dateDemand]]" output-format="dddd D/MM/YY"></moment-element>
+                                </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
                                 <template class="header">Descripción</template>
-                                <template>[[item.product]]</template>
+                                <template>[[item.product.name]]</template>
                             </vaadin-grid-column>
                         </vaadin-grid>
                         <div class="botoneraBranchs">
@@ -235,10 +237,17 @@
                 'datetime.date-changed': '_dateChanged',
                 'addItem.tap': '_dialogItem',
                 'addNewItem.tap': '_addItem',
-                'itemsList.selected-items-changed': '_prueba'
+                'itemsList.selected-items-changed': '_prueba',
+                'selectBrand.autocomplete-selected': '_selectBrand'
                 // 'addBranch.tap': '_addBranch'
             },
-            _prueba: function(){
+            _selectBrand: function (e) {
+                // console.log(e.detail.value);
+                this._getProducts(e.detail.value);
+                this._getBrands(e.detail.value);
+                this.$.selectProduct.text = '';
+            },
+            _prueba: function () {
                 console.log(this.$.itemsList.selectedItems);
             },
             _deleteDemand: function () {
@@ -390,9 +399,10 @@
                         this.$.reset.style.display = 'inline-block';
                         this.$.delete.style.display = 'inline-block';
                         this.$.apply_changes.style.display = 'inline-block';
-                        this._getProducts();
+                        // this._getProducts();
                         this._getBranchs();
-                        this._getSuppliers();
+                        this._getBrands();
+                        // this._getSuppliers();
                         this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {
@@ -445,6 +455,71 @@
                     .catch(function (err) {
                         console.log("error", err);
                     })
+            },
+            _getBrands: function (brand_id) {
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                // this.filterBody.filter.type = 'PROVEEDOR';
+                this.filterBody.filter = {};
+                this.filterBody.filter.business = this.business;
+                this.filterBody.filter._id = brand_id;
+                let data = JSON.stringify(this.filterBody);
+                // data.append('json',this.filterBody);
+                // data.append('json',JSON.stringify(this.filterBody));
+                let init = {
+                    method: 'POST',
+                    body: data,
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+                var myRequest = new Request(this.url_base + 'brands', init);
+
+                if (brand_id) {
+                    console.log(brand_id)
+                    // Filtrar por marca
+                    //
+                    fetch(myRequest)
+                        .then(function (response) {
+                            return response.json()
+                        })
+                        .then(function (result) {
+                            reallythis.$.selectSupplier.source = result.data[0].suppliers.map(function (
+                                obj) {
+                                return {
+                                    text: obj.businessName,
+                                    value: obj._id
+                                }
+                            })
+                            console.log(result);
+                        })
+                        .catch(function (err) {
+                            console.log("error", err);
+                        })
+
+                } else {
+                    fetch(myRequest)
+                        .then(function (response) {
+                            return response.json()
+                        })
+                        .then(function (result) {
+                            reallythis.$.selectBrand.source = result.data.map(function (
+                                obj) {
+                                return {
+                                    text: obj.name,
+                                    value: obj._id
+                                }
+                            })
+                            console.log(result);
+                        })
+                        .catch(function (err) {
+                            console.log("error", err);
+                        })
+
+                }
             },
             _addBranch: function () {
                 this.$.addBranchAjax.headers = {
@@ -541,7 +616,7 @@
                 });
                 //
                 let item = {};
-                item.dateDemand = this.$.startDate.value;
+                item.dateDemand = Date.now();
                 item.branch = this.$.selectBranch.value;
                 item.supplier = this.$.selectSupplier.value;
                 item.product = this.$.selectProduct.value;
@@ -620,14 +695,17 @@
                         console.log("error", err);
                     })
             },
-            _getProducts: function () {
+            _getProducts: function (brand_id) {
+                console.log(brand_id)
                 let reallythis = this;
                 let headers = new Headers({
                     'x-access-token': this.token,
                     'Content-type': 'application/json'
                 });
                 // this.filterBody.filter.type = 'PROVEEDOR';
+                this.filterBody.filter = {};
                 this.filterBody.filter.business = this.business;
+                this.filterBody.filter.brand = brand_id;
                 let data = JSON.stringify(this.filterBody);
                 // data.append('json',this.filterBody);
 

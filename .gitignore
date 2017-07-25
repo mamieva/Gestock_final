@@ -2,4 +2,13 @@
 !bower_components/paper-autocomplete
 !bower_components/moment-element
 build/
+<<<<<<< HEAD
 node_modules/
+<<<<<<< HEAD
+npm-debug.log
+=======
+!bower_components/paper-autocomplete
+>>>>>>> CopiandoAPaco
+=======
+node_modules/
+>>>>>>> CopiandoAPaco
