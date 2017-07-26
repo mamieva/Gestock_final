@@ -342,24 +342,24 @@
                     cache: 'default'
                 };
 
-                var myRequest = new Request( this.url_base + 'persons', init);
+                var myRequest = new Request(this.url_base + 'persons', init);
 
                 fetch(myRequest)
-                .then(function(response){
-                    return response.json()
-                })
-                .then(function(result){
-                    reallythis.$.selectSupplier.source = result.data.map(function(obj){
-                        return{
-                            text: obj.businessName,
-                            value: obj._id
-                        }
+                    .then(function (response) {
+                        return response.json()
                     })
-                    console.log(result);
-                })
-                .catch(function(err){
-                    console.log("error",err);
-                })
+                    .then(function (result) {
+                        reallythis.$.selectSupplier.source = result.data.map(function (obj) {
+                            return {
+                                text: obj.businessName,
+                                value: obj._id
+                            }
+                        })
+                        console.log(result);
+                    })
+                    .catch(function (err) {
+                        console.log("error", err);
+                    })
                 // //obtener todos los roles para poder Agregar
                 // var input = this.$.selectSupplier;
                 // var url = this.url_base + 'persons';
@@ -398,8 +398,6 @@
                     this.$.addSupplierAjax.body = {
                         "supplierId": this.$.selectSupplier.value
                     };
-                    this.$.selectSupplier.text = '';
-                    this.$.selectSupplier.value = '';
                     this.$.addSupplierAjax.generateRequest();
                 } else {
                     this.showMessage("Ingrese un valor para el Proveedor");
@@ -409,6 +407,9 @@
                 var addSupplier = response.detail.response;
                 this.itemsSuppliers = addSupplier.data;
                 this.showMessage(addSupplier.message);
+                //limpiar
+                this.$.selectSupplier.text = '';
+                this.$.selectSupplier.value = '';
             },
             _getSupplierList: function () {
                 return this.$.suppliersList;

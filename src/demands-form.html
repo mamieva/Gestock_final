@@ -166,8 +166,24 @@
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
-                                <template class="header">Descripción</template>
+                                <template class="header">Sucursal</template>
+                                <template>[[item.branch.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Marca</template>
+                                <template>[[item.product.brand.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Producto</template>
                                 <template>[[item.product.name]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Proveedor</template>
+                                <template>[[item.supplier.businessName]]</template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column align="center">
+                                <template class="header">Cant.</template>
+                                <template>[[item.quantity]]</template>
                             </vaadin-grid-column>
                         </vaadin-grid>
                         <div class="botoneraBranchs">
@@ -237,7 +253,7 @@
                 'datetime.date-changed': '_dateChanged',
                 'addItem.tap': '_dialogItem',
                 'addNewItem.tap': '_addItem',
-                'itemsList.selected-items-changed': '_prueba',
+                'itemsList.selected-items-changed': '_selectedItemsChanged',
                 'selectBrand.autocomplete-selected': '_selectBrand'
                 // 'addBranch.tap': '_addBranch'
             },
@@ -302,7 +318,7 @@
                 this.demand = demand;
                 this.$.name.value = demand.name;
                 this.$.selectBusiness.value = demand.business;
-                console.log('business0',this.$.selectBusiness.value);
+                console.log('business0', this.$.selectBusiness.value);
                 this.$.datetime.date = demand.startDate;
                 this.itemsItems = demand.items;
                 // this.$.tributaryCode.value = demand.tributaryCode;
@@ -544,21 +560,19 @@
             _getBranchList: function () {
                 return this.$.branchsList;
             },
-            _selectedBranchChanged: function () {
-                var reallythis = this.reallythis;
-                reallythis.selectedBranch = this.selectedItems;
-                var select = reallythis.selectedBranch;
-                // // console.log("select", select)
+            _selectedItemsChanged: function () {
+                let select = this.$.itemsList.selectedItems;
+                // console.log(this.$.itemsList.selectedItems)
                 if (select.length > 0 && select) {
-                    reallythis.$.deleteBranch.style.display = 'inline-block';
+                    this.$.deleteBranch.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
                 } else {
-                    reallythis.$.deleteBranch.style.display = 'none';
+                    this.$.deleteBranch.style.display = 'none';
                     // reallythis.$.resetRole.style.display = 'none';
                 }
             },
             _deleteBranchs: function () {
-                var selected = this.selectedBranch;
+                let selected = this.$.itemsList.selectedItems;
                 // console.log("branchs", selected);
                 var reallythis = this;
                 var branchsArray = [];
@@ -584,7 +598,7 @@
                 // console.log(reallythis.$.deleteBranchsAjax.body);
                 reallythis.$.deleteBranchsAjax.method = 'DELETE';
                 reallythis.$.deleteBranchsAjax.url = reallythis.url_base + 'demand/' + reallythis.key +
-                    '/branchs';
+                    '/items';
                 reallythis.$.deleteBranchsAjax.contentType = 'application/x-www-form-urlencoded';
                 // console.log("llega a request")
                 reallythis.$.deleteBranchsAjax.body = {
@@ -594,6 +608,62 @@
                 reallythis.$.deleteBranchsAjax.generateRequest();
 
                 // reallythis._viewChanged(reallythis.key);
+
+                /////////////////////////////
+                let selected = this.$.itemsList.selectedItems;
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                var itemsArray = [];
+
+                selected.forEach(function (element, index, array) {
+                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
+                    var itemId = reallythis.itemsItems[index]._id;
+                    // console.log('indice' + index, reallythis.itemsBranchs[index]);
+                    itemsArray.push(itemId);
+
+                });
+                //
+                let item = {};
+                item.dateDemand = Date.now();
+                item.branch = this.$.selectBranch.value;
+                item.supplier = this.$.selectSupplier.value;
+                item.product = this.$.selectProduct.value;
+                item.quantity = this.$.quantity.value;
+                //
+                // this.filterBody.filter.type = 'PROVEEDOR';
+                // this.filterBody.filter.business = this.business;
+                this.itemsItems.push(item);
+                item = JSON.stringify(item);
+                // data.append('json',this.filterBody);
+
+                // data.append('json',JSON.stringify(this.filterBody));
+                let init = {
+                    method: 'PUT',
+                    body: item,
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+                var myRequest = new Request(this.url_base + 'demand/' + this.key + '/add/item', init);
+                fetch(myRequest)
+                    .then(function (response) {
+                        return response.json()
+                    })
+                    .then(function (result) {
+                        if (result.status != 200) {
+                            reallythis.showError(result.message);
+                        }
+                        reallythis.showMessage(result.message);
+                        reallythis.itemsItems = result.data;
+                        console.log(result);
+                    })
+                    .catch(function (err) {
+                        reallythis.showError(err.message);
+                        console.log("error", err.message);
+                    })
 
             },
             _handleResponsDeleteBranch: function (response) {
