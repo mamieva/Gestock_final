@@ -104,6 +104,118 @@
             /*#stock, #cantidad {
                 text-align: right;
             }*/
+
+            vaadin-grid#itemsList {
+
+                font-family: Roboto, sans-serif;
+                --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                --vaadin-grid-cell: {
+                    padding: 0;
+                }
+                ;
+
+                --vaadin-grid-header-cell: {
+                    background: rgba(235, 238, 246, 0.9);
+                    border-bottom: 1px solid rgba(208, 217, 225, 0.9);
+                    border-top: 1px solid rgba(248, 250, 252, 0.9);
+                    min-height: 35px;
+
+                    background-image: linear-gradient(rgba(108, 160, 218, 0), rgba(108, 160, 218, 0.15));
+                    background-size: 1px 100%;
+                    background-position: 100% 0%;
+                    background-repeat: no-repeat;
+                }
+
+                ;
+
+                --vaadin-grid-body-cell: {
+                    height: 48px;
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                    font-size: 13px;
+                }
+                ;
+
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--paper-grey-200);
+                }
+                ;
+
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--paper-grey-100);
+                }
+                ;
+
+                --vaadin-grid-focused-cell: {
+                    box-shadow: none;
+                    font-weight: bold;
+                }
+                ;
+            }
+
+            vaadin-grid#itemsList .cell {
+                overflow: hidden;
+                margin-right: 5px;
+                text-overflow: ellipsis;
+                /* padding-right: 56px; */
+            }
+
+            vaadin-grid#itemsList .cell.last {
+                padding-right: 24px;
+            }
+
+            vaadin-grid#itemsList .cell.numeric {
+                text-align: right;
+            }
+
+            vaadin-grid#itemsList paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
+
+            vaadin-grid#itemsList vaadin-grid-sorter {
+                --vaadin-grid-sorter-arrow: {
+                    display: none !important;
+                }
+                ;
+            }
+
+            vaadin-grid#itemsList vaadin-grid-sorter .cell {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            vaadin-grid#itemsList vaadin-grid-sorter iron-icon {
+                transform: scale(0.8);
+            }
+
+            vaadin-grid#itemsList vaadin-grid-sorter:not([direction]) iron-icon {
+                color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+            }
+
+            vaadin-grid#itemsList vaadin-grid-sorter[direction] {
+                color: rgba(0, 0, 0, var(--dark-primary-opacity));
+            }
+
+            vaadin-grid#itemsList vaadin-grid-sorter[direction=desc] iron-icon {
+                transform: scale(0.8) rotate(180deg);
+            }
+
+            vaadin-grid-selection-column {
+                width: "66px";
+                flex: "0";
+            }
+
+            vaadin-grid#material paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
+
+            .cell:hover {
+                cursor: pointer;
+            }
         </style>
         <app-route route="{{route}}" pattern="/:demand" data="{{demandData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
@@ -162,32 +274,44 @@
                             <vaadin-grid-column>
                                 <template class="header">Fecha</template>
                                 <template>
-                                    <moment-element datetime="[[item.dateDemand]]" output-format="dddd D/MM/YY"></moment-element>
+                                    <div class="cell">
+                                        <moment-element datetime="[[item.dateDemand]]" output-format="dddd D/MM/YY"></moment-element>
+                                    </div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
                                 <template class="header">Sucursal</template>
-                                <template>[[item.branch.name]]</template>
+                                <template>
+                                    <div class="cell">[[item.branch.name]]</div>
+                                </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
                                 <template class="header">Marca</template>
-                                <template>[[item.product.brand.name]]</template>
+                                <template>
+                                    <div class="cell">[[item.product.brand.name]]</div>
+                                </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
                                 <template class="header">Producto</template>
-                                <template>[[item.product.name]]</template>
+                                <template>
+                                    <div class="cell">[[item.product.name]]</div>
+                                </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
                                 <template class="header">Proveedor</template>
-                                <template>[[item.supplier.businessName]]</template>
+                                <template>
+                                    <div class="cell">[[item.supplier.businessName]]</div>
+                                </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column align="center">
                                 <template class="header">Cant.</template>
-                                <template>[[item.quantity]]</template>
+                                <template>
+                                    <div class="cell" title="[[item.quantity]]">[[item.quantity]]</div>
+                                </template>
                             </vaadin-grid-column>
                         </vaadin-grid>
                         <div class="botoneraBranchs">
-                            <paper-button raised submit id="deleteBranch">Eliminar Seleccionados</paper-button>
+                            <paper-button raised submit id="deleteItems">Eliminar Seleccionados</paper-button>
                         </div>
                     </div>
                 </paper-card>
@@ -254,7 +378,8 @@
                 'addItem.tap': '_dialogItem',
                 'addNewItem.tap': '_addItem',
                 'itemsList.selected-items-changed': '_selectedItemsChanged',
-                'selectBrand.autocomplete-selected': '_selectBrand'
+                'selectBrand.autocomplete-selected': '_selectBrand',
+                'deleteItems.tap': '_deleteItems'
                 // 'addBranch.tap': '_addBranch'
             },
             _selectBrand: function (e) {
@@ -318,7 +443,7 @@
                 this.demand = demand;
                 this.$.name.value = demand.name;
                 this.$.selectBusiness.value = demand.business;
-                console.log('business0', this.$.selectBusiness.value);
+                console.log('business', this.$.selectBusiness.value);
                 this.$.datetime.date = demand.startDate;
                 this.itemsItems = demand.items;
                 // this.$.tributaryCode.value = demand.tributaryCode;
@@ -564,52 +689,53 @@
                 let select = this.$.itemsList.selectedItems;
                 // console.log(this.$.itemsList.selectedItems)
                 if (select.length > 0 && select) {
-                    this.$.deleteBranch.style.display = 'inline-block';
+                    this.$.deleteItems.style.display = 'inline-block';
                     // reallythis.$.resetRole.style.display = 'inline-block';
                 } else {
-                    this.$.deleteBranch.style.display = 'none';
+                    this.$.deleteItems.style.display = 'none';
                     // reallythis.$.resetRole.style.display = 'none';
                 }
             },
-            _deleteBranchs: function () {
-                let selected = this.$.itemsList.selectedItems;
-                // console.log("branchs", selected);
-                var reallythis = this;
-                var branchsArray = [];
+            _deleteItems: function () {
+                // let selected = this.$.itemsList.selectedItems;
+                // // console.log("branchs", selected);
+                // var reallythis = this;
+                // var branchsArray = [];
 
-                selected.forEach(function (element, index, array) {
-                    //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
-                    var branchId = reallythis.itemsBranchs[index]._id;
-                    // console.log('indice' + index, reallythis.itemsBranchs[index]);
-                    branchsArray.push(branchId);
+                // selected.forEach(function (element, index, array) {
+                //     //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
+                //     var branchId = reallythis.itemsBranchs[index]._id;
+                //     // console.log('indice' + index, reallythis.itemsBranchs[index]);
+                //     branchsArray.push(branchId);
 
-                });
-                // console.log(branchsArray);
-                reallythis.$.deleteBranchsAjax.headers = {
-                    'x-access-token': reallythis.token
-                };
-                //debugger
-                // reallythis.$.deleteBranchsAjax.params = branchsArray;
-                // reallythis.$.deleteBranchsAjax.contentType = "application/x-www-form-urlencoded";
+                // });
+                // // console.log(branchsArray);
+                // reallythis.$.deleteBranchsAjax.headers = {
+                //     'x-access-token': reallythis.token
+                // };
+                // //debugger
+                // // reallythis.$.deleteBranchsAjax.params = branchsArray;
+                // // reallythis.$.deleteBranchsAjax.contentType = "application/x-www-form-urlencoded";
+                // // reallythis.$.deleteBranchsAjax.body = {
+                // //     "branchs": JSON.stringify(branchsArray)
+                // // };
+                // // reallythis.$.deleteBranchsAjax.body = branchsArray;
+                // // console.log(reallythis.$.deleteBranchsAjax.body);
+                // reallythis.$.deleteBranchsAjax.method = 'DELETE';
+                // reallythis.$.deleteBranchsAjax.url = reallythis.url_base + 'demand/' + reallythis.key +
+                //     '/items';
+                // reallythis.$.deleteBranchsAjax.contentType = 'application/x-www-form-urlencoded';
+                // // console.log("llega a request")
                 // reallythis.$.deleteBranchsAjax.body = {
                 //     "branchs": JSON.stringify(branchsArray)
                 // };
-                // reallythis.$.deleteBranchsAjax.body = branchsArray;
-                // console.log(reallythis.$.deleteBranchsAjax.body);
-                reallythis.$.deleteBranchsAjax.method = 'DELETE';
-                reallythis.$.deleteBranchsAjax.url = reallythis.url_base + 'demand/' + reallythis.key +
-                    '/items';
-                reallythis.$.deleteBranchsAjax.contentType = 'application/x-www-form-urlencoded';
-                // console.log("llega a request")
-                reallythis.$.deleteBranchsAjax.body = {
-                    "branchs": JSON.stringify(branchsArray)
-                };
-                // console.log(reallythis.$.deleteBranchsAjax.body);
-                reallythis.$.deleteBranchsAjax.generateRequest();
+                // // console.log(reallythis.$.deleteBranchsAjax.body);
+                // reallythis.$.deleteBranchsAjax.generateRequest();
 
                 // reallythis._viewChanged(reallythis.key);
 
                 /////////////////////////////
+
                 let selected = this.$.itemsList.selectedItems;
                 let reallythis = this;
                 let headers = new Headers({
@@ -623,31 +749,17 @@
                     var itemId = reallythis.itemsItems[index]._id;
                     // console.log('indice' + index, reallythis.itemsBranchs[index]);
                     itemsArray.push(itemId);
-
                 });
                 //
-                let item = {};
-                item.dateDemand = Date.now();
-                item.branch = this.$.selectBranch.value;
-                item.supplier = this.$.selectSupplier.value;
-                item.product = this.$.selectProduct.value;
-                item.quantity = this.$.quantity.value;
-                //
-                // this.filterBody.filter.type = 'PROVEEDOR';
-                // this.filterBody.filter.business = this.business;
-                this.itemsItems.push(item);
-                item = JSON.stringify(item);
-                // data.append('json',this.filterBody);
-
-                // data.append('json',JSON.stringify(this.filterBody));
+                let items = JSON.stringify(itemsArray);
                 let init = {
                     method: 'PUT',
-                    body: item,
+                    body: items,
                     headers: headers,
                     mode: 'cors',
                     cache: 'default'
                 };
-                var myRequest = new Request(this.url_base + 'demand/' + this.key + '/add/item', init);
+                var myRequest = new Request(this.url_base + 'demand/' + this.key + '/delete/items', init);
                 fetch(myRequest)
                     .then(function (response) {
                         return response.json()
