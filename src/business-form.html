@@ -281,6 +281,7 @@
                 this.$.businessAjax.headers = {
                     'x-access-token': this.token
                 };
+                console.log('entra por aqui');
                 this.$.businessAjax.url = this.url_base + 'business/' + this.key;
                 this.$.businessAjax.generateRequest();
             },
@@ -343,13 +344,13 @@
                         this.$.reset.style.display = 'inline-block';
                         this.$.delete.style.display = 'inline-block';
                         this.$.apply_changes.style.display = 'inline-block';
-                        this._getBusiness();
+                        // this._getBusiness();
                         // this.$.branchs.style.display = 'inline-block';
                         // this.$.name.disabled = null;
                         // this.$.description.disabled = null;
                         this.$.tributaryCode.style.display = 'inline-block';
                         //
-                        if (this.key != '' && this.key != 'undefined') {
+                        if (this.key != '' && this.key != 'undefined' && this.key != null) {
                             this.$.status.selected = '';
                             // this.$.name.disabled = 'disabled';
                             // this.$.description.disabled = 'disabled';

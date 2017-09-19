@@ -216,6 +216,15 @@
             .cell:hover {
                 cursor: pointer;
             }
+
+            h3 {
+                display: inline-block;
+            }
+
+            #generateOrder {
+                float: right;
+                margin-right: 10px;
+            }
         </style>
         <app-route route="{{route}}" pattern="/:demand" data="{{demandData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
@@ -227,6 +236,8 @@
         </div>
         <div class="container">
             <h3>Solicitud de Compra</h3>
+            <paper-button dialog-confirm autofocus id="generateOrder">Generar Orden</paper-button>
+
             <form is="iron-form" method="POST" id="demandForm">
                 <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
 
@@ -379,7 +390,8 @@
                 'addNewItem.tap': '_addItem',
                 'itemsList.selected-items-changed': '_selectedItemsChanged',
                 'selectBrand.autocomplete-selected': '_selectBrand',
-                'deleteItems.tap': '_deleteItems'
+                'deleteItems.tap': '_deleteItems',
+                'generateOrder.tap': '_generateOrder'
                 // 'addBranch.tap': '_addBranch'
             },
             _selectBrand: function (e) {
@@ -387,6 +399,36 @@
                 this._getProducts(e.detail.value);
                 this._getBrands(e.detail.value);
                 this.$.selectProduct.text = '';
+            },
+            _generateOrder: function (e) {
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                // this.filterBody.filter.type = 'PROVEEDOR';
+                // this.filterBody.filter.business = this.business;
+                // let data = JSON.stringify(this.filterBody);
+                // data.append('json',this.filterBody);
+                // data.append('json',JSON.stringify(this.filterBody));
+                let init = {
+                    method: 'GET',
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+                var myRequest = new Request(this.url_base + 'demand/' + this.key + '/generate', init);
+
+                fetch(myRequest)
+                    .then(function (response) {
+                        return response.json()
+                    })
+                    .then(function (result) {
+                        console.log('resultado wachi',result);
+                    })
+                    .catch(function (err) {
+                        console.log("error", err);
+                    })
             },
             _prueba: function () {
                 console.log(this.$.itemsList.selectedItems);

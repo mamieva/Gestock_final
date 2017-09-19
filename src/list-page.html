@@ -103,6 +103,14 @@
                 --paper-spinner-layer-3-color: var(--paper-blue-grey-500);
                 --paper-spinner-layer-4-color: var(--paper-amber-500);
             }
+
+            .cell:hover {
+                cursor: pointer;
+            }
+
+            vaadin-grid-cell-content:hover {
+                cursor: pointer;
+            }
         </style>
         <app-route route="{{route}}" pattern="/:key" data="{{routeData}}" tail="{{routeTail}}" id="routeManager">
         </app-route>
@@ -117,7 +125,7 @@
                     <template is="dom-repeat" items="[[columns]]" as="column">
                         <vaadin-grid-column>
                             <template class="header">[[column]]</template>
-                            <template>[[get(column, item)]]</template>
+                            <template class="cell">[[get(column, item)]]</template>
                         </vaadin-grid-column>
                     </template>
                 </vaadin-grid>
@@ -136,6 +144,7 @@
                     <products-form name="products" route="{{route}}" key="{{routeData.key}}"></products-form>
                     <brands-form name="brands" route="{{route}}" key="{{routeData.key}}"></brands-form>
                     <persons-form name="proveedor" route="{{route}}" key="{{routeData.key}}" type-person="persons"></persons-form>
+                    <persons-form name="persons" route="{{route}}" key="{{routeData.key}}" type-person="persons"></persons-form>
                     <priceLists-form name="pricelists" route="{{route}}" key="{{routeData.key}}"></priceLists-form>
                     <categories-form name="categories" route="{{route}}" key="{{routeData.key}}"></categories-form>
                     <branchs-form name="branchs" route="{{route}}" key="{{routeData.key}}"></branchs-form>
@@ -257,7 +266,7 @@
                 }
                 var type = data;
                 var notList = ["home"];
-                var inList = ["proveedor"];
+                var inList = ["proveedor",'persons'];
                 // this.ajaxlist.body = 
                 let body = {
                     "limit": '',
@@ -273,8 +282,14 @@
                 if (type != 'undefined') {
                     if (notList.indexOf(type) === -1) {
                         if (inList.indexOf(type) >= 0) {
-                            body.filter.type = type.toUpperCase();
-                            type = "persons";
+                            if (type == 'persons') {
+                                body.filter.type = { $ne : "PROVEEDOR"};
+                                type = "persons";
+                            }
+                            if (type == 'proveedor') {
+                                body.filter.type = type.toUpperCase();
+                                type = "persons";
+                            }
                         }
                         this.ajaxlist.headers = {
                             'x-access-token': this.token,
@@ -286,7 +301,6 @@
                         this.ajaxlist.generateRequest();
                     }
                 }
-
             },
             getItemsList: function () {
                 // // console.log(this.$.itemsList);

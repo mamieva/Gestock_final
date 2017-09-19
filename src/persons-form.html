@@ -4,6 +4,7 @@
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/iron-icons/social-icons.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
@@ -117,12 +118,26 @@
                         <paper-item name="INACTIVO">INACTIVO</paper-item>
                     </paper-listbox>
                 </paper-dropdown-menu>
+                <div>
+                    <h4>Usuario Relacionado</h4>
+                    <paper-autocomplete label="Usuario" name="user[user]" id="selectUser"> </paper-autocomplete>
+                    <div id="newUser">
+                        <h4>Generar Usuario Nuevo</h4>
+                        <paper-input id="username" name="user[username]" label="Usuario">
+                            <iron-icon icon="social:person" prefix></iron-icon>
+                        </paper-input>
+                        <paper-input id="password" name="user[password]" label="Contraseña">
+                            <iron-icon icon="icons:fingerprint" prefix></iron-icon>
+                        </paper-input>
+                    </div>
+                </div>
                 <div class="botonera">
                     <paper-button raised submit id="create">Agregar</paper-button>
                     <paper-button raised submit id="apply_changes">Modificar</paper-button>
                     <paper-button raised submit id="delete">Eliminar</paper-button>
                     <paper-button raised id="reset">Limpiar</paper-button>
                 </div>
+
             </form>
             <div id="addresses" class="addresses">
                 <paper-card heading="Direcciones">
@@ -227,7 +242,7 @@
                 },
                 type: {
                     type: String,
-                    observer: "prueba",
+                    observer: "_typeObserver",
                     reflectToAttribute: true
                 },
                 name: {
@@ -251,7 +266,7 @@
                 'addContact.tap': '_addContact',
                 'deleteContact.tap': '_deleteContact'
             },
-            prueba: function (value) {
+            _typeObserver: function (value) {
                 if (value === "PROVEEDOR") {
                     this.$.businessName.disabled = null;
                     this.$.businessName.style.display = "inline";
@@ -358,6 +373,7 @@
                 this.$.taxStatus.selected = person.taxStatus;
                 this.$.status.selected = person.status;
                 this.$.selectBusiness.value = person.business;
+                this.$.selectUser.value = person.user.user;
                 this.itemsContacts = person.contacts;
                 this.itemsAddress = person.addresses;
                 // console.log(this.$.status.selected);
@@ -429,6 +445,7 @@
                         if (typeof window.localStorage.session !== "undefined") {
                             this.token = JSON.parse(window.localStorage.session).token;
                             this.business = JSON.parse(window.localStorage.session).business;
+                            this.filterBody.filter.business = this.business;
                         }
                         // Limpiar formulario y setear valores predeterminados
                         // this._getForm().reset();
@@ -445,6 +462,7 @@
                         // this.$.description.style.display = 'inline-block';                    
                         this.$.deleteAddress.style.display = 'none';
                         this._getBusiness();
+                        this._getUsers();
                         //
                         if (this.key != '' && this.key != 'undefined') {
                             var type = this.name.toUpperCase();
@@ -624,6 +642,38 @@
                 var data = response.detail.response.data;
                 this.itemsContacts = data;
                 this.showMessage(message);
+            },
+            _getUsers: function () {
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                let data = JSON.stringify(this.filterBody);
+                let init = {
+                    method: 'POST',
+                    body: data,
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+                var myRequest = new Request(this.url_base + 'users', init);
+                fetch(myRequest)
+                    .then(function (response) {
+                        return response.json()
+                    })
+                    .then(function (result) {
+                        reallythis.$.selectUser.source = result.data.map(function (obj) {
+                            return {
+                                text: obj.username,
+                                value: obj._id
+                            }
+                        })
+                        console.log(result);
+                    })
+                    .catch(function (err) {
+                        console.log("error", err);
+                    })
             }
         });
     </script>

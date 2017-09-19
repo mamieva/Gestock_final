@@ -63,6 +63,7 @@
                 return null;
             },
             _createForm: function () {
+                console.log(this._getForm().serialize());
                 this._getForm().headers = {
                     'x-access-token': this.token
                 };
