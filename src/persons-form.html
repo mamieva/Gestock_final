@@ -85,6 +85,7 @@
                         <paper-item name="PROVEEDOR">PROVEEDOR</paper-item>
                         <paper-item name="VENDEDOR">VENDEDOR</paper-item>
                         <paper-item name="CAJERO">CAJERO</paper-item>
+                        <paper-item name="ORDENANTE">ORDENANTE</paper-item>
                     </paper-listbox>
                 </paper-dropdown-menu>
                 <paper-input id="businessName" name="businessName" label="Razón Social" required>
@@ -120,7 +121,7 @@
                 </paper-dropdown-menu>
                 <div>
                     <h4>Usuario Relacionado</h4>
-                    <paper-autocomplete label="Usuario" name="user[user]" id="selectUser"> </paper-autocomplete>
+                    <paper-autocomplete label="Usuario" name="user[user]" id="selectUser" value=""> </paper-autocomplete>
                     <div id="newUser">
                         <h4>Generar Usuario Nuevo</h4>
                         <paper-input id="username" name="user[username]" label="Usuario">
