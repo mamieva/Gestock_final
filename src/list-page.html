@@ -120,7 +120,7 @@
             <div id="divList">
                 <paper-button id="addUser" class="pink">Agregar nuevo </paper-button>
                 <paper-button id="newFilter" class="pink">filtro </paper-button>
-                <paper-input id="filter" label="Filter by first name" value={{filter}}></paper-input>
+                <paper-input id="filter" label="Buscar..." value={{filter}}></paper-input>
                 <vaadin-grid id="itemsList" items=[[items]] active-item="{{selectedItems}}" page-size="5">
                     <template is="dom-repeat" items="[[columns]]" as="column">
                         <vaadin-grid-column>

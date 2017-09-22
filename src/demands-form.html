@@ -421,13 +421,19 @@
 
                 fetch(myRequest)
                     .then(function (response) {
+                        console.log(response);
                         return response.json()
                     })
                     .then(function (result) {
-                        console.log('resultado wachi',result);
+                        if (result.status != 200) {
+                            reallythis.showError(result.message);
+                        }
+                        // console.log('resultado wachi',result);
+                        reallythis.showMessage(result.message)                        
                     })
                     .catch(function (err) {
                         console.log("error", err);
+                        reallythis.showError(err.message)
                     })
             },
             _prueba: function () {
@@ -741,43 +747,6 @@
                 }
             },
             _deleteItems: function () {
-                // let selected = this.$.itemsList.selectedItems;
-                // // console.log("branchs", selected);
-                // var reallythis = this;
-                // var branchsArray = [];
-
-                // selected.forEach(function (element, index, array) {
-                //     //Obtener id dentro de la lista de direcciones, a traves de los seleccionados                    
-                //     var branchId = reallythis.itemsBranchs[index]._id;
-                //     // console.log('indice' + index, reallythis.itemsBranchs[index]);
-                //     branchsArray.push(branchId);
-
-                // });
-                // // console.log(branchsArray);
-                // reallythis.$.deleteBranchsAjax.headers = {
-                //     'x-access-token': reallythis.token
-                // };
-                // //debugger
-                // // reallythis.$.deleteBranchsAjax.params = branchsArray;
-                // // reallythis.$.deleteBranchsAjax.contentType = "application/x-www-form-urlencoded";
-                // // reallythis.$.deleteBranchsAjax.body = {
-                // //     "branchs": JSON.stringify(branchsArray)
-                // // };
-                // // reallythis.$.deleteBranchsAjax.body = branchsArray;
-                // // console.log(reallythis.$.deleteBranchsAjax.body);
-                // reallythis.$.deleteBranchsAjax.method = 'DELETE';
-                // reallythis.$.deleteBranchsAjax.url = reallythis.url_base + 'demand/' + reallythis.key +
-                //     '/items';
-                // reallythis.$.deleteBranchsAjax.contentType = 'application/x-www-form-urlencoded';
-                // // console.log("llega a request")
-                // reallythis.$.deleteBranchsAjax.body = {
-                //     "branchs": JSON.stringify(branchsArray)
-                // };
-                // // console.log(reallythis.$.deleteBranchsAjax.body);
-                // reallythis.$.deleteBranchsAjax.generateRequest();
-
-                // reallythis._viewChanged(reallythis.key);
-
                 /////////////////////////////
 
                 let selected = this.$.itemsList.selectedItems;

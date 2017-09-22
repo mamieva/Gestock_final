@@ -120,7 +120,7 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
                 <div>
-                    <h4>Usuario Relacionado</h4>
+                    <h5>Usuario Relacionado</h5>
                     <paper-autocomplete label="Usuario" name="user[user]" id="selectUser" value=""> </paper-autocomplete>
                     <div id="newUser">
                         <h4>Generar Usuario Nuevo</h4>
@@ -374,7 +374,7 @@
                 this.$.taxStatus.selected = person.taxStatus;
                 this.$.status.selected = person.status;
                 this.$.selectBusiness.value = person.business;
-                this.$.selectUser.value = person.user.user;
+                this.$.selectUser.value = person.user;
                 this.itemsContacts = person.contacts;
                 this.itemsAddress = person.addresses;
                 // console.log(this.$.status.selected);
@@ -468,15 +468,14 @@
                         if (this.key != '' && this.key != 'undefined') {
                             var type = this.name.toUpperCase();
                             this.type = type;
-                            // console.log("if");
                             this.$.status.selected = '';
-                            // this.$.name.disabled = 'disabled';
-                            // this.$.description.disabled = 'disabled';
-                            // this.$.description.style.display = 'none';
                             this.$.create.style.display = 'none';
                             this.$.reset.style.display = 'none';
+                            this.$.newUser.style.display = 'none';
                             this._getPerson();
                         } else {
+                            console.log(this.business);
+                            // this.$.selectBusiness.value = this.business;
                             var type = this.name.toUpperCase();
                             this.type = type;
                             this.$.addresses.style.display = 'none';

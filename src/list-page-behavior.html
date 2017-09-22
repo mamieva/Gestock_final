@@ -212,7 +212,17 @@
                 var reallythis = this;
                 if (reallythis.$.filter.value != '') {
                     this.getItemsList().items = this.items.filter(function (item) {
-                        return item.username.indexOf(filter) >= 0;
+                        //Obtener dinamicamente los atributos del objeto
+                        let keys = Object.keys(item);
+                        let aux = false;
+                        keys.forEach(function (e) {
+                            if (typeof(item[e]) != 'object' ) {
+                                if (item[e].toUpperCase().indexOf(filter.toUpperCase()) >= 0) {
+                                    aux = true;
+                                }
+                            }
+                        })
+                        return aux;
                     });
                 } else {
                     this.getItemsList().items = this.items;
