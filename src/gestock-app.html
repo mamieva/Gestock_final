@@ -64,8 +64,10 @@
         },
         route: {
           type: Object
+        },
+        pageData:{
+          type: String
         }
-
       },
 
       observers: [
@@ -132,17 +134,20 @@
         window.scroll(0, 0);
       },
       _routeChanged: function (newRoute) {
-        //// console.log(newRoute);
-        //// console.log(this.route);
-        if (this.session.length != 0 && (newRoute == '/menu' || newRoute == '')) {
-          // console.log("entro menu");
-          this.set('route.path', '/menu');
+        if(this.pageData.page == 'logout'){
+          this.$.session.destroy();
+          this.set('route.path','/login');
         }
-
-        if (this.session.length == 0) {
-          //this.$.session.destroy();
+        // console.log('PAGE_DATA',this.pageData);
+        //// console.log(this.route);
+        // console.log(this.session);
+        if (!this.session || this.session.length == 0) {
           // console.log("entro login");
           this.set('route.path', '/login');
+        }
+        else if (this.session != 'undefined' && this.session.length != 0 && (newRoute == '/menu' || newRoute == '')) {
+          // console.log("entro menu");
+          this.set('route.path', '/menu');
         }
       }
     });

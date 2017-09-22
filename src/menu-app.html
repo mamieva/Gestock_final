@@ -34,6 +34,9 @@
         text-decoration: none;
         color: black;
       }
+      .logout a {
+        color: var(--paper-indigo-a100) !important;
+      }
     </style>
     <!-- Enrutador -->
     <!--<app-location route="{{route}}" use-hash-as-path></app-location>-->
@@ -88,8 +91,13 @@
             <paper-item name="demands">
               <a href="#/menu/demands">Solicitudes de Compra</a>
             </paper-item>
-            <paper-item name="cash">Caja</paper-item>
-            <paper-item name="inventory">Inventario</paper-item>
+            <paper-item name="logout" class="logout">
+              <span class="logout">
+                <a href="#/logout"><strong>Cerrar Sesión</strong></a>
+              </span>
+            </paper-item>
+            <!-- <paper-item name="cash">Caja</paper-item>
+            <paper-item name="inventory">Inventario</paper-item> -->
           </iron-selector>
         </paper-menu>
       </paper-header-panel>
