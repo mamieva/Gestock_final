@@ -57,7 +57,7 @@
       properties: {
         session: {
           type: Object,
-          value: []
+          value:[]
         },
         isAuthenticated: {
           type: Boolean
@@ -66,7 +66,7 @@
           type: Object
         },
         pageData:{
-          type: String
+          type: Object
         }
       },
 
@@ -117,7 +117,7 @@
         //this.isAuthenticated = true;
         this.session = event.detail;
         this.set('route.path', '/menu');
-        window.location.reload();
+        // window.location.reload();
         //// console.log(this.session);
 
       },
@@ -134,15 +134,17 @@
         window.scroll(0, 0);
       },
       _routeChanged: function (newRoute) {
-        if(this.pageData.page == 'logout'){
+        console.log('newroute papu',newRoute);
+        if(!this.pageData || newRoute == '/logout'){
+          console.log(this.pageData);
           this.$.session.destroy();
           this.set('route.path','/login');
         }
         // console.log('PAGE_DATA',this.pageData);
         //// console.log(this.route);
         // console.log(this.session);
-        if (!this.session || this.session.length == 0) {
-          // console.log("entro login");
+        else if (!this.session || this.session.length == 0) {
+          console.log("entro login");
           this.set('route.path', '/login');
         }
         else if (this.session != 'undefined' && this.session.length != 0 && (newRoute == '/menu' || newRoute == '')) {

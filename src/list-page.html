@@ -22,6 +22,7 @@
 <link rel="import" href="./branchs-form.html">
 <link rel="import" href="./business-form.html">
 <link rel="import" href="./demands-form.html">
+<link rel="import" href="./counters-form.html">
 <link rel="import" href="./url-services-behavior.html">
 <dom-module id="list-page">
     <template>
@@ -150,6 +151,7 @@
                     <branchs-form name="branchs" route="{{route}}" key="{{routeData.key}}"></branchs-form>
                     <businesses-form name="businesses" route="{{route}}" key="{{routeData.key}}"></businesses-form>
                     <demands-form name="demands" route="{{route}}" key="{{routeData.key}}"></demands-form>
+                    <counters-form name="counters" route="{{route}}" key="{{routeData.key}}"></counters-form>
                 </iron-pages>
             </div>
         </neon-animated-pages>
@@ -275,10 +277,9 @@
                     "sort": {}
                 };
                 // this.ajaxlist.body.filter.business = this.business;
-                body.filter.business = this.business;
+                body.filter.business = data == 'businesses'? null : this.business;
                 // this.ajaxlist.body.sort._id = 1;
                 body.sort._id = 1;
-                console.log(this.ajaxlist.body)
                 if (type != 'undefined') {
                     if (notList.indexOf(type) === -1) {
                         if (inList.indexOf(type) >= 0) {
