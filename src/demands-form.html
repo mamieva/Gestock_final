@@ -417,7 +417,7 @@
                     mode: 'cors',
                     cache: 'default'
                 };
-                var myRequest = new Request(this.url_base + 'demand/' + this.key + '/generate', init);
+                var myRequest = new Request(this.url_base + 'demand/' + this.key + '/generate-order', init);
 
                 fetch(myRequest)
                     .then(function (response) {
