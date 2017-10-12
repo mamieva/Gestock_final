@@ -20,7 +20,7 @@
             --paper-toast-background-color: #f63d33;
             --paper-toast-color: white;
         }*/
-        
+
         paper-toolbar {
             background-color: #4285f4;
             color: #fff;
@@ -124,38 +124,44 @@
                     this.$.email.focus();
                     return;
                 }
-                var me = this;
-                this.$.loginService.body = {
+                // var me = this;
+                // this.$.loginService.url = this.url_base + 'login';
+                //
+                let reallythis = this;
+                let headers = new Headers({
+                    'Content-type': 'application/json'
+                });
+                let data = {
                     username: this.$.email.value,
                     password: this.$.password.value
                 };
-                this.$.loginService.url = this.url_base + 'login';
-                request = this.$.loginService.generateRequest();
-                //// console.log(request.completes);
-                request.completes.then(function (response) {
 
-                        //// console.log(response.response);
-                        me.session = response.response.data;
-                        //// console.log(me.session.token);
-                        //me.$.session.destroy();
-                        //me.session = {};
-                        //me.$.session.setStoredValue('session', {"token":response.response.token});
-                        if (response.response) {
-                            // console.log('a full');
-                            //// console.log(localStorage.getItem('session'));// = response.response.token;
-                            //window.location.reload();
-                            me.fire('login', me.session);
-                        } else {
-                            //// console.log(response.response);
-                            me.showError("Usuario o Contraseña incorrectos");
-                            me.$.password.value = "";
-                            me.$.password.focus();
-                        }
-                    })
-                    .catch(function (error, response) {
-                        //// console.log(error);              
-                        me.showError("Verifique los datos ingresados");
-                    });
+                let init = {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(data),
+                    mode: 'cors',
+                    cache: 'default'
+                };
+                var myRequest = new Request(this.url_base + 'login', init);
+
+                fetch(myRequest).then(response => {
+                    return response.json();
+                }).then(result => {
+                    console.log('login', result);
+                    reallythis.session = result.data;
+                    if (result.data.token) {
+                        reallythis.fire('login', result.data);
+                    } else {
+                        reallythis.showError("Usuario o Contraseña incorrectos");
+                        reallythis.$.password.value = "";
+                        reallythis.$.password.focus();
+                    }
+
+                }).catch(function (error, response) {
+                    //// console.log(error);              
+                    reallythis.showError("Verifique los datos ingresados");
+                });
             }
         });
     </script>

@@ -1,5 +1,5 @@
 {
-  "entrypoint": "index.html",
+  "entrypoint": "",
   "shell": "src/gestock-app.html",
   "fragments": [
     "src/my-view1.html",

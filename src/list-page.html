@@ -250,6 +250,7 @@
                 //this.$.editor.load(this.key);
             },
             _viewChanged: function (data) {
+                console.log('dataaa','-'+data+'-');
                 // arranca spinner de carga
                 this.$.spinner.active = true;
                 this.$.spinner.style.display = 'block';
@@ -282,7 +283,7 @@
                 // this.ajaxlist.body.filter.business = this.business;
                 // this.ajaxlist.body.sort._id = 1;
                 body.sort._id = 1;
-                if (type != 'undefined') {
+                if (type || type !== '') {
                     if (notList.indexOf(type) === -1) {
                         if (inList.indexOf(type) >= 0) {
                             if (type == 'persons') {

@@ -47,7 +47,7 @@
     <paper-toast id="toastError" text="" class="fit-top"></paper-toast>
     <neon-animated-pages id="pages" attr-for-selected="name" selected="{{pageData.page}}">
       <login-page id="login" name="login"></login-page>
-      <menu-app name="menu" route="{{subRoute}}"></menu-app>
+      <menu-app name="menu" data="{{pageData.page}}" route="{{subRoute}}"></menu-app>
     </neon-animated-pages>
   </template>
   <script>
@@ -117,6 +117,7 @@
         //this.isAuthenticated = true;
         this.session = event.detail;
         this.set('route.path', '/menu');
+        console.log('session en gstok',this.session);
         // window.location.reload();
         //// console.log(this.session);
 
@@ -136,8 +137,8 @@
       _routeChanged: function (newRoute) {
         console.log('newroute papu',newRoute);
         if(!this.pageData || newRoute == '/logout'){
-          console.log(this.pageData);
-          this.$.session.destroy();
+          console.log('entra a romper',this.pageData);
+          this.$.session.reset();
           this.set('route.path','/login');
         }
         // console.log('PAGE_DATA',this.pageData);
@@ -147,9 +148,9 @@
           console.log("entro login");
           this.set('route.path', '/login');
         }
-        else if (this.session != 'undefined' && this.session.length != 0 && (newRoute == '/menu' || newRoute == '')) {
-          // console.log("entro menu");
-          this.set('route.path', '/menu');
+        else if (this.session != 'undefined' && this.session.length != 0 && (newRoute == '/menu/' || newRoute == '')) {
+          console.log("entro menu", this.session);
+          this.set('route.path', '/menu/home');
         }
       }
     });

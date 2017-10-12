@@ -34,6 +34,7 @@
         text-decoration: none;
         color: black;
       }
+
       .logout a {
         color: var(--paper-indigo-a100) !important;
       }
@@ -96,7 +97,9 @@
             </paper-item>
             <paper-item name="logout" class="logout">
               <span class="logout">
-                <a href="#/logout"><strong>Cerrar Sesión</strong></a>
+                <a href="#/logout">
+                  <strong>Cerrar Sesión</strong>
+                </a>
               </span>
             </paper-item>
             <!-- <paper-item name="cash">Caja</paper-item>
@@ -140,15 +143,11 @@
         }
       },
       observers: [
-        '_updateScroll(route)'
+        '_updateScroll(route)',
+        '_viewChanged(data)'
       ],
       attached: function () {
         //// console.log(this.route);     
-        if (!this.pageData.page) {
-          this.set('pageData.page', 'home');
-        } else {
-          //// console.log(this.pageData.page);
-        }
       },
       _updateScroll: function () {
         window.scroll(0, 0);
@@ -157,6 +156,16 @@
         //var value = false;
         console.log("objeto", value);
         return obj === value;
+      },
+      _viewChanged: function (data) {
+        console.log(this.pageData.page);
+        if (!this.pageData.page) {
+          console.log("entre por acaa menuuu lpm");
+          this.set('route.path', '/home');
+        } else {
+          //// console.log(this.pageData.page);
+        }
+
       }
     });
   </script>
