@@ -96,12 +96,12 @@
                 <paper-input type="value" id="value" name="value" label="Valor">
                     <iron-icon icon="icons:description" prefix></iron-icon>
                 </paper-input>
-                <paper-dropdown-menu label="Estado" name="status" required>
+                <!-- <paper-dropdown-menu label="Estado" name="status" required>
                     <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
                         <paper-item name="ACTIVO">ACTIVO</paper-item>
                         <paper-item name="INACTIVO">INACTIVO</paper-item>
                     </paper-listbox>
-                </paper-dropdown-menu>
+                </paper-dropdown-menu> -->
                 <div class="botonera">
                     <paper-button raised submit id="create">Agregar</paper-button>
                     <paper-button raised submit id="apply_changes">Modificar</paper-button>
@@ -205,13 +205,15 @@
                 var counter = response.detail.response.data;
                 this.counter = counter;
                 this.$.name.value = counter.name;
-                this.$.description.value = counter.description;
-                this.$.status.selected = counter.status;
+                this.$.incrementBy.value = counter.incrementBy;
+                this.$.value.value = counter.value;
+                // this.$.status.selected = counter.status;
+                this.$.type.selected = counter.type;
                 this.$.selectBusiness.value = counter.business;
                 // console.log(this.$.status.selected);
-                if (counter.status == 'ACTIVO') {
-                    this.$.delete.style.display = 'none';
-                }
+                // if (counter.status == 'ACTIVO') {
+                //     this.$.delete.style.display = 'none';
+                // }
             },
             _handleError: function (error) {
                 // console.log(error);
@@ -295,7 +297,7 @@
                         this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {
-                            this.$.status.selected = '';
+                            // this.$.status.selected = '';
                             // this.$.name.disabled = 'disabled';
                             // this.$.description.disabled = 'disabled';
                             // this.$.description.style.display = 'none';

@@ -268,7 +268,7 @@
                 }
                 var type = data;
                 var notList = ["home"];
-                var inList = ["proveedor",'persons'];
+                var inList = ["proveedor", 'persons'];
                 // this.ajaxlist.body = 
                 let body = {
                     "limit": '',
@@ -276,15 +276,19 @@
                     "filter": {},
                     "sort": {}
                 };
+                if (this.business) {
+                    body.filter.business = data == 'businesses' ? null : this.business;
+                }
                 // this.ajaxlist.body.filter.business = this.business;
-                body.filter.business = data == 'businesses'? null : this.business;
                 // this.ajaxlist.body.sort._id = 1;
                 body.sort._id = 1;
                 if (type != 'undefined') {
                     if (notList.indexOf(type) === -1) {
                         if (inList.indexOf(type) >= 0) {
                             if (type == 'persons') {
-                                body.filter.type = { $ne : "PROVEEDOR"};
+                                body.filter.type = {
+                                    $ne: "PROVEEDOR"
+                                };
                                 type = "persons";
                             }
                             if (type == 'proveedor') {

@@ -120,16 +120,18 @@
                     </paper-listbox>
                 </paper-dropdown-menu>
                 <div>
-                    <h5>Usuario Relacionado</h5>
-                    <paper-autocomplete label="Usuario" name="user[user]" id="selectUser" value=""> </paper-autocomplete>
                     <div id="newUser">
-                        <h4>Generar Usuario Nuevo</h4>
-                        <paper-input id="username" name="user[username]" label="Usuario">
-                            <iron-icon icon="social:person" prefix></iron-icon>
-                        </paper-input>
-                        <paper-input id="password" name="user[password]" label="Contraseña">
-                            <iron-icon icon="icons:fingerprint" prefix></iron-icon>
-                        </paper-input>
+                        <h5>Usuario Relacionado</h5>
+                        <paper-autocomplete label="Usuario" name="user[user]" id="selectUser" value=""> </paper-autocomplete>
+                        <div id="generateUser">
+                            <h4>Generar Usuario Nuevo</h4>
+                            <paper-input id="username" name="user[username]" label="Usuario">
+                                <iron-icon icon="social:person" prefix></iron-icon>
+                            </paper-input>
+                            <paper-input id="password" name="user[password]" label="Contraseña">
+                                <iron-icon icon="icons:fingerprint" prefix></iron-icon>
+                            </paper-input>
+                        </div>
                     </div>
                 </div>
                 <div class="botonera">
@@ -275,6 +277,7 @@
                     this.$.firstName.disabled = "disabled";
                     this.$.lastName.style.display = "none";
                     this.$.lastName.disabled = "disabled";
+                    this.$.newUser.style.display = 'none';
                 } else {
                     this.$.businessName.disabled = "disabled";
                     this.$.businessName.style.display = "none";
@@ -282,6 +285,7 @@
                     this.$.firstName.style.display = "inline";
                     this.$.lastName.disabled = null;
                     this.$.lastName.style.display = "inline";
+                    this.$.newUser.style.display = 'block';
                 }
             },
             _deletePerson: function () {
@@ -471,7 +475,7 @@
                             this.$.status.selected = '';
                             this.$.create.style.display = 'none';
                             this.$.reset.style.display = 'none';
-                            this.$.newUser.style.display = 'none';
+                            this.$.generateUser.style.display = 'none';
                             this._getPerson();
                         } else {
                             console.log(this.business);

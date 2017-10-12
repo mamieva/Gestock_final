@@ -230,6 +230,7 @@
                 var category = response.detail.response.data;
                 this.category = category;
                 this.$.name.value = category.name;
+                this.$.description.value = category.description;
                 this.$.status.selected = category.status;
                 this.$.selectBusiness.value = category.business;
                 this.itemsCategories = category.categories
@@ -298,14 +299,14 @@
                     this.$.apply_changes.style.display = 'inline-block';
                     // this.$.name.disabled = null;
                     // this.$.description.disabled = null;
-                    this.$.description.style.display = 'inline-block';
+                    // this.$.description.style.display = 'inline-block';
                     this._getBusiness();
                     //
                     if (this.key != '' && this.key != 'undefined') {
                         this.$.status.selected = '';
                         // this.$.name.disabled = 'disabled';
                         // this.$.description.disabled = 'disabled';
-                        this.$.description.style.display = 'none';
+                        // this.$.description.style.display = 'none';
                         this.$.create.style.display = 'none';
                         this.$.reset.style.display = 'none';
                         this._getCategories();
