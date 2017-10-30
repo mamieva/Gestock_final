@@ -589,11 +589,6 @@
                         this.$.reset.style.display = 'inline-block';
                         this.$.delete.style.display = 'inline-block';
                         this.$.apply_changes.style.display = 'inline-block';
-                        // this._getProducts();
-                        this._getBranchs();
-                        this._getBrands();
-                        // this._getSuppliers();
-                        this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {
                             this.$.create.style.display = 'none';
@@ -608,6 +603,11 @@
                             this.$.apply_changes.style.display = 'none';
                             this.$.items.style.display = 'none';
                         }
+                        // this._getProducts();
+                        this._getBranchs();
+                        this._getBrands();
+                        // this._getSuppliers();
+                        this._getBusiness();
                     }
                 }
             },
