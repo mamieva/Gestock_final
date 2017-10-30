@@ -563,9 +563,6 @@
                     this.$.priceList.style.display = "none";
                     // this.$.description.disabled = null;
                     // this.$.description.style.display = 'inline-block';
-                    //
-                    // this._getBrands();
-                    // this._getCategories();
                     // this._getPriceLists();
                     // && this.key != 'undefined'
 
@@ -581,14 +578,17 @@
                         this.$.priceList.style.display = "block";
                         this._getProduct();
                         this._getComponents();
-                        this._getBrands();
-                        this._getCategories();
+                        // this._getBrands();
+                        // this._getCategories();
                         this._getPriceLists();
                     } else {
-                        this._getComponents();
+                        // this._getComponents();
                         this.$.delete.style.display = 'none';
                         this.$.apply_changes.style.display = 'none';
                     }
+                    //
+                    this._getBrands();
+                    this._getCategories();
                 }
             },
             _addBrand: function () {
@@ -805,7 +805,7 @@
                     // "status": this.$.pricelist_status.selected
                 };
                 this.$.selectPriceList.text = '';
-                this.$.selectPriceList.value = '';
+                this.$.selectPriceList.value = null;
                 this.$.cost.value = '';
                 this.$.profit.value = '';
                 this.$.addPriceListAjax.generateRequest();

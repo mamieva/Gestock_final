@@ -83,34 +83,6 @@
 
       },
       attached: function () {
-        //// console.log('sss',this.session.length);
-        //// console.log(JSON.parse(window.localStorage.session).token);
-        //
-        // if(this.session.length != 0 && this.pageData.page != 'login' ){
-        //   // console.log("entro menu");
-        //   this.set('route.path','/menu');
-        // }
-        // else{
-        //   //this.$.session.destroy();
-        //   // console.log("entro login");
-        //   this.set('route.path','/login');
-        // }
-        //// console.log(this.session.isAuthenticated);
-        // if(!this.session.token){
-        //    if (!this.pageData.page) {
-        //    this.set('route.path', '/login');
-        //    //this.$.pages.selected = 0;
-        //      }
-        //    else {
-        //    //this.set('route.path', '/' + this.pageData.page);
-        //    //this.$.pages.selected = 0;
-        //    }
-        //   }
-        //   else{
-        //     //this.set('route.path', '/' + this.pageData.page);
-        //     //this.$.pages.selected = 1;
-        //   }
-
       },
       _loginUser: function (event) {
         //// console.log('events disparado');
@@ -138,7 +110,7 @@
         console.log('newroute papu',newRoute);
         if(!this.pageData || newRoute == '/logout'){
           console.log('entra a romper',this.pageData);
-          this.$.session.reset();
+          this.$.session.destroy();
           this.set('route.path','/login');
         }
         // console.log('PAGE_DATA',this.pageData);
