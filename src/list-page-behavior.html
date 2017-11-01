@@ -163,6 +163,7 @@
 
                 var response = err.detail.request.response;
                 if (response != null) {
+                    console.log("NO AUTORIZADO");
                     window.localStorage.removeItem("session");
                     this.fire("notAuthorized", response);
                 } else {

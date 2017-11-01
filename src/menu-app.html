@@ -159,7 +159,7 @@
       },
       _viewChanged: function (data) {
         console.log(this.pageData.page);
-        if (!this.pageData.page || this.pageData.page == 'logout') {
+        if (!this.pageData.page) {
           console.log("entre por acaa menuuu lpm");
           this.set('route.path', '/home');
         }

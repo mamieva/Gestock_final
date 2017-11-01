@@ -110,7 +110,7 @@
         console.log('newroute papu',newRoute);
         if(!this.pageData || newRoute == '/logout'){
           console.log('entra a romper',this.pageData);
-          this.$.session.destroy();
+          // this.$.session.destroy();
           this.set('route.path','/login');
         }
         // console.log('PAGE_DATA',this.pageData);
@@ -120,7 +120,7 @@
           console.log("entro login");
           this.set('route.path', '/login');
         }
-        else if (this.session != 'undefined' && this.session.length != 0 && (newRoute == '/menu/' || newRoute == '')) {
+        else if (this.session != 'undefined' && this.session.length != 0 && (newRoute == '/menu' || newRoute == '')) {
           console.log("entro menu", this.session);
           this.set('route.path', '/menu/home');
         }

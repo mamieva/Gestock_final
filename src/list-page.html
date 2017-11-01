@@ -258,7 +258,7 @@
                 //
                 this.grid_page = 0;
                 // console.log("entra viewchang de lista", data);
-                this.ajaxlist.method = 'POST';
+                this.ajaxlist.method = 'GET';
                 this.ajaxlist.headers = '';
                 this.ajaxlist.params = '';
                 this.ajaxlist.url = '';
@@ -268,7 +268,7 @@
                     this.business = JSON.parse(window.localStorage.session).business;
                 }
                 var type = data;
-                var notList = ["home",'logout'];
+                var notList = ["home"];
                 var inList = ["proveedor", 'persons'];
                 // this.ajaxlist.body = 
                 let body = {
