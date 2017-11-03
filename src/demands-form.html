@@ -397,7 +397,7 @@
             _selectBrand: function (e) {
                 // console.log(e.detail.value);
                 this._getProducts(e.detail.value);
-                this._getBrands(e.detail.value);
+                this._getSuppliers(e.detail.value);
                 this.$.selectProduct.text = '';
             },
             _generateOrder: function (e) {
@@ -656,7 +656,7 @@
                 // this.filterBody.filter.type = 'PROVEEDOR';
                 this.filterBody.filter = {};
                 this.filterBody.filter.business = this.business;
-                this.filterBody.filter._id = brand_id;
+                // this.filterBody.filter._id = brand_id;
                 let data = JSON.stringify(this.filterBody);
                 // data.append('json',this.filterBody);
                 // data.append('json',JSON.stringify(this.filterBody));
@@ -855,6 +855,7 @@
                     'x-access-token': this.token,
                     'Content-type': 'application/json'
                 });
+                this.filterBody.filter = {};
                 this.filterBody.filter.type = 'PROVEEDOR';
                 this.filterBody.filter.business = this.business;
                 let data = JSON.stringify(this.filterBody);

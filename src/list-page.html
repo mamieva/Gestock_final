@@ -278,6 +278,7 @@
                     "sort": {}
                 };
                 if (this.business) {
+                console.log('businesss',this.business);
                     body.filter.business = data == 'businesses' ? null : this.business;
                 }
                 // this.ajaxlist.body.filter.business = this.business;
@@ -302,6 +303,7 @@
                             'Content-type': 'application/json'
                         };
                         this.ajaxlist.body = JSON.stringify(body);
+                        console.log('voasda',this.ajaxlist.body);
                         this.ajaxlist.url = this.url_base + type;
                         this.$.divAjax.appendChild(this.ajaxlist);
                         this.ajaxlist.generateRequest();
