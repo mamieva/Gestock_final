@@ -68,9 +68,9 @@
                     'x-access-token': this.token
                 };
                 this._getForm().method = 'POST';
+                this._getForm().mode = 'cors';
                 this._getForm().action = this.url;
                 this._getForm().submit();
-
             },
             _getBusiness: function () {
                 //obtener todos los roles para poder Agregar

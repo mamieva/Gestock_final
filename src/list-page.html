@@ -250,7 +250,7 @@
                 //this.$.editor.load(this.key);
             },
             _viewChanged: function (data) {
-                console.log('dataaa','-'+data+'-');
+                console.log('dataaa', '-' + data + '-');
                 // arranca spinner de carga
                 this.$.spinner.active = true;
                 this.$.spinner.style.display = 'block';
@@ -258,7 +258,7 @@
                 //
                 this.grid_page = 0;
                 // console.log("entra viewchang de lista", data);
-                this.ajaxlist.method = 'GET';
+                this.ajaxlist.method = type=='logout' ? 'GET' : 'POST';
                 this.ajaxlist.headers = '';
                 this.ajaxlist.params = '';
                 this.ajaxlist.url = '';
@@ -269,7 +269,7 @@
                 }
                 var type = data;
                 var notList = ["home"];
-                var inList = ["proveedor", 'persons'];
+                var inList = ["proveedor", 'persons', 'orden', 'documents'];
                 // this.ajaxlist.body = 
                 let body = {
                     "limit": '',
@@ -278,7 +278,7 @@
                     "sort": {}
                 };
                 if (this.business) {
-                console.log('businesss',this.business);
+                    console.log('businesss', this.business);
                     body.filter.business = data == 'businesses' ? null : this.business;
                 }
                 // this.ajaxlist.body.filter.business = this.business;
@@ -297,13 +297,17 @@
                                 body.filter.type = type.toUpperCase();
                                 type = "persons";
                             }
+                            if (type == 'orden') {
+                                body.filter.documentType = type.toUpperCase();
+                                type = "documents"
+                            }
                         }
                         this.ajaxlist.headers = {
                             'x-access-token': this.token,
                             'Content-type': 'application/json'
                         };
                         this.ajaxlist.body = JSON.stringify(body);
-                        console.log('voasda',this.ajaxlist.body);
+                        console.log('voasda', this.ajaxlist.body);
                         this.ajaxlist.url = this.url_base + type;
                         this.$.divAjax.appendChild(this.ajaxlist);
                         this.ajaxlist.generateRequest();

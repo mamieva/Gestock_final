@@ -370,6 +370,7 @@
                 var person = response.detail.response.data;
                 this.person = person;
                 this.type = person.type;
+                this.$.selectBusiness.value = person.business;
                 this.$.businessName.value = person.businessName;
                 this.$.firstName.value = person.firstName;
                 this.$.lastName.value = person.lastName;
