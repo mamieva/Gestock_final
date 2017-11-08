@@ -327,11 +327,61 @@
                     </div>
                 </paper-card>
             </div>
+            <div id="ordenes" class="items">
+                <paper-card heading="Ordenes Generadas">
+                    <div class="card-actions">
+                        <vaadin-grid id="itemsList" items={{itemsOrder}} >
+                            <vaadin-grid-column>
+                                <template class="header">Fecha</template>
+                                <template>
+                                    <div class="cell">
+                                        <moment-element datetime="[[item.documentDate]]" output-format="dddd D/MM/YY"></moment-element>
+                                    </div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Documento</template>
+                                <template>
+                                    <div class="cell">[[item.documentType]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Marca</template>
+                                <template>
+                                    <div class="cell">[[item.product.brand.name]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Producto</template>
+                                <template>
+                                    <div class="cell">[[item.product.name]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Proveedor</template>
+                                <template>
+                                    <div class="cell">[[item.supplier.businessName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column align="center">
+                                <template class="header">Cant.</template>
+                                <template>
+                                    <div class="cell" title="[[item.quantity]]">[[item.quantity]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                        </vaadin-grid>
+                        <div class="botoneraBranchs">
+                            <paper-button raised submit id="deleteItems">Eliminar Seleccionados</paper-button>
+                        </div>
+                    </div>
+                </paper-card>
+            </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
                 <!--<h2>Eliminar solicitud</h2>-->
-                <p>¿Desea eliminar la solicitud <strong>[[demand.name]]</strong> ?</p>
+                <p>¿Desea eliminar la solicitud
+                    <strong>[[demand.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -371,6 +421,10 @@
                     reflectToAttribute: true
                 },
                 itemsItems: {
+                    type: Array,
+                    value: []
+                },
+                itemsOrder: {
                     type: Array,
                     value: []
                 }
@@ -429,7 +483,7 @@
                             reallythis.showError(result.message);
                         }
                         // console.log('resultado wachi',result);
-                        reallythis.showMessage(result.message)                        
+                        reallythis.showMessage(result.message)
                     })
                     .catch(function (err) {
                         console.log("error", err);
@@ -593,8 +647,9 @@
                         if (this.key != '' && this.key != 'undefined') {
                             this.$.create.style.display = 'none';
                             this.$.reset.style.display = 'none';
-                            this.$.items.style.display = 'block';                            
+                            this.$.items.style.display = 'block';
                             this._getDemand();
+                            this._getOrders();
                         } else {
                             //iniciar fecha
                             this.$.datetime.date = Date.now();
@@ -932,9 +987,51 @@
                     .catch(function (err) {
                         console.log("error", err);
                     })
+            },
+            _getOrders: function () {
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                // this.filterBody.filter.type = 'PROVEEDOR';
+                this.filterBody.filter = {};
+                this.filterBody.filter.business = this.business;
+                this.filterBody.filter.documentOrigin = this.key;
+                this.filterBody.filter.documentType = 'ORDEN';
+                let data = JSON.stringify(this.filterBody);
+                // data.append('json',this.filterBody);
+
+                // data.append('json',JSON.stringify(this.filterBody));
+
+                let init = {
+                    method: 'POST',
+                    body: data,
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
+                };
+
+                var myRequest = new Request(this.url_base + 'documents', init);
+
+                fetch(myRequest)
+                    .then(function (response) {
+                        return response.json()
+                    })
+                    .then(function (result) {
+                        reallythis.itemsOrder = result.data;
+                        // reallythis.$.selectProduct.source = result.data.map(function (obj) {
+                        //     return {
+                        //         text: obj.name,
+                        //         value: obj._id
+                        //     }
+                        // })
+                        console.log(result);
+                    })
+                    .catch(function (err) {
+                        console.log("error", err);
+                    })
             }
-
-
         });
     </script>
 </dom-module>
