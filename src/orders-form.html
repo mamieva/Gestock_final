@@ -55,7 +55,6 @@
                 color: hsl(0, 0%, 50%);
                 margin-right: 12px;
             }
-
             /* paper-dropdown-menu{
                 --paper-dropdown-menu-button	: {
                     color: var(--paper-pink-500);
@@ -76,12 +75,12 @@
         <div class="container">
             <h3>Rol</h3>
             <form is="iron-form" method="POST" id="orderForm">
-                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
-                <paper-input id="name" name="name" label="Nombre" required>
+                <paper-input label="Empresa" name="business" id="selectBusiness"></paper-input>
+                <paper-input id="receiver" name="receiver" label="Receptor" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
                 </paper-input>
-                <paper-input id="description" name="description" label="Descripción">
+                <paper-input id="sender" name="sender" label="Generado por">
                     <iron-icon icon="icons:description" prefix></iron-icon>
                 </paper-input>
                 <paper-dropdown-menu label="Estado" name="status" required>
@@ -101,7 +100,8 @@
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
                 <!--<h2>Eliminar rol</h2>-->
-                <p>¿Desea eliminar el rol <strong>[[order.name]]</strong> ?</p>
+                <p>¿Desea eliminar el rol
+                    <strong>[[order.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -222,11 +222,49 @@
                 this.set('route.path', '');
             },
             _getOrder: function () {
-                this.$.orderAjax.headers = {
-                    'x-access-token': this.token
+                let reallythis = this;
+                let headers = new Headers({
+                    'x-access-token': this.token,
+                    'Content-type': 'application/json'
+                });
+                // this.filterBody.filter.type = 'PROVEEDOR';
+                // this.filterBody.filter = {};
+                // this.filterBody.filter.business = this.business;
+                // this.filterBody.filter.documentOrigin = this.key;
+                // this.filterBody.filter.documentType = 'ORDEN';
+                // let data = JSON.stringify(this.filterBody);
+                // data.append('json',this.filterBody);
+
+                // data.append('json',JSON.stringify(this.filterBody));
+
+                let init = {
+                    method: 'GET',
+                    headers: headers,
+                    mode: 'cors',
+                    cache: 'default'
                 };
-                this.$.orderAjax.url = this.url_base + 'document/' + this.key;
-                this.$.orderAjax.generateRequest();
+
+                var myRequest = new Request(this.url_base + 'document/' + this.key, init);
+
+                fetch(myRequest)
+                    .then(function (response) {
+                        return response.json()
+                    })
+                    .then(function (result) {
+                        reallythis.$.selectBusiness.value = result.data.business.id;
+                        reallythis.$.receiver.value = result.data.receiver.businessName;
+                        reallythis.$.sender.value = result.data.sender.firstName + ' ' + result.data.sender.lastName;
+                        // reallythis.$.selectProduct.source = result.data.map(function (obj) {
+                        //     return {
+                        //         text: obj.name,
+                        //         value: obj._id
+                        //     }
+                        // })
+                        console.log(result);
+                    })
+                    .catch(function (err) {
+                        console.log("error", err);
+                    })
             },
             _updateOrder: function (event) {
                 this.$.updateAjax.headers = {
@@ -260,7 +298,7 @@
             },
             _viewChanged: function () {
                 // debugger
-                console.log("object",this.selected);
+                console.log("object", this.selected);
                 if (!this.selected) {
                     this.key = '';
                     return;
@@ -280,7 +318,7 @@
                         this.$.apply_changes.style.display = 'inline-block';
                         // this.$.name.disabled = null;
                         // this.$.description.disabled = null;
-                        this.$.description.style.display = 'inline-block';
+                        // this.$.description.style.display = 'inline-block';
                         this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {

@@ -995,24 +995,23 @@
                     'Content-type': 'application/json'
                 });
                 // this.filterBody.filter.type = 'PROVEEDOR';
-                this.filterBody.filter = {};
-                this.filterBody.filter.business = this.business;
-                this.filterBody.filter.documentOrigin = this.key;
-                this.filterBody.filter.documentType = 'ORDEN';
-                let data = JSON.stringify(this.filterBody);
+                // this.filterBody.filter = {};
+                // this.filterBody.filter.business = this.business;
+                // this.filterBody.filter.documentOrigin = this.key;
+                // this.filterBody.filter.documentType = 'ORDEN';
+                // let data = JSON.stringify(this.filterBody);
                 // data.append('json',this.filterBody);
 
                 // data.append('json',JSON.stringify(this.filterBody));
 
                 let init = {
-                    method: 'POST',
-                    body: data,
+                    method: 'GET',
                     headers: headers,
                     mode: 'cors',
                     cache: 'default'
                 };
 
-                var myRequest = new Request(this.url_base + 'documents', init);
+                var myRequest = new Request(this.url_base + 'demand/' + this.key + '/list-orders', init);
 
                 fetch(myRequest)
                     .then(function (response) {
