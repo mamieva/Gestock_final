@@ -105,7 +105,7 @@
                 text-align: right;
             }*/
 
-            vaadin-grid#itemsList {
+            vaadin-grid.itemsList {
 
                 font-family: Roboto, sans-serif;
                 --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
@@ -153,53 +153,53 @@
                 ;
             }
 
-            vaadin-grid#itemsList .cell {
+            vaadin-grid.itemsList .cell {
                 overflow: hidden;
                 margin-right: 5px;
                 text-overflow: ellipsis;
                 /* padding-right: 56px; */
             }
 
-            vaadin-grid#itemsList .cell.last {
+            vaadin-grid.itemsList .cell.last {
                 padding-right: 24px;
             }
 
-            vaadin-grid#itemsList .cell.numeric {
+            vaadin-grid.itemsList .cell.numeric {
                 text-align: right;
             }
 
-            vaadin-grid#itemsList paper-checkbox {
+            vaadin-grid.itemsList paper-checkbox {
                 --primary-color: var(--paper-indigo-500);
                 margin: 0 24px;
             }
 
-            vaadin-grid#itemsList vaadin-grid-sorter {
+            vaadin-grid.itemsList vaadin-grid-sorter {
                 --vaadin-grid-sorter-arrow: {
                     display: none !important;
                 }
                 ;
             }
 
-            vaadin-grid#itemsList vaadin-grid-sorter .cell {
+            vaadin-grid.itemsList vaadin-grid-sorter .cell {
                 flex: 1;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
 
-            vaadin-grid#itemsList vaadin-grid-sorter iron-icon {
+            vaadin-grid.itemsList vaadin-grid-sorter iron-icon {
                 transform: scale(0.8);
             }
 
-            vaadin-grid#itemsList vaadin-grid-sorter:not([direction]) iron-icon {
+            vaadin-grid.itemsList vaadin-grid-sorter:not([direction]) iron-icon {
                 color: rgba(0, 0, 0, var(--dark-disabled-opacity));
             }
 
-            vaadin-grid#itemsList vaadin-grid-sorter[direction] {
+            vaadin-grid.itemsList vaadin-grid-sorter[direction] {
                 color: rgba(0, 0, 0, var(--dark-primary-opacity));
             }
 
-            vaadin-grid#itemsList vaadin-grid-sorter[direction=desc] iron-icon {
+            vaadin-grid.itemsList vaadin-grid-sorter[direction=desc] iron-icon {
                 transform: scale(0.8) rotate(180deg);
             }
 
@@ -280,7 +280,7 @@
                         <paper-button raised submit id="addBranch" class="btnAceptar">Agregar</paper-button>-->
                     </div>
                     <div class="card-actions">
-                        <vaadin-grid id="itemsList" items={{itemsItems}} selection-mode="multi">
+                        <vaadin-grid class="itemsList" id="itemsList" items={{itemsItems}} selection-mode="multi">
                             <vaadin-grid-selection-column auto-select>
                             </vaadin-grid-selection-column>
                             <vaadin-grid-column>
@@ -331,7 +331,7 @@
             <div id="ordenes" class="items">
                 <paper-card heading="Ordenes Generadas">
                     <div class="card-actions">
-                        <vaadin-grid id="orderList" items={{itemsOrder}}>
+                        <vaadin-grid class="itemsList" id="orderList" active-item="{{selectedItems}}" items={{itemsOrder}}>
                             <vaadin-grid-column>
                                 <template class="header">Fecha</template>
                                 <template>
@@ -420,6 +420,9 @@
                 itemsOrder: {
                     type: Array,
                     value: []
+                },
+                selectedItems: {
+                    observer: "_selectedOrdersChanged"
                 }
             },
             behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
@@ -436,7 +439,6 @@
                 'addItem.tap': '_dialogItem',
                 'addNewItem.tap': '_addItem',
                 'itemsList.selected-items-changed': '_selectedItemsChanged',
-                'orderList.selected-items-changed': '_selectedOrdersChanged',
                 'selectBrand.autocomplete-selected': '_selectBrand',
                 'deleteItems.tap': '_deleteItems',
                 'generateOrder.tap': '_generateOrder'
@@ -802,7 +804,15 @@
                     // reallythis.$.resetRole.style.display = 'none';
                 }
             },
-            _selectedOrdersChanged: function(){
+            _selectedOrdersChanged: function (e) {
+                console.log('object', e);
+                console.log(this.route);
+                if (e) {
+                    let orderId = e._id;
+                    // this.route.prefix = '/menu/orden/';
+                    this.set("route.prefix", '/menu/orden/' + orderId);
+                    // this.set("route.path", '/'+ orderId)
+                }
 
             },
             _deleteItems: function () {
