@@ -248,6 +248,7 @@
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
                 </paper-input>
+                <paper-input id="status" name="status" label="Estado" readonly></paper-input>
                 <div class="botonera">
                     <paper-button raised submit id="create">Agregar</paper-button>
                     <paper-button raised submit id="apply_changes">Modificar</paper-button>
@@ -330,7 +331,7 @@
             <div id="ordenes" class="items">
                 <paper-card heading="Ordenes Generadas">
                     <div class="card-actions">
-                        <vaadin-grid id="itemsList" items={{itemsOrder}} >
+                        <vaadin-grid id="orderList" items={{itemsOrder}}>
                             <vaadin-grid-column>
                                 <template class="header">Fecha</template>
                                 <template>
@@ -346,33 +347,25 @@
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
-                                <template class="header">Marca</template>
-                                <template>
-                                    <div class="cell">[[item.product.brand.name]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column>
-                                <template class="header">Producto</template>
-                                <template>
-                                    <div class="cell">[[item.product.name]]</div>
-                                </template>
-                            </vaadin-grid-column>
-                            <vaadin-grid-column>
                                 <template class="header">Proveedor</template>
                                 <template>
-                                    <div class="cell">[[item.supplier.businessName]]</div>
+                                    <div class="cell">[[item.receiver.businessName]]</div>
                                 </template>
                             </vaadin-grid-column>
-                            <vaadin-grid-column align="center">
-                                <template class="header">Cant.</template>
+                            <vaadin-grid-column>
+                                <template class="header">Generado por </template>
                                 <template>
-                                    <div class="cell" title="[[item.quantity]]">[[item.quantity]]</div>
+                                    <div class="cell">[[item.sender.firstName]] [[item.sender.lastName]]</div>
                                 </template>
                             </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Estado</template>
+                                <template>
+                                    <div class="cell">[[item.status]]</div>
+                                </template>
+                            </vaadin-grid-column>
+
                         </vaadin-grid>
-                        <div class="botoneraBranchs">
-                            <paper-button raised submit id="deleteItems">Eliminar Seleccionados</paper-button>
-                        </div>
                     </div>
                 </paper-card>
             </div>
@@ -443,6 +436,7 @@
                 'addItem.tap': '_dialogItem',
                 'addNewItem.tap': '_addItem',
                 'itemsList.selected-items-changed': '_selectedItemsChanged',
+                'orderList.selected-items-changed': '_selectedOrdersChanged',
                 'selectBrand.autocomplete-selected': '_selectBrand',
                 'deleteItems.tap': '_deleteItems',
                 'generateOrder.tap': '_generateOrder'
@@ -483,6 +477,7 @@
                             reallythis.showError(result.message);
                         }
                         // console.log('resultado wachi',result);
+                        reallythis.$.generateOrder.style.display = 'none';
                         reallythis.showMessage(result.message)
                     })
                     .catch(function (err) {
@@ -545,9 +540,17 @@
                 this.demand = demand;
                 this.$.name.value = demand.name;
                 this.$.selectBusiness.value = demand.business;
+                this.$.status.value = demand.status;
                 console.log('business', this.$.selectBusiness.value);
                 this.$.datetime.date = demand.startDate;
                 this.itemsItems = demand.items;
+                if (demand.status == 'GENERADO') {
+                    this.$.generateOrder.style.display = 'none';
+                    this.$.deleteItems.style.display = 'none';
+                } else {
+                    this.$.generateOrder.style.display = 'inline-block';
+                    this.$.deleteItems.style.display = 'inline-block';
+                }
                 // this.$.tributaryCode.value = demand.tributaryCode;
                 // this.$.status.selected = demand.status;
                 // this.itemsBranchs = demand.branchs;
@@ -798,6 +801,9 @@
                     this.$.deleteItems.style.display = 'none';
                     // reallythis.$.resetRole.style.display = 'none';
                 }
+            },
+            _selectedOrdersChanged: function(){
+
             },
             _deleteItems: function () {
                 /////////////////////////////
