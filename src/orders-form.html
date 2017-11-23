@@ -65,6 +65,117 @@
                 }
                 ;
             } */
+            vaadin-grid.itemsList {
+
+                font-family: Roboto, sans-serif;
+                --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
+
+                --vaadin-grid-cell: {
+                    padding: 0;
+                }
+                ;
+
+                --vaadin-grid-header-cell: {
+                    background: rgba(235, 238, 246, 0.9);
+                    border-bottom: 1px solid rgba(208, 217, 225, 0.9);
+                    border-top: 1px solid rgba(248, 250, 252, 0.9);
+                    min-height: 35px;
+
+                    background-image: linear-gradient(rgba(108, 160, 218, 0), rgba(108, 160, 218, 0.15));
+                    background-size: 1px 100%;
+                    background-position: 100% 0%;
+                    background-repeat: no-repeat;
+                }
+
+                ;
+
+                --vaadin-grid-body-cell: {
+                    height: 48px;
+                    color: rgba(0, 0, 0, var(--dark-primary-opacity));
+                    font-size: 13px;
+                }
+                ;
+
+                --vaadin-grid-body-row-hover-cell: {
+                    background-color: var(--paper-grey-200);
+                }
+                ;
+
+                --vaadin-grid-body-row-selected-cell: {
+                    background-color: var(--paper-grey-100);
+                }
+                ;
+
+                --vaadin-grid-focused-cell: {
+                    box-shadow: none;
+                    font-weight: bold;
+                }
+                ;
+            }
+
+            vaadin-grid.itemsList .cell {
+                overflow: hidden;
+                margin-right: 5px;
+                text-overflow: ellipsis;
+                /* padding-right: 56px; */
+            }
+
+            vaadin-grid.itemsList .cell.last {
+                padding-right: 24px;
+            }
+
+            vaadin-grid.itemsList .cell.numeric {
+                text-align: right;
+            }
+
+            vaadin-grid.itemsList paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
+
+            vaadin-grid.itemsList vaadin-grid-sorter {
+                --vaadin-grid-sorter-arrow: {
+                    display: none !important;
+                }
+                ;
+            }
+
+            vaadin-grid.itemsList vaadin-grid-sorter .cell {
+                flex: 1;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            vaadin-grid.itemsList vaadin-grid-sorter iron-icon {
+                transform: scale(0.8);
+            }
+
+            vaadin-grid.itemsList vaadin-grid-sorter:not([direction]) iron-icon {
+                color: rgba(0, 0, 0, var(--dark-disabled-opacity));
+            }
+
+            vaadin-grid.itemsList vaadin-grid-sorter[direction] {
+                color: rgba(0, 0, 0, var(--dark-primary-opacity));
+            }
+
+            vaadin-grid.itemsList vaadin-grid-sorter[direction=desc] iron-icon {
+                transform: scale(0.8) rotate(180deg);
+            }
+
+            vaadin-grid-selection-column {
+                width: "66px";
+                flex: "0";
+            }
+
+            vaadin-grid#material paper-checkbox {
+                --primary-color: var(--paper-indigo-500);
+                margin: 0 24px;
+            }
+            .items {
+                width: 90%;
+                margin-top: 40px;
+            }
         </style>
         <app-route route="{{route}}" pattern="/:order" data="{{orderData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
@@ -73,9 +184,11 @@
             <iron-ajax id="deleteAjax"></iron-ajax>
         </div>
         <div class="container">
-            <h3>Rol</h3>
+            <h3>Orden</h3>
             <form is="iron-form" method="POST" id="orderForm">
-                <paper-input label="Empresa" name="business" id="selectBusiness"></paper-input>
+                <!-- <paper-input label="Empresa" name="business" id="selectBusiness"></paper-input> -->
+                <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
+                
                 <paper-input id="receiver" name="receiver" label="Receptor" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
@@ -83,19 +196,56 @@
                 <paper-input id="sender" name="sender" label="Generado por">
                     <iron-icon icon="icons:description" prefix></iron-icon>
                 </paper-input>
-                <paper-dropdown-menu label="Estado" name="status" required>
-                    <paper-listbox id="status" class="dropdown-content" attr-for-selected="name">
-                        <paper-item name="ACTIVO">ACTIVO</paper-item>
-                        <paper-item name="INACTIVO">INACTIVO</paper-item>
-                    </paper-listbox>
-                </paper-dropdown-menu>
-                <div class="botonera">
+                <paper-input id="status" name="status" label="Estado" readonly="readonly">
+                </paper-input>
+                <div id="botonera" class="botonera">
                     <paper-button raised submit id="create">Agregar</paper-button>
                     <paper-button raised submit id="apply_changes">Modificar</paper-button>
                     <paper-button raised submit id="delete">Eliminar</paper-button>
                     <paper-button raised id="reset">Limpiar</paper-button>
                 </div>
             </form>
+            <div id="items" class="items">
+                <paper-card heading="Detalle de la Orden">
+                    <div class="card-actions">
+                        <vaadin-grid class="itemsList" id="detailList" active-item="{{selectedItems}}" items={{detailItems}}>
+                            <vaadin-grid-column>
+                                <template class="header">Fecha</template>
+                                <template>
+                                    <div class="cell">
+                                        <moment-element datetime="[[item.documentDate]]" output-format="dddd D/MM/YY"></moment-element>
+                                    </div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Documento</template>
+                                <template>
+                                    <div class="cell">[[item.documentType]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Proveedor</template>
+                                <template>
+                                    <div class="cell">[[item.receiver.businessName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Generado por </template>
+                                <template>
+                                    <div class="cell">[[item.sender.firstName]] [[item.sender.lastName]]</div>
+                                </template>
+                            </vaadin-grid-column>
+                            <vaadin-grid-column>
+                                <template class="header">Estado</template>
+                                <template>
+                                    <div class="cell">[[item.status]]</div>
+                                </template>
+                            </vaadin-grid-column>
+
+                        </vaadin-grid>
+                    </div>
+                </paper-card>
+            </div>
             <paper-toast id="toastOk" text="" class="fit-bottom"></paper-toast>
             <paper-toast id="toastError" text="" class="fit-bottom"></paper-toast>
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
@@ -146,9 +296,9 @@
             ],
             listeners: {
                 'create.tap': '_createForm',
-                'reset.tap': '_reset',
-                'apply_changes.tap': '_updateOrder',
-                'delete.tap': '_deleteDialog',
+                // 'reset.tap': '_reset',
+                // 'apply_changes.tap': '_updateOrder',
+                // 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deleteOrder'
             },
             _deleteOrder: function () {
@@ -169,6 +319,8 @@
                 this.$.animated.open();
             },
             ready: function () {
+                //Ocultar botonera
+                this.$.botonera.style.display = "none";
                 //iniciar url
                 this.url = this.url_base + 'order'
                 //cargar formulario
@@ -195,7 +347,9 @@
                 this.$.name.value = order.name;
                 this.$.description.value = order.description;
                 this.$.status.selected = order.status;
-                this.$.selectBusiness.value = order.business;
+                this.detailItems = order.detail;
+                console.log('order',order);
+                this.$.selectBusiness.value = order.business._id;
                 // console.log(this.$.status.selected);
                 if (order.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
@@ -251,9 +405,11 @@
                         return response.json()
                     })
                     .then(function (result) {
-                        reallythis.$.selectBusiness.value = result.data.business.id;
+                        reallythis.$.selectBusiness.value = result.data.business._id;
+                        reallythis.$.status.value = result.data.status;
                         reallythis.$.receiver.value = result.data.receiver.businessName;
                         reallythis.$.sender.value = result.data.sender.firstName + ' ' + result.data.sender.lastName;
+                        reallythis.detailItems = result.data.detail;
                         // reallythis.$.selectProduct.source = result.data.map(function (obj) {
                         //     return {
                         //         text: obj.name,
@@ -319,7 +475,6 @@
                         // this.$.name.disabled = null;
                         // this.$.description.disabled = null;
                         // this.$.description.style.display = 'inline-block';
-                        this._getBusiness();
                         //
                         if (this.key != '' && this.key != 'undefined') {
                             this.$.status.selected = '';
@@ -333,6 +488,7 @@
                             this.$.delete.style.display = 'none';
                             this.$.apply_changes.style.display = 'none';
                         }
+                        this._getBusiness();
                     }
                 }
             }
