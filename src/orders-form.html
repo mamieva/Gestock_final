@@ -65,6 +65,7 @@
                 }
                 ;
             } */
+
             vaadin-grid.itemsList {
 
                 font-family: Roboto, sans-serif;
@@ -172,6 +173,7 @@
                 --primary-color: var(--paper-indigo-500);
                 margin: 0 24px;
             }
+
             .items {
                 width: 90%;
                 margin-top: 40px;
@@ -188,7 +190,7 @@
             <form is="iron-form" method="POST" id="orderForm">
                 <!-- <paper-input label="Empresa" name="business" id="selectBusiness"></paper-input> -->
                 <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
-                
+
                 <paper-input id="receiver" name="receiver" label="Receptor" required>
                     <iron-icon icon="mail" prefix></iron-icon>
                     <!--<div suffix>@email.com</div>-->
@@ -224,15 +226,18 @@
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
-                                <template class="header">Proveedor</template>
+                                <template class="header">Producto</template>
                                 <template>
-                                    <div class="cell">[[item.receiver.businessName]]</div>
+                                    <div class="cell">[[item.product.code]] - [[item.product.name]]</div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
-                                <template class="header">Generado por </template>
+                                <template class="header">Cantidad</template>
                                 <template>
-                                    <div class="cell">[[item.sender.firstName]] [[item.sender.lastName]]</div>
+                                    <div class="cell">
+                                        <input type="text" id="quantity" name="quantity" value="{{item.quantity}}" required>
+                                        </input>
+                                    </div>
                                 </template>
                             </vaadin-grid-column>
                             <vaadin-grid-column>
@@ -288,6 +293,9 @@
                 selected: {
                     type: Boolean,
                     reflectToAttribute: true
+                },
+                selectedItems: {
+                    observer: "_selectedOrdersChanged"
                 }
             },
             behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
@@ -300,6 +308,9 @@
                 // 'apply_changes.tap': '_updateOrder',
                 // 'delete.tap': '_deleteDialog',
                 'deleteAceptar.tap': '_deleteOrder'
+            },
+            _selectedOrdersChanged: function(ev){
+                console.log(ev);
             },
             _deleteOrder: function () {
                 // console.log("entro aceptar");
@@ -348,7 +359,7 @@
                 this.$.description.value = order.description;
                 this.$.status.selected = order.status;
                 this.detailItems = order.detail;
-                console.log('order',order);
+                console.log('order', order);
                 this.$.selectBusiness.value = order.business._id;
                 // console.log(this.$.status.selected);
                 if (order.status == 'ACTIVO') {
@@ -408,7 +419,8 @@
                         reallythis.$.selectBusiness.value = result.data.business._id;
                         reallythis.$.status.value = result.data.status;
                         reallythis.$.receiver.value = result.data.receiver.businessName;
-                        reallythis.$.sender.value = result.data.sender.firstName + ' ' + result.data.sender.lastName;
+                        reallythis.$.sender.value = result.data.sender.firstName + ' ' + result.data.sender
+                            .lastName;
                         reallythis.detailItems = result.data.detail;
                         // reallythis.$.selectProduct.source = result.data.map(function (obj) {
                         //     return {
