@@ -271,7 +271,7 @@
                 }
                 var type = data;
                 var notList = ["home"];
-                var inList = ["proveedor", 'persons', 'orden', 'documents'];
+                var inList = ["proveedor", 'persons', 'orden','recepcion', 'documents'];
                 // this.ajaxlist.body = 
                 let body = {
                     "limit": '',
@@ -299,7 +299,7 @@
                                 body.filter.type = type.toUpperCase();
                                 type = "persons";
                             }
-                            if (type == 'orden') {
+                            if (type == 'orden' || type == 'recepcion') {
                                 body.filter.documentType = type.toUpperCase();
                                 type = "documents"
                             }
