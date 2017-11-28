@@ -22,7 +22,7 @@
 <link rel="import" href="./shared-style.html">
 <link rel="import" href="./url-services-behavior.html">
 <link rel="import" href="./form-behavior.html">
-<dom-module id="orders-form">
+<dom-module id="receipts-form">
     <template>
         <style include="shared-style"></style>
         <style>
@@ -78,8 +78,8 @@
 
                 --vaadin-grid-header-cell: {
                     background: rgba(235, 238, 246, 0.9);
-                    border-bottom: 1px solid rgba(208, 217, 225, 0.9);
-                    border-top: 1px solid rgba(248, 250, 252, 0.9);
+                    breceipt-bottom: 1px solid rgba(208, 217, 225, 0.9);
+                    breceipt-top: 1px solid rgba(248, 250, 252, 0.9);
                     min-height: 35px;
 
                     background-image: linear-gradient(rgba(108, 160, 218, 0), rgba(108, 160, 218, 0.15));
@@ -179,15 +179,15 @@
                 margin-top: 40px;
             }
         </style>
-        <app-route route="{{route}}" pattern="/:order" data="{{orderData}}" tail="{{routeTail}}" id="routeManager"></app-route>
+        <app-route route="{{route}}" pattern="/:receipt" data="{{receiptData}}" tail="{{routeTail}}" id="routeManager"></app-route>
         <div id="ajaxContainer">
-            <iron-ajax id="orderAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
+            <iron-ajax id="receiptAjax" handle-as="json" content-type="application/json" debounce-duration="300"></iron-ajax>
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
         </div>
         <div class="container">
-            <h3>Orden</h3>
-            <form is="iron-form" method="POST" id="orderForm">
+            <h3>Recepción</h3>
+            <form is="iron-form" method="POST" id="receiptForm">
                 <!-- <paper-input label="Empresa" name="business" id="selectBusiness"></paper-input> -->
                 <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
 
@@ -208,8 +208,8 @@
                     <paper-button style="display: none !important" raised id="reset">Limpiar</paper-button>
                 </div>
             </form>
-            <div id="itemsOrder" class="items">
-                <paper-card heading="Detalle de la Orden">
+            <div id="itemsReceipt" class="items">
+                <paper-card heading="Detalle de la Recepción">
                     <div class="card-actions">
                         <vaadin-grid class="itemsList" id="detailList" active-item="{{selectedItems}}" items={{detailItems}} selection-mode="multi">
                             <vaadin-grid-column>
@@ -258,7 +258,7 @@
             <paper-dialog id="animated" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
                 <!--<h2>Eliminar rol</h2>-->
                 <p>¿Desea eliminar el rol
-                    <strong>[[order.name]]</strong> ?</p>
+                    <strong>[[receipt.name]]</strong> ?</p>
                 <div class="buttons">
                     <paper-button dialog-dismiss>Cancelar</paper-button>
                     <paper-button dialog-confirm autofocus id="deleteAceptar">Aceptar</paper-button>
@@ -268,7 +268,7 @@
     </template>
     <script>
         Polymer({
-            is: 'orders-form',
+            is: 'receipts-form',
             properties: {
                 route: {
                     type: Object
@@ -281,12 +281,12 @@
                 },
                 url: {
                     type: String,
-                    // value: 'http://localhost:3000/order'
+                    // value: 'http://localhost:3000/receipt'
                 },
                 token: {
                     type: String
                 },
-                order: {
+                receipt: {
                     type: Object
                 },
                 name: {
@@ -297,7 +297,7 @@
                     reflectToAttribute: true
                 },
                 selectedItems: {
-                    observer: "_selectedOrdersChanged"
+                    observer: "_selectedReceiptsChanged"
                 }
             },
             behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
@@ -305,17 +305,17 @@
                 "_viewChanged(key,selected)"
             ],
             listeners: {
-                'receipt.tap': '_receiptOrder',
+                'receipt.tap': '_receiptReceipt',
                 'create.tap': '_createForm',
                 // 'reset.tap': '_reset',
-                // 'apply_changes.tap': '_updateOrder',
+                // 'apply_changes.tap': '_updateReceipt',
                 // 'delete.tap': '_deleteDialog',
-                'deleteAceptar.tap': '_deleteOrder'
+                'deleteAceptar.tap': '_deleteReceipt'
             },
-            _selectedOrdersChanged: function (ev) {
+            _selectedReceiptsChanged: function (ev) {
                 console.log(ev);
             },
-            _deleteOrder: function () {
+            _deleteReceipt: function () {
                 // console.log("entro aceptar");
                 this.$.deleteAjax.headers = {
                     'x-access-token': this.token
@@ -336,13 +336,13 @@
                 //Ocultar botonera
                 // this.$.botonera.style.display = "none";
                 //iniciar url
-                this.url = this.url_base + 'order'
+                this.url = this.url_base + 'receipt'
                 //cargar formulario
                 this._getForm().reallythis = this;
                 // cargar eventos del ajax
-                this.$.orderAjax.reallythis = this;
-                this.$.orderAjax.addEventListener('response', this._handleResponse.bind(this));
-                this.$.orderAjax.addEventListener('error', this._handleError.bind(this));
+                this.$.receiptAjax.reallythis = this;
+                this.$.receiptAjax.addEventListener('response', this._handleResponse.bind(this));
+                this.$.receiptAjax.addEventListener('error', this._handleError.bind(this));
                 ///
                 this.$.updateAjax.reallythis = this;
                 this.$.updateAjax.addEventListener('response', this._handleResponseUpdate.bind(this));
@@ -356,16 +356,16 @@
             },
             _handleResponse: function (response) {
                 // console.log(response.detail.response.data);
-                var order = response.detail.response.data;
-                this.order = order;
-                this.$.name.value = order.name;
-                this.$.description.value = order.description;
-                this.$.status.selected = order.status;
-                this.detailItems = order.detail;
-                console.log('order', order);
-                this.$.selectBusiness.value = order.business._id;
+                var receipt = response.detail.response.data;
+                this.receipt = receipt;
+                this.$.name.value = receipt.name;
+                this.$.description.value = receipt.description;
+                this.$.status.selected = receipt.status;
+                this.detailItems = receipt.detail;
+                console.log('receipt', receipt);
+                this.$.selectBusiness.value = receipt.business._id;
                 // console.log(this.$.status.selected);
-                if (order.status == 'ACTIVO') {
+                if (receipt.status == 'ACTIVO') {
                     this.$.delete.style.display = 'none';
                 }
             },
@@ -389,7 +389,7 @@
                 //this._viewChanged('');
                 this.set('route.path', '');
             },
-            _getOrder: function () {
+            _getReceipt: function () {
                 let reallythis = this;
                 let headers = new Headers({
                     'x-access-token': this.token,
@@ -437,7 +437,7 @@
                         console.log("error", err);
                     })
             },
-            _updateOrder: function (event) {
+            _updateReceipt: function (event) {
                 this.$.updateAjax.headers = {
                     'x-access-token': this.token
                 };
@@ -446,7 +446,7 @@
                 this.$.updateAjax.contentType = "application/x-www-form-urlencoded";
                 this.$.updateAjax.debounceDuration = "300";
                 var serialize = this._getForm().serialize();
-                // if (this.order.status == serialize.status) {
+                // if (this.receipt.status == serialize.status) {
                 //     this.showError('No se registraron cambios');
                 // } else {
                 this.$.updateAjax.body = serialize;
@@ -462,10 +462,10 @@
                 this._getForm().method = 'PUT';
                 this._getForm().action = this.url_base + 'document/' + this.key;
                 this._getForm().contentType = "application/x-www-form-urlencoded";
-                this.$.orderForm.submit();
+                this.$.receiptForm.submit();
             },
             _getForm: function () {
-                return this.$.orderForm;
+                return this.$.receiptForm;
             },
             _viewChanged: function () {
                 // debugger
@@ -474,14 +474,14 @@
                     this.key = '';
                     return;
                 } else {
-                    if (this.name === 'orden') {
+                    if (this.name === 'recepcion') {
                         //Cargar token cuando se ingrese a la pantalla de formulario
                         if (typeof window.localStorage.session !== "undefined") {
                             this.token = JSON.parse(window.localStorage.session).token;
                             this.business = JSON.parse(window.localStorage.session).business;
                         }
                         // Limpiar formulario
-                        this.$.orderForm.reset();
+                        this.$.receiptForm.reset();
                         //Prendemos los botones
                         // this.$.create.style.display = 'inline-block';
                         // this.$.reset.style.display = 'inline-block';
@@ -498,7 +498,7 @@
                             // this.$.description.style.display = 'none';
                             this.$.create.style.display = 'none';
                             this.$.reset.style.display = 'none';
-                            this._getOrder();
+                            this._getReceipt();
                         } else {
                             this.$.delete.style.display = 'none';
                             this.$.apply_changes.style.display = 'none';
@@ -507,7 +507,7 @@
                     }
                 }
             },
-            _receiptOrder: function () {
+            _receiptReceipt: function () {
                 let reallythis = this;
                 let headers = new Headers({
                     'x-access-token': this.token,
