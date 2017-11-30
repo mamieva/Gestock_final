@@ -185,7 +185,7 @@
             <iron-ajax id="updateAjax"></iron-ajax>
             <iron-ajax id="deleteAjax"></iron-ajax>
         </div>
-        <div class="container">
+        <div id="container" class="container">
             <h3>Recepción</h3>
             <form is="iron-form" method="POST" id="receiptForm">
                 <!-- <paper-input label="Empresa" name="business" id="selectBusiness"></paper-input> -->
@@ -232,9 +232,9 @@
                                 <template class="header">Cantidad</template>
                                 <template>
                                     <div class="cell">
-                                        <div class="cell">[[item.quantity]]</div>
-                                        <!-- <input type="text" id="quantity" name="quantity" value="{{item.quantity}}" style="text-align: right; width:50%">
-                                        </input> -->
+                                        <!-- <div class="cell">[[item.quantity]]</div> -->
+                                        <input type="text" id="[[index]]" class="quantity" style="text-align: right; width:50%">
+                                        </input>
                                     </div>
                                 </template>
                             </vaadin-grid-column>
@@ -320,6 +320,8 @@
             },
             _selectedItemsChanged: function (ev) {
                 console.log(ev);
+                let q = this.$.container.querySelectorAll(".quantity")[0].value;
+                console.log(q);
             },
             _deleteReceipt: function () {
                 // console.log("entro aceptar");
