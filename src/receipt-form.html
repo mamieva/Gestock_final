@@ -233,7 +233,7 @@
                                 <template>
                                     <div class="cell">
                                         <!-- <div class="cell">[[item.quantity]]</div> -->
-                                        <input type="text" id="[[index]]" class="quantity" style="text-align: right; width:50%">
+                                        <input type="text" id="[[item._id]]" class="quantity" style="text-align: right; width:50%">
                                         </input>
                                     </div>
                                 </template>
@@ -320,8 +320,17 @@
             },
             _selectedItemsChanged: function (ev) {
                 console.log(ev);
-                let q = this.$.container.querySelectorAll(".quantity")[0].value;
+                console.log(this.$.detailList.selectedItems);
+                let q = this.$.container.querySelectorAll(".quantity");
                 console.log(q);
+                let detailVal = Array();
+                q.forEach(element => {
+                    let obj = {};
+                    obj._id = element.id;
+                    obj.value = element.value;
+                    detailVal.push(obj);                                        
+                });
+                console.log(detailVal);
             },
             _deleteReceipt: function () {
                 // console.log("entro aceptar");
