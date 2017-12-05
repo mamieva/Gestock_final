@@ -233,7 +233,7 @@
                                 <template>
                                     <div class="cell">
                                         <!-- <div class="cell">[[item.quantity]]</div> -->
-                                        <input type="text" id="[[item._id]]" class="quantity" style="text-align: right; width:50%">
+                                        <input type="text" id="[[item._id]]" class="quantity" value="[[item.quantity]]" style="text-align: right; width:50%">
                                         </input>
                                     </div>
                                 </template>
@@ -299,9 +299,10 @@
                     reflectToAttribute: true
                 },
                 selectedItems: {
+                    value: [],
                     observer: "_selectedReceiptsChanged"
                 },
-                detailItems:{
+                detailItems: {
                     type: Array
                 }
             },
@@ -319,18 +320,16 @@
                 'deleteAceptar.tap': '_deleteReceipt'
             },
             _selectedItemsChanged: function (ev) {
-                console.log(ev);
-                console.log(this.$.detailList.selectedItems);
-                let q = this.$.container.querySelectorAll(".quantity");
-                console.log(q);
-                let detailVal = Array();
-                q.forEach(element => {
-                    let obj = {};
-                    obj._id = element.id;
-                    obj.value = element.value;
-                    detailVal.push(obj);                                        
-                });
-                console.log(detailVal);
+                if (this.$.detailList.selectedItems.length > 0) {
+                    let q = this.$.container.querySelectorAll(".quantity");
+                    let detailVal = Array();
+                    q.forEach(element => {
+                        let obj = {};
+                        obj._id = element.id;
+                        obj.value = element.value;
+                        detailVal.push(obj);
+                    });
+                }
             },
             _deleteReceipt: function () {
                 // console.log("entro aceptar");
@@ -440,7 +439,7 @@
                         reallythis.$.status.value = result.data.status;
                         // reallythis.$.receiver.value = result.data.receiver.businessName;
                         // reallythis.$.sender.value = result.data.sender.firstName + ' ' + result.data.sender
-                            // .lastName;
+                        // .lastName;
                         reallythis.detailItems = result.data.detail;
                         // reallythis.$.selectProduct.source = result.data.map(function (obj) {
                         //     return {
@@ -521,6 +520,7 @@
                             this.$.apply_changes.style.display = 'none';
                         }
                         this._getBusiness();
+                        this.$.detailList.selectedItems = [];
                     }
                 }
             },
@@ -535,19 +535,41 @@
                 // this.filterBody.filter.business = this.business;
                 // this.filterBody.filter.documentOrigin = this.key;
                 // this.filterBody.filter.documentType = 'ORDEN';
-                // let data = JSON.stringify(this.filterBody);
+
+                let data = {};
+                if (this.$.detailList.selectedItems.length > 0) {
+                    let selected = this.$.detailList.selectedItems;
+                    console.log("selected",selected);
+                    let q = this.$.container.querySelectorAll(".quantity");
+                    let detailVal = Array();
+                    q.forEach(element => {
+                        let obj = {};
+                        obj._id = element.id;
+                        obj.value = element.value;
+                        detailVal.push(obj);
+                    });
+
+                    selected.map(selected =>{
+                        let find = detailVal.find(find => find._id == selected._id);
+                        selected.quantity = find.value;
+                        return selected
+                    });     
+
+                    data.items = selected;               
+                }
                 // data.append('json',this.filterBody);
 
                 // data.append('json',JSON.stringify(this.filterBody));
-
+                console.log('dataaaa',data);
                 let init = {
                     method: 'POST',
                     headers: headers,
+                    body: JSON.stringify(data),
                     mode: 'cors',
                     cache: 'default'
                 };
 
-                var myRequest = new Request(this.url_base + 'document/' + this.key + '/generate-receipt',
+                var myRequest = new Request(this.url_base + 'document/' + this.key + '/accept-item',
                     init);
 
                 fetch(myRequest)
