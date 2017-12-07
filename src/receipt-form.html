@@ -190,11 +190,12 @@
             <form is="iron-form" method="POST" id="receiptForm">
                 <!-- <paper-input label="Empresa" name="business" id="selectBusiness"></paper-input> -->
                 <paper-autocomplete label="Empresa" name="business" id="selectBusiness"></paper-autocomplete>
-
-                <paper-input id="receiver" name="receiver" label="Receptor" required>
-                    <iron-icon icon="mail" prefix></iron-icon>
-                    <!--<div suffix>@email.com</div>-->
-                </paper-input>
+                <!-- <template is="dom-if" if="{{sender !== null}}"> -->
+                    <paper-input id="receiver" name="receiver" label="Receptor" required>
+                        <iron-icon icon="mail" prefix></iron-icon>
+                        <!--<div suffix>@email.com</div>-->
+                    </paper-input>
+                <!-- </template> -->
                 <paper-input id="sender" name="sender" label="Generado por">
                     <iron-icon icon="icons:description" prefix></iron-icon>
                 </paper-input>
@@ -304,6 +305,9 @@
                 },
                 detailItems: {
                     type: Array
+                },
+                sender:{
+                    type: Object
                 }
             },
             behaviors: [URLServiceBehaviors.URLService, FormBehaviors.FormBehavior],
@@ -375,6 +379,7 @@
                 var receipt = response.detail.response.data;
                 this.receipt = receipt;
                 this.$.name.value = receipt.name;
+                this.$.sender.value = receipt.sender.businessName;
                 this.$.description.value = receipt.description;
                 this.$.status.selected = receipt.status;
                 this.detailItems = receipt.detail;
@@ -436,6 +441,14 @@
                     })
                     .then(function (result) {
                         reallythis.$.selectBusiness.value = result.data.business._id;
+                        console.log(result.data.receiver);
+                        if(result.data.receiver !== null){
+                            reallythis.$.receiver.value = result.data.receiver.firstName;
+                        }
+                        else{
+                            reallythis.$.receiver.style.display = 'none';
+                        }
+                        reallythis.$.sender.value = result.data.sender.businessName;
                         reallythis.$.status.value = result.data.status;
                         // reallythis.$.receiver.value = result.data.receiver.businessName;
                         // reallythis.$.sender.value = result.data.sender.firstName + ' ' + result.data.sender
@@ -539,7 +552,7 @@
                 let data = {};
                 if (this.$.detailList.selectedItems.length > 0) {
                     let selected = this.$.detailList.selectedItems;
-                    console.log("selected",selected);
+                    console.log("selected", selected);
                     let q = this.$.container.querySelectorAll(".quantity");
                     let detailVal = Array();
                     q.forEach(element => {
@@ -549,18 +562,18 @@
                         detailVal.push(obj);
                     });
 
-                    selected.map(selected =>{
+                    selected.map(selected => {
                         let find = detailVal.find(find => find._id == selected._id);
                         selected.quantity = find.value;
                         return selected
-                    });     
+                    });
 
-                    data.items = selected;               
+                    data.items = selected;
                 }
                 // data.append('json',this.filterBody);
 
                 // data.append('json',JSON.stringify(this.filterBody));
-                console.log('dataaaa',data);
+                console.log('dataaaa', data);
                 let init = {
                     method: 'POST',
                     headers: headers,
